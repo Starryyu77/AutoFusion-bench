@@ -440,3 +440,131 @@ Interpretation:
   next experimental step should improve the semantic visual/audio feature
   producer or the modality-specific corruption design rather than trying to
   frame `cv2_stats` as the final paper evidence.
+
+## 2026-05-14 full MELD semantic-visual producer
+
+Implemented and ran the controlled semantic visual rerun requested after the
+external results review.
+
+Producer:
+
+```text
+video_source=semvis_clip
+semvis_model=openai/clip-vit-base-patch32
+semvis_frame_count=8
+audio_source=official_concat
+records={'train': 9989, 'validation': 1109, 'test': 2610}
+seeds=[0, 1, 2]
+```
+
+The first full semantic producer completed and generated all six tables, but the
+analysis runner rejected its original 128-row cached-feature head profile:
+
+```text
+budget-validity gate failed: cannot define tight tier from cost table with all
+unimodal legal, at least one bimodal legal, and TAV illegal
+```
+
+This was caused by unstable p95 timing in the small 128-row profiling batch. The
+profiler was changed to use up to 1024 validation rows, then the producer was
+rerun while reusing the completed semantic feature cache. The accepted output is:
+
+```text
+producer: /usr1/home/s125mdg43_10/projects/AutoFusion-bench/experiments/exp-001-decision-surface-pilot/outputs/meld-producer-semvis-profile1024
+analysis: /usr1/home/s125mdg43_10/projects/AutoFusion-bench/experiments/exp-001-decision-surface-pilot/outputs/meld-analysis-semvis-profile1024
+```
+
+Generated measured tables:
+
+```text
+cost_table.csv: 8 lines
+outcome_table.csv: 421 lines
+q_policy_map.csv: 6 lines
+q_proxy_table.csv: 3720 lines
+q_diagnostics.csv: 3 lines
+corruption_manifest.csv: 3720 lines
+```
+
+Analysis output:
+
+```text
+protocol_passed=True
+benchmark_signal_passed=False
+joint_policy_passed=True
+best_single_axis_oracle_regret_dt=1.869
+best_single_axis_policy=clean_best
+feasible_oracle_degraded_tight_macro_f1=25.679
+best_single_axis_degraded_tight_macro_f1=23.810
+joint_degraded_tight_macro_f1=25.679
+joint_gap_closure=1.000
+pooled_standard_error=0.215
+kendall_tau_b_clean_loose_vs_degraded_tight=0.905
+rank_inversion_index=0.048
+```
+
+Budget gate:
+
+```text
+p95 spread=4.011
+tight=18.341 ms
+loose=23.033 ms
+tight legal templates=T|A|V|TA|TV
+loose legal templates=T|A|V|TA|TV|AV|TAV
+TAV-vs-unimodal p95 ratio=1.140
+warning: preferred TAV-vs-unimodal cost separation not met: 1.140 < 1.250
+```
+
+Gate checks:
+
+```text
+budget_validity_gate=True
+reliability_proxy_boundary_check=True
+q_only_task_classifier=True
+q_shuffle_control=True
+class_stratified_corruption_check=True
+post_mask_budget_legality_contract=True
+```
+
+Policy summary highlights:
+
+```text
+degraded_tight feasible_oracle=25.679
+degraded_tight joint=25.679
+degraded_tight clean_best=23.810
+degraded_tight budget_only=23.810
+degraded_tight reliability_only=19.443
+degraded_tight static_full=23.810
+degraded_tight random_legal=15.770
+reliability_only degraded_tight pre_mask_illegal_proposal_rate=0.250
+post_mask_budget_violation_rate=0 for executed policies
+```
+
+Template means on test:
+
+```text
+clean_loose: T=34.708, TV=28.958, TAV=21.883, TA=18.765, V=16.758, AV=16.250, A=11.979
+degraded_tight: T=23.810, TV=17.176, TA=13.958, TAV=13.257, V=13.158, AV=11.287, A=10.746
+```
+
+Runtime notes:
+
+- Full semantic CLIP feature extraction completed on `ntu-gpu43` with
+  `CUDA_VISIBLE_DEVICES=2`.
+- One corrupt MELD MP4 produced `moov atom not found`; the semantic producer
+  tolerated it by assigning a zero semantic visual vector.
+- The sklearn logistic heads emitted convergence warnings under semantic visual
+  features. The run completed and is interpretable as a feature-level diagnostic
+  result, but the warnings should be mentioned if this line is revisited.
+
+Interpretation:
+
+- Semantic visual features increased the oracle gap from `0.740` in the cv2 run
+  to `1.869`, so the earlier producer was indeed too weak.
+- The result is still below the 3 macro-F1 positive threshold and Kendall tau-b
+  remains high (`0.905`), with very low rank inversion (`0.048`).
+- `T` remains the dominant template in both clean-loose and degraded-tight; MELD
+  still appears strongly text-dominant under this feature-level setup.
+- This run is `negative-but-diagnostic`, not a positive AutoFusion-Bench result.
+  It supports the interpretation that semantic visual features help, but not
+  enough to make MELD a strong primary benchmark-signal dataset under the
+  current degradation design.
