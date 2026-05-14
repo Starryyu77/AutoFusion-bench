@@ -1,0 +1,19 @@
+hardware:
+  target: ntu-gpu43
+  gpu_type: RTX_A5000_24GB
+execution:
+  mode: direct_ssh_tmux
+work_root: /usr1/home/s125mdg43_10/projects/AutoFusion-bench
+dataset:
+  priority: MELD_first
+  fallback: MOSEI_or_MOSI_protocol_only
+protocol:
+  feature_level: true
+  reliability_regimes: clean|degraded
+  degraded_slices: degraded_text|degraded_audio|degraded_video|mixed_degraded
+  budget_tiers: loose|tight
+  templates: T|A|V|TA|TV|AV|TAV
+  policies: random_legal|clean_best|static_full|budget_only|reliability_only|joint|feasible_oracle
+  seeds: 3
+  primary_metric: best_single_axis_oracle_regret_dt
+  budget_definition: cost_table_only_before_outcomes

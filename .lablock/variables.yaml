@@ -1,5 +1,15 @@
 # Canonical variable registry for paper and experiment maintenance.
 # Use stable var_id values in experiment metadata; keep paper labels human-readable.
 version: 1
-variables: []
-
+variables:
+  - var_id: var-001
+    canonical_name: evaluation_surface
+    paper_label: Reliability-budget decision surface
+    code_keys:
+      - evaluation.surface
+      - protocol.condition_grid
+    type: categorical
+    role: independent_variable
+    allowed_values:
+      - clean_only
+      - reliability_budget_2x2

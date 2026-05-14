@@ -3,6 +3,7 @@
 .lablock/cache/
 .lablock/dashboard/
 .git/lablock-commit-meta.json
+.DS_Store
 
 # Common ML
 *.ckpt

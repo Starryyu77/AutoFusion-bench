@@ -1,11 +1,11 @@
 <!-- GENERATED FILE - DO NOT EDIT -->
-<!-- Last generated: 2026-05-14T01:46:22.843Z -->
+<!-- Last generated: 2026-05-14T02:33:55.052Z -->
 
 # Project Map
 
 ## Active Experiments
 
-(None)
+- exp-001
 
 ## Formalism
 
@@ -17,5 +17,22 @@
 
 ## Recent Files
 
+- .claude/settings.json
+- .gitattributes
+- .github/workflows/lablock.yml
+- .gitignore
+- .lablock/config.yaml
+- .lablock/learnings.jsonl
+- .lablock/matrices.yaml
+- .lablock/naming.yaml
+- .lablock/variables.yaml
+- AGENTS.md
+- CLAUDE.md
+- INDEX.md
+- MAP.md
+- PROJECT.md
+- claims.md
+- experiments/matrix.md
+- formalism.md
 - LICENSE
 - README.md

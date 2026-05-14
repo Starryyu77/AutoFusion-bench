@@ -1,0 +1,76 @@
+exp_id: exp-001
+shortname: decision-surface-pilot
+hypothesis: >-
+  A frozen feature-level tri-modal reliability-budget surface reveals a degraded-tight decision gap: feasible oracle
+  beats the best single-axis policy by >=3 macro-F1 points and >=1.5x pooled SE within 60 GPU-hours after data
+  preparation on ntu-gpu43.
+parent: null
+created: '2026-05-14'
+status: active
+locked_invariants:
+  config:
+    hardware:
+      target: ntu-gpu43
+      gpu_type: RTX_A5000_24GB
+    execution:
+      mode: direct_ssh_tmux
+    work_root: /usr1/home/s125mdg43_10/projects/AutoFusion-bench
+    dataset:
+      priority: MELD_first
+      fallback: MOSEI_or_MOSI_protocol_only
+    protocol:
+      feature_level: true
+      reliability_regimes: clean|degraded
+      degraded_slices: degraded_text|degraded_audio|degraded_video|mixed_degraded
+      budget_tiers: loose|tight
+      templates: T|A|V|TA|TV|AV|TAV
+      policies: random_legal|clean_best|static_full|budget_only|reliability_only|joint|feasible_oracle
+      seeds: 3
+      primary_metric: best_single_axis_oracle_regret_dt
+      budget_definition: cost_table_only_before_outcomes
+  files:
+    - path: infra/gpu/2026-05-14-ntu-gpu43-cleanup.md
+      hash: sha256:0e5022f976178e36af6229f3e488b23ff372dc7ce741784413ab57a91af953b0
+      reason: server cleanup and execution boundary
+  probes: []
+controlled_changes:
+  added:
+    - plans/2026-05-14-exp-decision-surface-pilot.md
+    - infra/gpu/2026-05-14-ntu-gpu43-cleanup.md
+    - handoffs/incoming/2026-05-14-decision-surface-pilot-review.md
+  removed: []
+  modified:
+    - evaluation_surface
+    - dataset_manifest
+    - corruption_manifest
+    - template_registry
+    - cost_table
+    - outcome_table
+    - policy_diagnostics
+    - reliability_proxy_boundary
+    - leakage_checks
+naming:
+  matrix_id: mat-001
+  variable_id: var-001
+  canonical_variable: evaluation_surface
+  variant_value: reliability_budget_2x2
+  paper_label: Reliability-budget decision surface
+kill_criteria:
+  - dataset acquisition blocks >1 day
+  - MELD modality-diversity smoke fails
+  - setup smoke exceeds 4 GPU-hours
+  - budget-validity gate fails
+  - outcome table exceeds 60 GPU-hours after data prep
+  - calendar exceeds 3 days after data prep
+  - tight budget defined after task outcomes
+  - post-mask legality permits over-budget execution
+  - seed instability exceeds 5 macro-F1 points for most templates
+  - leakage checks invalidate q
+success_criteria:
+  - protocol artifacts complete
+  - cost table complete
+  - outcome table complete
+  - budget-validity and leakage gates pass
+  - best_single_axis_oracle_regret_dt >=3 macro-F1 and >=1.5x pooled SE or Kendall tau-b <=0.3
+  - joint_gap_closure >=30%
+  - post_mask_budget_violation_rate <=1%

@@ -1,5 +1,17 @@
 # Experiment matrix registry for ablations, sweeps, and paper tables.
 # A matrix groups related experiments by shared research question and variable axes.
 version: 1
-matrices: []
-
+matrices:
+  - matrix_id: mat-001
+    slug: decision-surface-protocol-validation
+    research_question: Does a reliability-budget condition grid reveal fusion-template decision failures that clean-only or single-axis evaluation hides?
+    primary_variable: evaluation_surface
+    controlled_axes:
+      - dataset
+      - template_registry
+      - feature_extractor
+      - seeds
+      - hardware_target
+      - budget_definition
+      - reliability_proxy_boundary
+    likely_paper_target: pilot diagnostic table
