@@ -39,6 +39,12 @@ from .meld_schema import (
     MeldRecord,
 )
 
+MODALITY_FEATURE_KEYS = {
+    "T": "text",
+    "A": "audio",
+    "V": "video",
+}
+
 
 @dataclass(frozen=True)
 class ProducerInputs:
@@ -384,9 +390,10 @@ def build_matrix(
     rows = bundle.records[split]
     parts: list[np.ndarray] = []
     for modality in TEMPLATE_MODALITIES[template]:
+        feature_key = MODALITY_FEATURE_KEYS[modality]
         modality_features = []
         for record in rows:
-            vector = bundle.features[modality][record.sample_id]
+            vector = bundle.features[feature_key][record.sample_id]
             vector = apply_degradation(vector, modality=modality, slice_name=slice_name, record=record, seed=seed)
             modality_features.append(vector)
         parts.append(np.vstack(modality_features))
@@ -672,4 +679,3 @@ def _stable_seed(sample_id: str, modality: str, seed: int) -> int:
 def _stable_hash_float(value: str) -> float:
     digest = hashlib.sha256(value.encode()).digest()
     return int.from_bytes(digest[:4], "little") / float(2**32)
-

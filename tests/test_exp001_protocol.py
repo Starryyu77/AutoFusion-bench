@@ -5,7 +5,12 @@ import tempfile
 import unittest
 
 from autofusion_bench.exp001.costs import build_budget_profile, load_cost_table
-from autofusion_bench.exp001.meld_producer import build_feature_bundle, load_annotations, parse_timestamp_seconds
+from autofusion_bench.exp001.meld_producer import (
+    build_feature_bundle,
+    build_matrix,
+    load_annotations,
+    parse_timestamp_seconds,
+)
 from autofusion_bench.exp001.runner import run_exp001
 
 
@@ -65,6 +70,9 @@ class Exp001ProtocolTests(unittest.TestCase):
             bundle = build_feature_bundle(records, features_dir=features, raw_root=None, video_source="pickle")
             self.assertEqual(bundle.features["text"]["train:0_0"].shape, (2,))
             self.assertIn("visual_embeddings_feature_selection_emotion.pkl", bundle.sources["video"])
+            matrix, labels = build_matrix(bundle, "train", "TAV", slice_name="clean", seed=0)
+            self.assertEqual(matrix.shape, (2, 6))
+            self.assertEqual(labels.tolist(), [0, 4])
 
     def test_parse_meld_timestamp_seconds(self) -> None:
         self.assertAlmostEqual(parse_timestamp_seconds("00:14:38,127"), 878.127)
