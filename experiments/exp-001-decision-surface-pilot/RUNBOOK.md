@@ -258,6 +258,10 @@ utterance-level visual vector. It is still a feature-level producer: the current
 cost table is the cached-feature template-head decision cost, not an end-to-end
 deployment latency claim.
 
+Cost profiling uses up to 1024 validation rows per template to reduce Python and
+BLAS overhead noise. Small smoke subsets can still fail the budget-validity gate;
+use them only to verify producer plumbing, not to judge the budget surface.
+
 Then run the exp-001 analysis runner over the measured tables:
 
 ```bash

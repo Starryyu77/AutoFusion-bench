@@ -875,7 +875,7 @@ def apply_degradation(
 
 def profile_template(bundle: FeatureBundle, model: Any, *, template: str, repeats: int = 120) -> dict[str, float]:
     x_eval, _ = build_matrix(bundle, "validation", template, slice_name=CLEAN_SLICE, seed=0)
-    batch_size = min(128, len(x_eval))
+    batch_size = min(1024, len(x_eval))
     sample = x_eval[:batch_size]
     timings: list[float] = []
     for _ in range(10):
