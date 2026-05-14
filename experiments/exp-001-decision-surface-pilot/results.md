@@ -120,3 +120,33 @@ tri-modal producer path via raw MP4 file-stat visual features.
 
 This is dataset staging progress only. No empirical outcome table has been
 generated yet.
+
+## 2026-05-14 producer plumbing smoke
+
+Remote command:
+
+```bash
+python3 -m autofusion_bench.exp001.run_meld_table_producer \
+  --annotations-dir /usr1/home/s125mdg43_10/datasets/MELD/annotations \
+  --features-dir /usr1/home/s125mdg43_10/datasets/MELD/official/features \
+  --video-source annotation_proxy \
+  --output experiments/exp-001-decision-surface-pilot/outputs/meld-producer-plumbing-smoke \
+  --seeds 0 \
+  --max-train-samples 700 \
+  --max-eval-samples 280
+```
+
+Observed:
+
+```text
+records={'train': 700, 'validation': 280, 'test': 280}
+feature_sources={
+  'text': '.../text_glove_average_emotion.pkl',
+  'audio': '.../audio_embeddings_feature_selection_emotion.pkl',
+  'video': 'annotation_proxy_not_empirical_visual'
+}
+```
+
+Interpretation: producer plumbing can read staged MELD annotations and official
+text/audio features and can emit all six table schemas. This output is not
+benchmark evidence because visual features came from `annotation_proxy`.
