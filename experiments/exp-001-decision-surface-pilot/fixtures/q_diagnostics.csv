@@ -1,0 +1,4 @@
+check,value,threshold,passed,notes
+q_only_task_classifier,28.0,40.0,true,fixture diagnostic: q-only task signal below suspicious threshold
+q_shuffle_control,5.0,1.0,true,fixture diagnostic: shuffled q degrades joint policy
+

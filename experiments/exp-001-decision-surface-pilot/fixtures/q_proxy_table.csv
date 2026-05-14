@@ -1,0 +1,10 @@
+sample_id,split,missing_text,missing_audio,missing_video,text_feature_norm,audio_snr,video_face_confidence,unimodal_entropy_text,unimodal_entropy_audio,unimodal_entropy_video
+qv_0001,validation,0,0,0,1.02,18.0,0.92,0.21,0.30,0.28
+qv_0002,validation,0,0,0,0.41,19.0,0.89,0.61,0.31,0.29
+qv_0003,validation,0,0,0,1.01,4.2,0.88,0.22,0.71,0.30
+qv_0004,validation,0,0,0,0.99,17.5,0.22,0.24,0.29,0.76
+qt_0001,test,0,0,0,1.00,18.2,0.91,0.22,0.29,0.30
+qt_0002,test,0,0,0,0.39,18.7,0.90,0.64,0.30,0.28
+qt_0003,test,0,0,0,1.03,4.0,0.87,0.23,0.74,0.31
+qt_0004,test,0,0,0,1.00,17.9,0.21,0.25,0.31,0.78
+

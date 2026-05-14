@@ -1,0 +1,7 @@
+slice,proposed_template,proxy_bucket,notes
+clean,TAV,all_modalities_reliable,fixture proxy proposal for clean inputs
+degraded_text,AV,low_text_quality,fixture proxy proposal avoids text
+degraded_audio,TV,low_audio_quality,fixture proxy proposal avoids audio
+degraded_video,TA,low_video_quality,fixture proxy proposal avoids video
+mixed_degraded,T,mixed_uncertain_text_anchor,fixture proxy proposal uses text anchor
+
