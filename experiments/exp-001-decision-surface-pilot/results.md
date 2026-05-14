@@ -50,3 +50,40 @@ an empirical AutoFusion-Bench result and must not be cited as benchmark evidence
 - generate real cost, outcome, q-proxy, q-diagnostic, and corruption manifest
   files
 - run the analysis runner on measured tables
+
+## 2026-05-14 ntu-gpu43 fixture smoke
+
+Server path:
+
+```text
+/usr1/home/s125mdg43_10/projects/AutoFusion-bench
+```
+
+Remote commit:
+
+```text
+0fb34e3
+```
+
+Remote checks:
+
+```bash
+python3 -m unittest tests.test_exp001_protocol
+python3 -m autofusion_bench.exp001.run_decision_surface_pilot \
+  --config experiments/exp-001-decision-surface-pilot/config.yaml \
+  --fixture-smoke
+```
+
+Observed fixture output matched local smoke:
+
+```text
+best_single_axis_oracle_regret_dt=7.000
+best_single_axis_policy=clean_best
+joint_gap_closure=1.0
+protocol_passed=True
+benchmark_signal_passed=True
+joint_policy_passed=True
+```
+
+Interpretation: server code bring-up is complete. This is still a fixture smoke,
+not a MELD empirical result.
