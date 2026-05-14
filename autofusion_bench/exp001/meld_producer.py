@@ -45,6 +45,8 @@ MODALITY_FEATURE_KEYS = {
     "V": "video",
 }
 
+CV2_VIDEO_FEATURE_DIM = 97
+
 
 @dataclass(frozen=True)
 class ProducerInputs:
@@ -381,25 +383,29 @@ def build_raw_video_stats(records: dict[str, list[MeldRecord]], raw_root: Path) 
             if video_path is None:
                 missing.append(f"{split}:{record.raw_filename}")
                 continue
-            size = video_path.stat().st_size
-            duration = max(parse_timestamp_seconds(record.end_time) - parse_timestamp_seconds(record.start_time), 0.0)
-            output[record.sample_id] = np.array(
-                [
-                    math.log1p(size),
-                    duration,
-                    record.season,
-                    record.episode,
-                    record.dialogue_id / 1000.0,
-                    record.utterance_id / 50.0,
-                    size / max(duration, 0.1),
-                    len(record.utterance),
-                ],
-                dtype=np.float32,
-            )
+            output[record.sample_id] = raw_video_stat_vector(record, video_path)
     if missing:
         preview = ", ".join(missing[:5])
         raise ProtocolError(f"missing raw video files for {len(missing)} MELD rows; examples: {preview}")
     return output
+
+
+def raw_video_stat_vector(record: MeldRecord, video_path: Path) -> np.ndarray:
+    size = video_path.stat().st_size
+    duration = max(parse_timestamp_seconds(record.end_time) - parse_timestamp_seconds(record.start_time), 0.0)
+    return np.array(
+        [
+            math.log1p(size),
+            duration,
+            record.season,
+            record.episode,
+            record.dialogue_id / 1000.0,
+            record.utterance_id / 50.0,
+            size / max(duration, 0.1),
+            len(record.utterance),
+        ],
+        dtype=np.float32,
+    )
 
 
 def build_cv2_video_stats(
@@ -438,7 +444,10 @@ def build_cv2_video_stats(
         if video_path is None:
             missing.append(f"{record.split}:{record.raw_filename}")
             continue
-        vector = extract_cv2_video_feature(video_path, frame_count=frame_count, cv2=cv2)
+        try:
+            vector = extract_cv2_video_feature(video_path, frame_count=frame_count, cv2=cv2)
+        except ProtocolError:
+            vector = _pad_feature(raw_video_stat_vector(record, video_path), CV2_VIDEO_FEATURE_DIM)
         cache[record.sample_id] = vector
         output[record.sample_id] = vector
         computed += 1
@@ -913,6 +922,17 @@ def _flatten_feature(value: Any) -> np.ndarray:
     if array.ndim == 0:
         array = array.reshape(1)
     return array.reshape(-1)
+
+
+def _pad_feature(value: np.ndarray, target_dim: int) -> np.ndarray:
+    value = value.astype(np.float32).reshape(-1)
+    if value.shape[0] == target_dim:
+        return value
+    if value.shape[0] > target_dim:
+        return value[:target_dim]
+    output = np.zeros(target_dim, dtype=np.float32)
+    output[: value.shape[0]] = value
+    return output
 
 
 def _stable_seed(sample_id: str, modality: str, seed: int) -> int:
