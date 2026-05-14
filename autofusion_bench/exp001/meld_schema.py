@@ -46,9 +46,9 @@ FEATURE_PICKLE_CANDIDATES = {
 }
 
 RAW_SPLIT_DIRS = {
-    "train": ("train", "output_repeated_splits_train"),
-    "validation": ("dev", "output_repeated_splits_dev"),
-    "test": ("test", "output_repeated_splits_test"),
+    "train": ("train/train_splits", "train", "output_repeated_splits_train"),
+    "validation": ("dev/dev_splits_complete", "dev", "output_repeated_splits_dev"),
+    "test": ("test/output_repeated_splits_test", "test", "output_repeated_splits_test"),
 }
 
 
@@ -76,4 +76,3 @@ class MeldRecord:
 
 def expected_annotation_path(root: Path, split: str) -> Path:
     return root / ANNOTATION_FILES[split]
-

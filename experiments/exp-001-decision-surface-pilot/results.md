@@ -118,6 +118,15 @@ and model weights, but no visual feature pickles. `MELD.Raw.tar.gz` download was
 started in remote tmux session `meld_raw_download` to support the first complete
 tri-modal producer path via raw MP4 file-stat visual features.
 
+Raw staging completed:
+
+```text
+raw archive size: 10878146150 bytes
+raw archive sha256: a56b4407d574195cbce470d86f9c9d72fcfea59b0e34502ecd4babee4a5c613e
+raw root: /usr1/home/s125mdg43_10/datasets/MELD/official/raw/MELD.Raw
+mp4 files observed: 15908
+```
+
 This is dataset staging progress only. No empirical outcome table has been
 generated yet.
 
