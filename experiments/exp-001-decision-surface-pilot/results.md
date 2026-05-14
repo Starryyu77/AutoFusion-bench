@@ -1,6 +1,7 @@
 # Results: exp-001
 
-Status: protocol runner implemented; empirical MELD run not started.
+Status: full MELD feature-level runs completed; protocol passed, but the current
+MELD producers do not pass the benchmark-signal criterion.
 
 ## 2026-05-14 protocol fixture smoke
 
@@ -50,6 +51,10 @@ an empirical AutoFusion-Bench result and must not be cited as benchmark evidence
 - generate real cost, outcome, q-proxy, q-diagnostic, and corruption manifest
   files
 - run the analysis runner on measured tables
+
+This checklist was completed on 2026-05-14 for the first raw-stats producer and
+the later decoded-video/audio-concat producer. It remains here as historical
+bring-up context.
 
 ## 2026-05-14 ntu-gpu43 fixture smoke
 
@@ -327,3 +332,111 @@ patched to tolerate such files. The final full decoded-video run has not yet
 been confirmed because `gpu43.dynip.ntu.edu.sg` temporarily stopped resolving
 from this machine. Resume by pulling latest `main` on `ntu-gpu43` and rerunning
 the full `cv2_stats` producer command; existing cache should allow continuation.
+
+## 2026-05-14 full MELD decoded-video/audio-concat producer
+
+After DNS recovered, `ntu-gpu43` was reachable again:
+
+```text
+host: gpu43
+user: s125mdg43_10
+time: 2026-05-14 16:58 +08
+```
+
+Remote repo was fast-forwarded to `5666227`. The full decoded-video producer had
+already completed before the local DNS failure was confirmed. The existing full
+producer output was therefore used, and a duplicate tmux rerun was stopped after
+verifying that all six runner input tables were present.
+
+Producer output:
+
+```text
+output: /usr1/home/s125mdg43_10/projects/AutoFusion-bench/experiments/exp-001-decision-surface-pilot/outputs/meld-producer-cv2
+records={'train': 9989, 'validation': 1109, 'test': 2610}
+seeds=[0, 1, 2]
+text=official text_glove_average_emotion.pkl
+audio=official audio_embeddings_feature_selection_emotion.pkl + audio_emotion.pkl
+video=cv2_stats over raw MELD MP4 files
+```
+
+Generated measured tables:
+
+```text
+cost_table.csv: 8 lines
+outcome_table.csv: 421 lines
+q_policy_map.csv: 6 lines
+q_proxy_table.csv: 3720 lines
+q_diagnostics.csv: 3 lines
+corruption_manifest.csv: 3720 lines
+```
+
+Analysis output:
+
+```text
+output: /usr1/home/s125mdg43_10/projects/AutoFusion-bench/experiments/exp-001-decision-surface-pilot/outputs/meld-analysis-cv2
+protocol_passed=True
+benchmark_signal_passed=False
+joint_policy_passed=True
+best_single_axis_oracle_regret_dt=0.740
+best_single_axis_policy=budget_only
+feasible_oracle_degraded_tight_macro_f1=24.550
+best_single_axis_degraded_tight_macro_f1=23.810
+joint_degraded_tight_macro_f1=24.269
+joint_gap_closure=0.620
+pooled_standard_error=0.215
+kendall_tau_b_clean_loose_vs_degraded_tight=0.619
+rank_inversion_index=0.190
+```
+
+Budget gate:
+
+```text
+p95 spread=41.887
+tight=4.176 ms
+loose=10.241 ms
+tight legal templates=T|A|V|TV
+loose legal templates=T|A|V|TA|TV|AV|TAV
+TAV-vs-unimodal p95 ratio=2.336
+warnings=[]
+```
+
+Gate checks:
+
+```text
+budget_validity_gate=True
+reliability_proxy_boundary_check=True
+q_only_task_classifier=True
+q_shuffle_control=True
+class_stratified_corruption_check=True
+post_mask_budget_legality_contract=True
+```
+
+Policy summary highlights:
+
+```text
+degraded_tight feasible_oracle=24.550
+degraded_tight budget_only=23.810
+degraded_tight joint=24.269
+degraded_tight reliability_only=15.302
+degraded_tight clean_best=11.487
+degraded_tight static_full=11.487
+degraded_tight random_legal=13.132
+reliability_only degraded_tight pre_mask_illegal_proposal_rate=0.500
+post_mask_budget_violation_rate=0 for executed policies
+```
+
+Interpretation:
+
+- This is a real full MELD feature-level run with decoded video statistics and
+  concatenated official audio features.
+- It passes protocol, budget-validity, leakage-boundary, q-diagnostic,
+  corruption-stratification, and post-mask legality gates.
+- It still does not pass the benchmark-signal criterion. The primary regret is
+  only `0.740` macro-F1 points, far below the required `3.0`, although it is
+  above the pooled-SE noise check.
+- The small-sample smoke signal did not survive the full run. The full result
+  should be recorded as operational success but benchmark-signal negative.
+- This producer should not be used as a positive AutoFusion-Bench result. The
+  next experimental step should improve the semantic visual/audio feature
+  producer or the modality-specific corruption design rather than trying to
+  frame `cv2_stats` as the final paper evidence.
