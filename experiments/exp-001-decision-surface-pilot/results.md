@@ -246,3 +246,84 @@ Interpretation:
 - Next experimental step should improve the visual/audio feature producer or
   switch to a stronger visual feature source before treating MELD as the paper
   pilot.
+
+## 2026-05-14 decoded-video producer improvement
+
+Implemented producer changes:
+
+```text
+video_source=cv2_stats
+audio_source=official_concat
+```
+
+`cv2_stats` decodes real MELD MP4 frames with OpenCV and computes frame-level
+color, HSV, texture, histogram, motion, and metadata statistics. It uses a
+feature cache under the producer output directory. If a raw MP4 is corrupt or
+not decodable, that sample falls back to padded raw file-stat features so one bad
+video cannot invalidate the whole table.
+
+`official_concat` keeps the full utterance-level official audio feature and adds
+the official dialogue-sequence audio feature when it covers every requested
+utterance.
+
+Remote dependency setup:
+
+```text
+/usr1/home/s125mdg43_10/projects/AutoFusion-bench/.deps/opencv
+opencv-python-headless==4.10.0.84
+```
+
+Small-sample decoded-video smoke:
+
+```bash
+PYTHONPATH=.deps/opencv python3 -m autofusion_bench.exp001.run_meld_table_producer \
+  --annotations-dir /usr1/home/s125mdg43_10/datasets/MELD/annotations \
+  --features-dir /usr1/home/s125mdg43_10/datasets/MELD/official/features \
+  --raw-root /usr1/home/s125mdg43_10/datasets/MELD/official/raw/MELD.Raw \
+  --video-source cv2_stats \
+  --audio-source official_concat \
+  --output experiments/exp-001-decision-surface-pilot/outputs/meld-producer-cv2-smoke \
+  --seeds 0 \
+  --max-train-samples 700 \
+  --max-eval-samples 280
+```
+
+Smoke result:
+
+```text
+records={'train': 700, 'validation': 280, 'test': 280}
+feature_sources={
+  'text': '.../text_glove_average_emotion.pkl',
+  'audio': '.../audio_embeddings_feature_selection_emotion.pkl+.../audio_emotion.pkl',
+  'video': 'cv2_stats:/usr1/home/s125mdg43_10/datasets/MELD/official/raw/MELD.Raw'
+}
+```
+
+Smoke analysis result:
+
+```text
+protocol_passed=True
+benchmark_signal_passed=True
+joint_policy_passed=True
+best_single_axis_oracle_regret_dt=3.420
+joint_gap_closure=0.950
+```
+
+Interpretation: decoded-video/audio-concat producer is promising on a small
+sample, but this is still a smoke result. It is not the final exp-001 empirical
+result.
+
+Full decoded-video producer was started on `ntu-gpu43`, but the local SSH
+connection dropped with:
+
+```text
+No route to host
+Broken pipe
+```
+
+At last verified progress, the cv2 feature cache contained `7750` records. A
+later foreground run hit one corrupt MP4 (`dia125_utt3.mp4`) and the producer was
+patched to tolerate such files. The final full decoded-video run has not yet
+been confirmed because `gpu43.dynip.ntu.edu.sg` temporarily stopped resolving
+from this machine. Resume by pulling latest `main` on `ntu-gpu43` and rerunning
+the full `cv2_stats` producer command; existing cache should allow continuation.
