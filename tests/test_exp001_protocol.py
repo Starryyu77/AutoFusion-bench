@@ -74,6 +74,47 @@ class Exp001ProtocolTests(unittest.TestCase):
             self.assertEqual(matrix.shape, (2, 6))
             self.assertEqual(labels.tolist(), [0, 4])
 
+    def test_meld_audio_concat_uses_dialogue_sequence_features(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            annotations = root / "annotations"
+            features = root / "features"
+            annotations.mkdir()
+            features.mkdir()
+            for filename in ("train_sent_emo.csv", "dev_sent_emo.csv", "test_sent_emo.csv"):
+                _write_annotation(annotations / filename)
+            base_payload = [
+                {"0_0": [1.0, 0.0], "0_1": [0.5, 0.5]},
+                {"0_0": [0.0, 1.0], "0_1": [0.2, 0.8]},
+                {"0_0": [0.3, 0.7], "0_1": [0.9, 0.1]},
+            ]
+            sequence_payload = [
+                {0: [[2.0, 0.0], [2.0, 1.0]]},
+                {0: [[3.0, 0.0], [3.0, 1.0]]},
+                {0: [[4.0, 0.0], [4.0, 1.0]]},
+            ]
+            for filename in (
+                "text_glove_average_emotion.pkl",
+                "visual_embeddings_feature_selection_emotion.pkl",
+            ):
+                with (features / filename).open("wb") as handle:
+                    pickle.dump(base_payload, handle)
+            with (features / "audio_embeddings_feature_selection_emotion.pkl").open("wb") as handle:
+                pickle.dump(base_payload, handle)
+            with (features / "audio_emotion.pkl").open("wb") as handle:
+                pickle.dump(sequence_payload, handle)
+
+            records = load_annotations(annotations)
+            bundle = build_feature_bundle(
+                records,
+                features_dir=features,
+                raw_root=None,
+                video_source="pickle",
+                audio_source="official_concat",
+            )
+            self.assertEqual(bundle.features["audio"]["train:0_0"].shape, (4,))
+            self.assertEqual(bundle.features["audio"]["train:0_1"].tolist(), [0.5, 0.5, 2.0, 1.0])
+
     def test_parse_meld_timestamp_seconds(self) -> None:
         self.assertAlmostEqual(parse_timestamp_seconds("00:14:38,127"), 878.127)
         self.assertAlmostEqual(parse_timestamp_seconds("0:10:46,146"), 646.146)

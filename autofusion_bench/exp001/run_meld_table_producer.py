@@ -22,6 +22,10 @@ def main(argv: list[str] | None = None) -> int:
                 output_dir=Path(args.output),
                 seeds=seeds,
                 video_source=args.video_source,
+                audio_source=args.audio_source,
+                feature_cache_dir=Path(args.feature_cache_dir)
+                if args.feature_cache_dir
+                else Path(args.output) / "feature-cache",
                 max_train_samples=args.max_train_samples,
                 max_eval_samples=args.max_eval_samples,
             )
@@ -49,10 +53,17 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--raw-root", default=None)
     parser.add_argument(
         "--video-source",
-        choices=("pickle", "raw_stats", "annotation_proxy"),
+        choices=("pickle", "raw_stats", "cv2_stats", "annotation_proxy"),
         default="pickle",
-        help="Use pickle for real visual features, raw_stats for raw MP4 file-stat features, or annotation_proxy only for smoke.",
+        help="Use pickle for visual pickles, cv2_stats for decoded MP4 frame features, raw_stats for file-stat features, or annotation_proxy only for smoke.",
     )
+    parser.add_argument(
+        "--audio-source",
+        choices=("official_full", "official_concat"),
+        default="official_concat",
+        help="official_concat adds full utterance-level audio embeddings plus dialogue-sequence audio features when complete.",
+    )
+    parser.add_argument("--feature-cache-dir", default=None)
     parser.add_argument(
         "--output",
         default="experiments/exp-001-decision-surface-pilot/outputs/meld-producer",
@@ -65,4 +76,3 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -54,6 +54,8 @@ class ProducerInputs:
     output_dir: Path
     seeds: tuple[int, ...]
     video_source: str
+    audio_source: str = "official_concat"
+    feature_cache_dir: Path | None = None
     max_train_samples: int | None = None
     max_eval_samples: int | None = None
 
@@ -73,6 +75,8 @@ def produce_meld_tables(inputs: ProducerInputs) -> dict[str, Any]:
         features_dir=inputs.features_dir,
         raw_root=inputs.raw_root,
         video_source=inputs.video_source,
+        audio_source=inputs.audio_source,
+        feature_cache_dir=inputs.feature_cache_dir,
     )
 
     train_rows = bundle.records["train"]
@@ -133,6 +137,7 @@ def produce_meld_tables(inputs: ProducerInputs) -> dict[str, Any]:
         "feature_sources": bundle.sources,
         "seeds": list(inputs.seeds),
         "video_source": inputs.video_source,
+        "audio_source": inputs.audio_source,
         "outputs": {
             "cost_table": str(inputs.output_dir / "cost_table.csv"),
             "outcome_table": str(inputs.output_dir / "outcome_table.csv"),
@@ -190,6 +195,8 @@ def build_feature_bundle(
     features_dir: Path | None,
     raw_root: Path | None,
     video_source: str,
+    audio_source: str = "official_concat",
+    feature_cache_dir: Path | None = None,
 ) -> FeatureBundle:
     features: dict[str, dict[str, np.ndarray]] = {}
     sources: dict[str, str] = {}
@@ -201,6 +208,17 @@ def build_feature_bundle(
             features[modality] = build_raw_video_stats(records, raw_root)
             sources[modality] = f"raw_stats:{raw_root}"
             continue
+        if modality == "video" and video_source == "cv2_stats":
+            if raw_root is None:
+                raise ProtocolError("--video-source cv2_stats requires --raw-root")
+            features[modality] = build_cv2_video_stats(records, raw_root, feature_cache_dir)
+            sources[modality] = f"cv2_stats:{raw_root}"
+            continue
+        if modality == "audio":
+            loaded_audio = load_audio_features(features_dir, records, source=audio_source)
+            if loaded_audio is not None:
+                features[modality], sources[modality] = loaded_audio
+                continue
 
         loaded = load_modality_pickle(features_dir, modality) if features_dir else None
         if loaded is not None:
@@ -223,19 +241,98 @@ def build_feature_bundle(
     return FeatureBundle(records=records, features=features, sources=sources)
 
 
+def load_audio_features(
+    features_dir: Path | None, records: dict[str, list[MeldRecord]], *, source: str
+) -> tuple[dict[str, np.ndarray], str] | None:
+    if features_dir is None or not features_dir.exists():
+        return None
+    base = load_named_feature_pickle(features_dir, "audio_embeddings_feature_selection_emotion.pkl")
+    if base is None:
+        return None
+    base_features, base_source = base
+    if source == "official_full":
+        return base_features, base_source
+    if source != "official_concat":
+        raise ProtocolError(f"unknown audio_source={source!r}")
+
+    sequence = load_dialogue_sequence_feature(
+        features_dir, "audio_emotion.pkl", records
+    )
+    if sequence is None:
+        return base_features, base_source
+    sequence_features, sequence_source = sequence
+
+    sample_ids = [record.sample_id for split_records in records.values() for record in split_records]
+    missing = [
+        sample_id
+        for sample_id in sample_ids
+        if sample_id not in base_features or sample_id not in sequence_features
+    ]
+    if missing:
+        return base_features, base_source
+
+    combined = {
+        sample_id: np.concatenate([base_features[sample_id], sequence_features[sample_id]]).astype(np.float32)
+        for sample_id in sample_ids
+    }
+    return combined, f"{base_source}+{sequence_source}"
+
+
 def load_modality_pickle(features_dir: Path | None, modality: str) -> tuple[dict[str, np.ndarray], str] | None:
     if features_dir is None or not features_dir.exists():
         return None
     candidates = FEATURE_PICKLE_CANDIDATES[modality]
     for name in candidates:
-        matches = sorted(features_dir.rglob(name))
-        if not matches:
-            continue
-        path = matches[0]
-        with path.open("rb") as handle:
-            payload = pickle.load(handle, encoding="latin1")
-        return normalize_feature_payload(payload), str(path)
+        loaded = load_named_feature_pickle(features_dir, name)
+        if loaded is not None:
+            return loaded
     return None
+
+
+def load_named_feature_pickle(features_dir: Path, name: str) -> tuple[dict[str, np.ndarray], str] | None:
+    matches = sorted(features_dir.rglob(name))
+    if not matches:
+        return None
+    path = matches[0]
+    with path.open("rb") as handle:
+        payload = pickle.load(handle, encoding="latin1")
+    return normalize_feature_payload(payload), str(path)
+
+
+def load_dialogue_sequence_feature(
+    features_dir: Path,
+    name: str,
+    records: dict[str, list[MeldRecord]],
+) -> tuple[dict[str, np.ndarray], str] | None:
+    matches = sorted(features_dir.rglob(name))
+    if not matches:
+        return None
+    path = matches[0]
+    with path.open("rb") as handle:
+        payload = pickle.load(handle, encoding="latin1")
+    if not isinstance(payload, (list, tuple)) or len(payload) < 3:
+        return None
+    split_payloads = {
+        "train": payload[0],
+        "validation": payload[1],
+        "test": payload[2],
+    }
+    output: dict[str, np.ndarray] = {}
+    for split, split_records in records.items():
+        split_payload = split_payloads[split]
+        if not isinstance(split_payload, dict):
+            return None
+        for record in split_records:
+            dialogue_key = record.dialogue_id
+            if dialogue_key not in split_payload and str(dialogue_key) in split_payload:
+                dialogue_key = str(dialogue_key)
+            if dialogue_key not in split_payload:
+                return None
+            sequence = np.asarray(split_payload[dialogue_key], dtype=np.float32)
+            if sequence.ndim < 2 or record.utterance_id >= sequence.shape[0]:
+                return None
+            output[record.sample_id] = sequence[record.utterance_id].reshape(-1).astype(np.float32)
+    return output, str(path)
 
 
 def normalize_feature_payload(payload: Any) -> dict[str, np.ndarray]:
@@ -303,6 +400,152 @@ def build_raw_video_stats(records: dict[str, list[MeldRecord]], raw_root: Path) 
         preview = ", ".join(missing[:5])
         raise ProtocolError(f"missing raw video files for {len(missing)} MELD rows; examples: {preview}")
     return output
+
+
+def build_cv2_video_stats(
+    records: dict[str, list[MeldRecord]],
+    raw_root: Path,
+    cache_dir: Path | None,
+    *,
+    frame_count: int = 8,
+) -> dict[str, np.ndarray]:
+    try:
+        import cv2
+    except Exception as exc:  # pragma: no cover - depends on server extra.
+        raise ProtocolError(
+            "--video-source cv2_stats requires opencv-python-headless. "
+            "Install it in the project env or set PYTHONPATH to the project-local dependency path."
+        ) from exc
+
+    all_records = [record for split_records in records.values() for record in split_records]
+    cache_path = None
+    cache: dict[str, np.ndarray] = {}
+    if cache_dir is not None:
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cache_path = cache_dir / f"meld_cv2_stats_v1_f{frame_count}.pkl"
+        if cache_path.exists():
+            with cache_path.open("rb") as handle:
+                cache = pickle.load(handle)
+
+    output: dict[str, np.ndarray] = {}
+    computed = 0
+    missing: list[str] = []
+    for record in all_records:
+        if record.sample_id in cache:
+            output[record.sample_id] = cache[record.sample_id]
+            continue
+        video_path = find_raw_video(raw_root, record.split, record.raw_filename)
+        if video_path is None:
+            missing.append(f"{record.split}:{record.raw_filename}")
+            continue
+        vector = extract_cv2_video_feature(video_path, frame_count=frame_count, cv2=cv2)
+        cache[record.sample_id] = vector
+        output[record.sample_id] = vector
+        computed += 1
+        if cache_path is not None and computed % 250 == 0:
+            with cache_path.open("wb") as handle:
+                pickle.dump(cache, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    if missing:
+        preview = ", ".join(missing[:5])
+        raise ProtocolError(f"missing raw video files for {len(missing)} MELD rows; examples: {preview}")
+    if cache_path is not None:
+        with cache_path.open("wb") as handle:
+            pickle.dump(cache, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    return output
+
+
+def extract_cv2_video_feature(video_path: Path, *, frame_count: int, cv2: Any) -> np.ndarray:
+    cap = cv2.VideoCapture(str(video_path))
+    if not cap.isOpened():
+        raise ProtocolError(f"cv2 could not open video: {video_path}")
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    fps = float(cap.get(cv2.CAP_PROP_FPS) or 0.0)
+    width = float(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0.0)
+    height = float(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0.0)
+    if total_frames <= 0:
+        sample_indices = [0]
+    else:
+        sample_indices = np.linspace(0, max(total_frames - 1, 0), num=frame_count, dtype=int).tolist()
+
+    frame_features: list[np.ndarray] = []
+    gray_frames: list[np.ndarray] = []
+    for frame_index in sample_indices:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+        ok, frame = cap.read()
+        if not ok or frame is None:
+            continue
+        small = cv2.resize(frame, (64, 64), interpolation=cv2.INTER_AREA)
+        rgb = cv2.cvtColor(small, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
+        hsv = cv2.cvtColor(small, cv2.COLOR_BGR2HSV).astype(np.float32)
+        hsv[..., 0] /= 179.0
+        hsv[..., 1:] /= 255.0
+        gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY).astype(np.float32) / 255.0
+        gray_frames.append(gray)
+        grad_x = np.abs(np.diff(gray, axis=1))
+        grad_y = np.abs(np.diff(gray, axis=0))
+        rgb_hist = np.concatenate(
+            [np.histogram(rgb[..., channel], bins=8, range=(0.0, 1.0), density=True)[0] for channel in range(3)]
+        ).astype(np.float32)
+        rgb_hist = rgb_hist / max(float(rgb_hist.sum()), 1e-6)
+        frame_features.append(
+            np.concatenate(
+                [
+                    rgb.mean(axis=(0, 1)),
+                    rgb.std(axis=(0, 1)),
+                    hsv.mean(axis=(0, 1)),
+                    hsv.std(axis=(0, 1)),
+                    np.array(
+                        [
+                            gray.mean(),
+                            gray.std(),
+                            np.percentile(gray, 10),
+                            np.percentile(gray, 50),
+                            np.percentile(gray, 90),
+                            grad_x.mean(),
+                            grad_x.std(),
+                            grad_y.mean(),
+                            grad_y.std(),
+                        ],
+                        dtype=np.float32,
+                    ),
+                    rgb_hist,
+                ]
+            ).astype(np.float32)
+        )
+    cap.release()
+
+    if not frame_features:
+        raise ProtocolError(f"cv2 could not read frames from video: {video_path}")
+    frame_matrix = np.vstack(frame_features)
+    motion_values = []
+    for left, right in zip(gray_frames, gray_frames[1:]):
+        motion_values.append(float(np.mean(np.abs(right - left))))
+    motion = np.array(
+        [
+            np.mean(motion_values) if motion_values else 0.0,
+            np.std(motion_values) if motion_values else 0.0,
+        ],
+        dtype=np.float32,
+    )
+    metadata = np.array(
+        [
+            math.log1p(video_path.stat().st_size),
+            total_frames / 1000.0,
+            fps / 60.0,
+            width / 1920.0,
+            height / 1080.0,
+        ],
+        dtype=np.float32,
+    )
+    return np.concatenate(
+        [
+            frame_matrix.mean(axis=0),
+            frame_matrix.std(axis=0),
+            motion,
+            metadata,
+        ]
+    ).astype(np.float32)
 
 
 def build_annotation_video_proxy(records: dict[str, list[MeldRecord]]) -> dict[str, np.ndarray]:

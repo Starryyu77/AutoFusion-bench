@@ -222,6 +222,19 @@ python3 -m autofusion_bench.exp001.run_meld_table_producer \
   --seeds 0,1,2
 ```
 
+Improved decoded-video producer:
+
+```bash
+PYTHONPATH=.deps/opencv python3 -m autofusion_bench.exp001.run_meld_table_producer \
+  --annotations-dir /usr1/home/s125mdg43_10/datasets/MELD/annotations \
+  --features-dir /usr1/home/s125mdg43_10/datasets/MELD/official/features \
+  --raw-root /usr1/home/s125mdg43_10/datasets/MELD/official/raw/MELD.Raw \
+  --video-source cv2_stats \
+  --audio-source official_concat \
+  --output experiments/exp-001-decision-surface-pilot/outputs/meld-producer-cv2 \
+  --seeds 0,1,2
+```
+
 Then run the exp-001 analysis runner over the measured tables:
 
 ```bash
