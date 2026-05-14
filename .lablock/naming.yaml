@@ -1,0 +1,16 @@
+version: 1
+profile: paper-aligned
+canonical_variable_style: snake_case
+experiment_shortname_pattern: "exp-NNN-<axis-or-method>-<variant>"
+matrix_slug_pattern: "<topic>-<primary-axis>-ablation"
+require_variable_registry: true
+require_matrix_registry: true
+paper_label_required: false
+reserved_suffixes:
+  - baseline
+  - ablation
+  - sweep
+  - seed
+  - debug
+  - smoke
+
