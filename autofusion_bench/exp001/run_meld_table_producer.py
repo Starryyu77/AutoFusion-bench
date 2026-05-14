@@ -28,6 +28,10 @@ def main(argv: list[str] | None = None) -> int:
                 else Path(args.output) / "feature-cache",
                 max_train_samples=args.max_train_samples,
                 max_eval_samples=args.max_eval_samples,
+                semvis_model=args.semvis_model,
+                semvis_frame_count=args.semvis_frame_count,
+                semvis_batch_frames=args.semvis_batch_frames,
+                semvis_device=args.semvis_device,
             )
         )
     except ProtocolError as exc:
@@ -53,9 +57,9 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--raw-root", default=None)
     parser.add_argument(
         "--video-source",
-        choices=("pickle", "raw_stats", "cv2_stats", "annotation_proxy"),
+        choices=("pickle", "raw_stats", "cv2_stats", "semvis_clip", "annotation_proxy"),
         default="pickle",
-        help="Use pickle for visual pickles, cv2_stats for decoded MP4 frame features, raw_stats for file-stat features, or annotation_proxy only for smoke.",
+        help="Use pickle for visual pickles, semvis_clip for frozen CLIP frame embeddings, cv2_stats for decoded MP4 frame statistics, raw_stats for file-stat features, or annotation_proxy only for smoke.",
     )
     parser.add_argument(
         "--audio-source",
@@ -71,6 +75,28 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--seeds", default="0,1,2")
     parser.add_argument("--max-train-samples", type=int, default=None)
     parser.add_argument("--max-eval-samples", type=int, default=None)
+    parser.add_argument(
+        "--semvis-model",
+        default="openai/clip-vit-base-patch32",
+        help="Frozen CLIP model used by --video-source semvis_clip.",
+    )
+    parser.add_argument(
+        "--semvis-frame-count",
+        type=int,
+        default=8,
+        help="Number of frames sampled per MELD utterance video for semvis_clip.",
+    )
+    parser.add_argument(
+        "--semvis-batch-frames",
+        type=int,
+        default=64,
+        help="Number of sampled frames encoded per CLIP batch for semvis_clip.",
+    )
+    parser.add_argument(
+        "--semvis-device",
+        default="auto",
+        help="Torch device for semvis_clip, e.g. auto, cuda, cuda:0, or cpu.",
+    )
     return parser.parse_args(argv)
 
 

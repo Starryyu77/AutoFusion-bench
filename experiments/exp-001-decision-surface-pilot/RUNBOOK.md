@@ -1,6 +1,8 @@
 # exp-001 Runbook
 
-Status: protocol runner implemented; empirical MELD run not started.
+Status: protocol runner and MELD producers implemented. Full `raw_stats` and
+`cv2_stats` runs are benchmark-signal negative; the next controlled rerun is
+`semvis_clip`.
 
 ## Local protocol smoke
 
@@ -153,17 +155,15 @@ split and label.
 8. Report `best_single_axis_oracle_regret_dt`, Kendall tau-b, fallback regret,
    illegal proposal rate, and joint gap closure.
 
-## Next implementation gap
+## Current implementation gap
 
-The runner consumes measured tables. The remaining work is the data/model
-producer on `ntu-gpu43`:
+The runner consumes measured tables. The remaining experiment work is the
+semantic visual producer rerun on `ntu-gpu43`:
 
-- clone/sync the repo to `/usr1/home/s125mdg43_10/projects/AutoFusion-bench`
-- acquire or stage MELD
-- build feature extraction and template-head training
-- generate real cost, outcome, q-proxy, q-diagnostic, and corruption manifest
-  files
-- run this analysis command on the generated files
+- keep MELD splits, templates, policies, metric, and degradation manifest fixed
+- replace only `video_source=cv2_stats` with `video_source=semvis_clip`
+- generate real cost, outcome, q-proxy, q-diagnostic, and corruption manifest files
+- run the analysis command on the generated files
 
 ## MELD staging
 
@@ -234,6 +234,29 @@ PYTHONPATH=.deps/opencv python3 -m autofusion_bench.exp001.run_meld_table_produc
   --output experiments/exp-001-decision-surface-pilot/outputs/meld-producer-cv2 \
   --seeds 0,1,2
 ```
+
+Frozen semantic visual producer:
+
+```bash
+PYTHONPATH=.deps/opencv python3 -m autofusion_bench.exp001.run_meld_table_producer \
+  --annotations-dir /usr1/home/s125mdg43_10/datasets/MELD/annotations \
+  --features-dir /usr1/home/s125mdg43_10/datasets/MELD/official/features \
+  --raw-root /usr1/home/s125mdg43_10/datasets/MELD/official/raw/MELD.Raw \
+  --video-source semvis_clip \
+  --audio-source official_concat \
+  --semvis-model openai/clip-vit-base-patch32 \
+  --semvis-frame-count 8 \
+  --semvis-batch-frames 64 \
+  --semvis-device auto \
+  --output experiments/exp-001-decision-surface-pilot/outputs/meld-producer-semvis \
+  --seeds 0,1,2
+```
+
+`semvis_clip` samples frames from each utterance video, encodes them with a
+frozen CLIP image encoder, L2-normalizes frame embeddings, and mean-pools to one
+utterance-level visual vector. It is still a feature-level producer: the current
+cost table is the cached-feature template-head decision cost, not an end-to-end
+deployment latency claim.
 
 Then run the exp-001 analysis runner over the measured tables:
 

@@ -11,6 +11,7 @@ from autofusion_bench.exp001.meld_producer import (
     load_annotations,
     parse_timestamp_seconds,
 )
+from autofusion_bench.exp001.run_meld_table_producer import _parse_args
 from autofusion_bench.exp001.runner import run_exp001
 
 
@@ -118,6 +119,27 @@ class Exp001ProtocolTests(unittest.TestCase):
     def test_parse_meld_timestamp_seconds(self) -> None:
         self.assertAlmostEqual(parse_timestamp_seconds("00:14:38,127"), 878.127)
         self.assertAlmostEqual(parse_timestamp_seconds("0:10:46,146"), 646.146)
+
+    def test_meld_table_producer_accepts_semvis_clip_options(self) -> None:
+        args = _parse_args(
+            [
+                "--video-source",
+                "semvis_clip",
+                "--semvis-model",
+                "openai/clip-vit-base-patch32",
+                "--semvis-frame-count",
+                "16",
+                "--semvis-batch-frames",
+                "32",
+                "--semvis-device",
+                "cpu",
+            ]
+        )
+        self.assertEqual(args.video_source, "semvis_clip")
+        self.assertEqual(args.semvis_model, "openai/clip-vit-base-patch32")
+        self.assertEqual(args.semvis_frame_count, 16)
+        self.assertEqual(args.semvis_batch_frames, 32)
+        self.assertEqual(args.semvis_device, "cpu")
 
 
 if __name__ == "__main__":

@@ -46,6 +46,7 @@ MODALITY_FEATURE_KEYS = {
 }
 
 CV2_VIDEO_FEATURE_DIM = 97
+DEFAULT_SEMVIS_MODEL = "openai/clip-vit-base-patch32"
 
 
 @dataclass(frozen=True)
@@ -60,6 +61,10 @@ class ProducerInputs:
     feature_cache_dir: Path | None = None
     max_train_samples: int | None = None
     max_eval_samples: int | None = None
+    semvis_model: str = DEFAULT_SEMVIS_MODEL
+    semvis_frame_count: int = 8
+    semvis_batch_frames: int = 64
+    semvis_device: str = "auto"
 
 
 @dataclass(frozen=True)
@@ -79,6 +84,10 @@ def produce_meld_tables(inputs: ProducerInputs) -> dict[str, Any]:
         video_source=inputs.video_source,
         audio_source=inputs.audio_source,
         feature_cache_dir=inputs.feature_cache_dir,
+        semvis_model=inputs.semvis_model,
+        semvis_frame_count=inputs.semvis_frame_count,
+        semvis_batch_frames=inputs.semvis_batch_frames,
+        semvis_device=inputs.semvis_device,
     )
 
     train_rows = bundle.records["train"]
@@ -140,6 +149,8 @@ def produce_meld_tables(inputs: ProducerInputs) -> dict[str, Any]:
         "seeds": list(inputs.seeds),
         "video_source": inputs.video_source,
         "audio_source": inputs.audio_source,
+        "semvis_model": inputs.semvis_model if inputs.video_source == "semvis_clip" else None,
+        "semvis_frame_count": inputs.semvis_frame_count if inputs.video_source == "semvis_clip" else None,
         "outputs": {
             "cost_table": str(inputs.output_dir / "cost_table.csv"),
             "outcome_table": str(inputs.output_dir / "outcome_table.csv"),
@@ -199,6 +210,10 @@ def build_feature_bundle(
     video_source: str,
     audio_source: str = "official_concat",
     feature_cache_dir: Path | None = None,
+    semvis_model: str = DEFAULT_SEMVIS_MODEL,
+    semvis_frame_count: int = 8,
+    semvis_batch_frames: int = 64,
+    semvis_device: str = "auto",
 ) -> FeatureBundle:
     features: dict[str, dict[str, np.ndarray]] = {}
     sources: dict[str, str] = {}
@@ -215,6 +230,20 @@ def build_feature_bundle(
                 raise ProtocolError("--video-source cv2_stats requires --raw-root")
             features[modality] = build_cv2_video_stats(records, raw_root, feature_cache_dir)
             sources[modality] = f"cv2_stats:{raw_root}"
+            continue
+        if modality == "video" and video_source == "semvis_clip":
+            if raw_root is None:
+                raise ProtocolError("--video-source semvis_clip requires --raw-root")
+            features[modality] = build_semantic_clip_video_features(
+                records,
+                raw_root,
+                feature_cache_dir,
+                model_name=semvis_model,
+                frame_count=semvis_frame_count,
+                batch_frames=semvis_batch_frames,
+                device=semvis_device,
+            )
+            sources[modality] = f"semvis_clip:{semvis_model}:f{semvis_frame_count}:{raw_root}"
             continue
         if modality == "audio":
             loaded_audio = load_audio_features(features_dir, records, source=audio_source)
@@ -555,6 +584,167 @@ def extract_cv2_video_feature(video_path: Path, *, frame_count: int, cv2: Any) -
             metadata,
         ]
     ).astype(np.float32)
+
+
+def build_semantic_clip_video_features(
+    records: dict[str, list[MeldRecord]],
+    raw_root: Path,
+    cache_dir: Path | None,
+    *,
+    model_name: str = DEFAULT_SEMVIS_MODEL,
+    frame_count: int = 8,
+    batch_frames: int = 64,
+    device: str = "auto",
+) -> dict[str, np.ndarray]:
+    try:
+        import cv2
+        import torch
+        from PIL import Image
+        from transformers import CLIPModel, CLIPProcessor
+    except Exception as exc:  # pragma: no cover - depends on server extras.
+        raise ProtocolError(
+            "--video-source semvis_clip requires opencv-python-headless, torch, "
+            "Pillow, and transformers with CLIP support."
+        ) from exc
+
+    if frame_count <= 0:
+        raise ProtocolError("--semvis-frame-count must be positive")
+    if batch_frames <= 0:
+        raise ProtocolError("--semvis-batch-frames must be positive")
+
+    resolved_device = _resolve_torch_device(torch, device)
+    processor = CLIPProcessor.from_pretrained(model_name)
+    model = CLIPModel.from_pretrained(model_name)
+    model.eval()
+    model.to(resolved_device)
+    feature_dim = _clip_feature_dim(model)
+
+    all_records = [record for split_records in records.values() for record in split_records]
+    cache_path = None
+    cache: dict[str, np.ndarray] = {}
+    if cache_dir is not None:
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cache_path = cache_dir / f"meld_semvis_clip_v1_{_cache_key(model_name)}_f{frame_count}.pkl"
+        if cache_path.exists():
+            with cache_path.open("rb") as handle:
+                cache = pickle.load(handle)
+
+    output: dict[str, np.ndarray] = {}
+    missing: list[str] = []
+    pending_records: list[MeldRecord] = []
+    pending_counts: list[int] = []
+    pending_images: list[Any] = []
+    computed = 0
+    last_saved = 0
+
+    def flush() -> None:
+        nonlocal computed, last_saved
+        if not pending_records:
+            return
+        if pending_images:
+            frame_embeddings = _encode_clip_images(
+                pending_images,
+                processor=processor,
+                model=model,
+                torch=torch,
+                device=resolved_device,
+            )
+        else:
+            frame_embeddings = np.empty((0, feature_dim), dtype=np.float32)
+
+        cursor = 0
+        for record, count in zip(pending_records, pending_counts):
+            if count == 0:
+                vector = np.zeros(feature_dim, dtype=np.float32)
+            else:
+                vector = frame_embeddings[cursor : cursor + count].mean(axis=0).astype(np.float32)
+                cursor += count
+                norm = float(np.linalg.norm(vector))
+                if norm > 0.0:
+                    vector = (vector / norm).astype(np.float32)
+            cache[record.sample_id] = vector
+            output[record.sample_id] = vector
+
+        computed += len(pending_records)
+        pending_records.clear()
+        pending_counts.clear()
+        pending_images.clear()
+        if cache_path is not None and computed - last_saved >= 100:
+            with cache_path.open("wb") as handle:
+                pickle.dump(cache, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            last_saved = computed
+
+    for record in all_records:
+        if record.sample_id in cache:
+            output[record.sample_id] = cache[record.sample_id]
+            continue
+        video_path = find_raw_video(raw_root, record.split, record.raw_filename)
+        if video_path is None:
+            missing.append(f"{record.split}:{record.raw_filename}")
+            continue
+        try:
+            frames = extract_semantic_video_frames(
+                video_path,
+                frame_count=frame_count,
+                cv2=cv2,
+                image_cls=Image,
+            )
+        except ProtocolError:
+            frames = []
+        pending_records.append(record)
+        pending_counts.append(len(frames))
+        pending_images.extend(frames)
+        if len(pending_images) >= batch_frames:
+            flush()
+
+    flush()
+    if missing:
+        preview = ", ".join(missing[:5])
+        raise ProtocolError(f"missing raw video files for {len(missing)} MELD rows; examples: {preview}")
+    if cache_path is not None:
+        with cache_path.open("wb") as handle:
+            pickle.dump(cache, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    return output
+
+
+def extract_semantic_video_frames(video_path: Path, *, frame_count: int, cv2: Any, image_cls: Any) -> list[Any]:
+    cap = cv2.VideoCapture(str(video_path))
+    if not cap.isOpened():
+        raise ProtocolError(f"cv2 could not open video: {video_path}")
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    if total_frames <= 0:
+        sample_indices = [0]
+    else:
+        sample_indices = np.linspace(0, max(total_frames - 1, 0), num=frame_count, dtype=int).tolist()
+
+    frames = []
+    for frame_index in sample_indices:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+        ok, frame = cap.read()
+        if not ok or frame is None:
+            continue
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frames.append(image_cls.fromarray(rgb))
+    cap.release()
+    if not frames:
+        raise ProtocolError(f"cv2 could not read frames from video: {video_path}")
+    return frames
+
+
+def _encode_clip_images(
+    images: list[Any],
+    *,
+    processor: Any,
+    model: Any,
+    torch: Any,
+    device: str,
+) -> np.ndarray:
+    inputs = processor(images=images, return_tensors="pt")
+    inputs = {key: value.to(device) for key, value in inputs.items()}
+    with torch.no_grad():
+        features = model.get_image_features(**inputs)
+        features = features / features.norm(dim=-1, keepdim=True).clamp_min(1e-12)
+    return features.detach().cpu().numpy().astype(np.float32)
 
 
 def build_annotation_video_proxy(records: dict[str, list[MeldRecord]]) -> dict[str, np.ndarray]:
@@ -933,6 +1123,29 @@ def _pad_feature(value: np.ndarray, target_dim: int) -> np.ndarray:
     output = np.zeros(target_dim, dtype=np.float32)
     output[: value.shape[0]] = value
     return output
+
+
+def _resolve_torch_device(torch: Any, requested: str) -> str:
+    if requested == "auto":
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    return requested
+
+
+def _clip_feature_dim(model: Any) -> int:
+    config = getattr(model, "config", None)
+    if config is not None:
+        projection_dim = getattr(config, "projection_dim", None)
+        if projection_dim:
+            return int(projection_dim)
+        vision_config = getattr(config, "vision_config", None)
+        hidden_size = getattr(vision_config, "hidden_size", None) if vision_config is not None else None
+        if hidden_size:
+            return int(hidden_size)
+    return 512
+
+
+def _cache_key(value: str) -> str:
+    return "".join(character if character.isalnum() else "-" for character in value).strip("-").lower()
 
 
 def _stable_seed(sample_id: str, modality: str, seed: int) -> int:
