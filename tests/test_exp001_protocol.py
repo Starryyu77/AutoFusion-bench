@@ -1,7 +1,11 @@
 from pathlib import Path
+import csv
+import pickle
+import tempfile
 import unittest
 
 from autofusion_bench.exp001.costs import build_budget_profile, load_cost_table
+from autofusion_bench.exp001.meld_producer import build_feature_bundle, load_annotations, parse_timestamp_seconds
 from autofusion_bench.exp001.runner import run_exp001
 
 
@@ -35,7 +39,85 @@ class Exp001ProtocolTests(unittest.TestCase):
         self.assertGreaterEqual(metrics["best_single_axis_oracle_regret_dt"], 3.0)
         self.assertGreaterEqual(metrics["joint_gap_closure"], 0.3)
 
+    def test_meld_feature_bundle_loads_official_style_pickles(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            annotations = root / "annotations"
+            features = root / "features"
+            annotations.mkdir()
+            features.mkdir()
+            for filename in ("train_sent_emo.csv", "dev_sent_emo.csv", "test_sent_emo.csv"):
+                _write_annotation(annotations / filename)
+            payload = [
+                {"0_0": [1.0, 0.0], "0_1": [0.5, 0.5]},
+                {"0_0": [0.0, 1.0], "0_1": [0.2, 0.8]},
+                {"0_0": [0.3, 0.7], "0_1": [0.9, 0.1]},
+            ]
+            for filename in (
+                "text_glove_average_emotion.pkl",
+                "audio_embeddings_feature_selection_emotion.pkl",
+                "visual_embeddings_feature_selection_emotion.pkl",
+            ):
+                with (features / filename).open("wb") as handle:
+                    pickle.dump(payload, handle)
+
+            records = load_annotations(annotations)
+            bundle = build_feature_bundle(records, features_dir=features, raw_root=None, video_source="pickle")
+            self.assertEqual(bundle.features["text"]["train:0_0"].shape, (2,))
+            self.assertIn("visual_embeddings_feature_selection_emotion.pkl", bundle.sources["video"])
+
+    def test_parse_meld_timestamp_seconds(self) -> None:
+        self.assertAlmostEqual(parse_timestamp_seconds("00:14:38,127"), 878.127)
+        self.assertAlmostEqual(parse_timestamp_seconds("0:10:46,146"), 646.146)
+
 
 if __name__ == "__main__":
     unittest.main()
 
+
+def _write_annotation(path: Path) -> None:
+    fieldnames = [
+        "Sr No.",
+        "Utterance",
+        "Speaker",
+        "Emotion",
+        "Sentiment",
+        "Dialogue_ID",
+        "Utterance_ID",
+        "Season",
+        "Episode",
+        "StartTime",
+        "EndTime",
+    ]
+    rows = [
+        {
+            "Sr No.": 1,
+            "Utterance": "hello there",
+            "Speaker": "Rachel",
+            "Emotion": "neutral",
+            "Sentiment": "neutral",
+            "Dialogue_ID": 0,
+            "Utterance_ID": 0,
+            "Season": 1,
+            "Episode": 1,
+            "StartTime": "00:00:01,000",
+            "EndTime": "00:00:02,000",
+        },
+        {
+            "Sr No.": 2,
+            "Utterance": "that is great",
+            "Speaker": "Ross",
+            "Emotion": "joy",
+            "Sentiment": "positive",
+            "Dialogue_ID": 0,
+            "Utterance_ID": 1,
+            "Season": 1,
+            "Episode": 1,
+            "StartTime": "00:00:03,000",
+            "EndTime": "00:00:04,000",
+        },
+    ]
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)

@@ -165,3 +165,76 @@ producer on `ntu-gpu43`:
   files
 - run this analysis command on the generated files
 
+## MELD staging
+
+Official sources:
+
+- annotations: `declare-lab/MELD`
+- feature/model tarball: `MELD.Features.Models.tar.gz`
+- raw tarball: `MELD.Raw.tar.gz`
+
+Recommended staging root on `ntu-gpu43`:
+
+```text
+/usr1/home/s125mdg43_10/datasets/MELD
+```
+
+Stage annotations and feature tarball:
+
+```bash
+python3 -m autofusion_bench.exp001.stage_meld \
+  --root /usr1/home/s125mdg43_10/datasets/MELD \
+  --features \
+  --extract \
+  --no-check-certificate
+```
+
+The official feature/model tarball contains text and audio feature pickles, but
+does not contain visual feature pickles. For the first complete tri-modal
+producer path, also stage raw MELD and use `--video-source raw_stats`:
+
+```bash
+python3 -m autofusion_bench.exp001.stage_meld \
+  --root /usr1/home/s125mdg43_10/datasets/MELD \
+  --raw \
+  --extract \
+  --extract-nested-raw \
+  --no-check-certificate
+```
+
+## MELD table producer
+
+Producer output directory:
+
+```text
+experiments/exp-001-decision-surface-pilot/outputs/meld-producer
+```
+
+Raw-stat visual producer:
+
+```bash
+python3 -m autofusion_bench.exp001.run_meld_table_producer \
+  --annotations-dir /usr1/home/s125mdg43_10/datasets/MELD/annotations \
+  --features-dir /usr1/home/s125mdg43_10/datasets/MELD/official/features \
+  --raw-root /usr1/home/s125mdg43_10/datasets/MELD/official/raw/MELD.Raw \
+  --video-source raw_stats \
+  --output experiments/exp-001-decision-surface-pilot/outputs/meld-producer \
+  --seeds 0,1,2
+```
+
+Then run the exp-001 analysis runner over the measured tables:
+
+```bash
+python3 -m autofusion_bench.exp001.run_decision_surface_pilot \
+  --config experiments/exp-001-decision-surface-pilot/config.yaml \
+  --cost-table experiments/exp-001-decision-surface-pilot/outputs/meld-producer/cost_table.csv \
+  --outcome-table experiments/exp-001-decision-surface-pilot/outputs/meld-producer/outcome_table.csv \
+  --q-policy-map experiments/exp-001-decision-surface-pilot/outputs/meld-producer/q_policy_map.csv \
+  --q-proxy-table experiments/exp-001-decision-surface-pilot/outputs/meld-producer/q_proxy_table.csv \
+  --q-diagnostics experiments/exp-001-decision-surface-pilot/outputs/meld-producer/q_diagnostics.csv \
+  --corruption-manifest experiments/exp-001-decision-surface-pilot/outputs/meld-producer/corruption_manifest.csv \
+  --output experiments/exp-001-decision-surface-pilot/outputs/meld-analysis
+```
+
+`annotation_proxy` exists only for producer plumbing smoke. Do not cite outputs
+from `--video-source annotation_proxy` as benchmark evidence.

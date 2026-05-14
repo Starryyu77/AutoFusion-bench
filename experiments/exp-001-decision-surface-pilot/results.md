@@ -87,3 +87,36 @@ joint_policy_passed=True
 
 Interpretation: server code bring-up is complete. This is still a fixture smoke,
 not a MELD empirical result.
+
+## 2026-05-14 MELD staging progress
+
+Staged on `ntu-gpu43`:
+
+```text
+/usr1/home/s125mdg43_10/datasets/MELD/annotations
+/usr1/home/s125mdg43_10/datasets/MELD/official/MELD.Features.Models.tar.gz
+/usr1/home/s125mdg43_10/datasets/MELD/official/features
+```
+
+Observed annotation row counts:
+
+```text
+dev_sent_emo.csv: 1110 lines
+test_sent_emo.csv: 2611 lines
+train_sent_emo.csv: 9990 lines
+```
+
+Official feature tarball:
+
+```text
+size: 880M
+sha256: 59131c6904ab1272912c6ebec7873524e6f90bce842b333bc27f02411718b2c3
+```
+
+Inspection: official feature tarball contains text/audio/bimodal feature pickles
+and model weights, but no visual feature pickles. `MELD.Raw.tar.gz` download was
+started in remote tmux session `meld_raw_download` to support the first complete
+tri-modal producer path via raw MP4 file-stat visual features.
+
+This is dataset staging progress only. No empirical outcome table has been
+generated yet.
