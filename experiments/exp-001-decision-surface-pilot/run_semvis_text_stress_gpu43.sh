@@ -7,7 +7,7 @@ DATA_ROOT="/usr1/home/s125mdg43_10/datasets/MELD"
 
 PRODUCER_OUT="${PRODUCER_OUT:-${EXP_DIR}/outputs/meld-producer-semvis-text-stress}"
 ANALYSIS_OUT="${ANALYSIS_OUT:-${EXP_DIR}/outputs/meld-analysis-semvis-text-stress}"
-CACHE_DIR="${CACHE_DIR:-${EXP_DIR}/outputs/meld-producer-semvis-profile1024/feature-cache}"
+CACHE_DIR="${CACHE_DIR:-${EXP_DIR}/outputs/meld-producer-semvis/feature-cache}"
 LOG_DIR="${EXP_DIR}/logs"
 LOG_FILE="${LOG_FILE:-${LOG_DIR}/semvis-text-stress-$(date +%Y%m%d-%H%M%S).log}"
 
