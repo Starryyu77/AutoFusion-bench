@@ -568,3 +568,168 @@ Interpretation:
   It supports the interpretation that semantic visual features help, but not
   enough to make MELD a strong primary benchmark-signal dataset under the
   current degradation design.
+
+## 2026-05-15 final MELD semvis text-stress diagnostic
+
+Decision source:
+
+```text
+decisions/2026-05-15-exp001-final-meld-diagnostic-iteration.md
+```
+
+Implemented diagnostic change:
+
+```text
+video_source=semvis_clip
+audio_source=official_concat
+degradation_profile=text_stress
+```
+
+The `text_stress` profile preserves the existing 7-template registry, MELD
+splits, policies, seeds, primary metric, and feature-level boundary. It adds
+text suppression to all degraded slices so the final MELD diagnostic can test
+whether the prior failures were mainly caused by text dominance. It is a
+diagnostic stress run, not a replacement default corruption profile.
+
+Remote run:
+
+```text
+host: ntu-gpu43
+commit: 40ef3b8
+tmux: exp001_textstress_0515
+launcher: experiments/exp-001-decision-surface-pilot/run_semvis_text_stress_gpu43.sh
+producer: outputs/meld-producer-semvis-text-stress
+analysis: outputs/meld-analysis-semvis-text-stress
+log: logs/semvis-text-stress-20260515-090459.log
+```
+
+Producer output:
+
+```text
+records={'train': 9989, 'validation': 1109, 'test': 2610}
+feature_sources={
+  'text': '.../text_glove_average_emotion.pkl',
+  'audio': '.../audio_embeddings_feature_selection_emotion.pkl+.../audio_emotion.pkl',
+  'video': 'semvis_clip:openai/clip-vit-base-patch32:f8:.../MELD.Raw'
+}
+```
+
+Generated measured tables:
+
+```text
+cost_table.csv: present
+outcome_table.csv: present
+q_policy_map.csv: present
+q_proxy_table.csv: present
+q_diagnostics.csv: present
+corruption_manifest.csv: present
+```
+
+Analysis output:
+
+```text
+protocol_passed=True
+benchmark_signal_passed=True
+joint_policy_passed=True
+best_single_axis_oracle_regret_dt=0.350
+best_single_axis_policy=reliability_only
+feasible_oracle_degraded_tight_macro_f1=13.862
+best_single_axis_degraded_tight_macro_f1=13.512
+joint_degraded_tight_macro_f1=13.833
+joint_gap_closure=0.916
+pooled_standard_error=0.0208
+kendall_tau_b_clean_loose_vs_degraded_tight=-0.048
+rank_inversion_index=0.524
+```
+
+Budget gate:
+
+```text
+p95 spread=2.860
+tight=18.346 ms
+loose=25.233 ms
+tight legal templates=T|A|V|TV
+loose legal templates=T|A|V|TA|TV|AV|TAV
+TAV-vs-unimodal p95 ratio=1.306
+warnings=[]
+```
+
+Gate checks:
+
+```text
+budget_validity_gate=True
+reliability_proxy_boundary_check=True
+q_only_task_classifier=True
+q_shuffle_control=True
+class_stratified_corruption_check=True
+post_mask_budget_legality_contract=True
+```
+
+Policy summary highlights:
+
+```text
+degraded_tight feasible_oracle=13.862
+degraded_tight joint=13.833
+degraded_tight reliability_only=13.512
+degraded_tight budget_only=12.401
+degraded_tight random_legal=11.397
+degraded_tight clean_best=9.282
+degraded_tight static_full=9.282
+reliability_only degraded_tight pre_mask_illegal_proposal_rate=0.250
+post_mask_budget_violation_rate=0 for executed policies
+```
+
+Template means on test:
+
+```text
+clean_loose:
+  T=34.708
+  TV=28.954
+  TAV=21.869
+  TA=18.635
+  V=16.758
+  AV=16.250
+  A=11.979
+
+degraded_tight:
+  V=13.158
+  TV=12.401
+  TA=11.679
+  AV=11.287
+  TAV=11.131
+  A=10.746
+  T=9.282
+```
+
+Degraded-tight slice means:
+
+```text
+degraded_text:
+  V=16.758, TAV=16.650, AV=16.250, TV=15.474, TA=13.427, A=11.979, T=9.282
+degraded_audio:
+  V=16.758, TV=15.474, T=9.282, A=9.282, TA=9.282, AV=9.282, TAV=9.282
+degraded_video:
+  TA=13.427, A=11.979, AV=9.986, TAV=9.312, T=9.282, V=9.282, TV=9.282
+mixed_degraded:
+  TA=10.580, V=9.835, A=9.743, AV=9.628, TV=9.373, T=9.282, TAV=9.280
+```
+
+Runtime notes:
+
+- The producer completed, then the launcher failed only at analysis invocation
+  because the script used `--output-dir` instead of the runner's `--output`.
+  Analysis was rerun manually with the correct flag and completed successfully.
+  The launcher has been patched to use `--output`.
+- The sklearn logistic heads again emitted convergence warnings.
+
+Interpretation:
+
+- This final MELD diagnostic does break text dominance: `T` falls from first in
+  clean-loose to last in degraded-tight, Kendall tau-b becomes `-0.048`, and the
+  rank inversion index rises to `0.524`.
+- It does not produce a meaningful primary utility gap: feasible oracle is only
+  `0.350` macro-F1 above the best single-axis policy.
+- Therefore this run should be read as secondary-rank-signal positive but
+  primary-regret negative. It confirms that the previous negative results were
+  strongly tied to text dominance and degradation strength, but it still should
+  not be overclaimed as the main paper-level utility-gap evidence.

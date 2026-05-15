@@ -50,7 +50,7 @@ python3 -m autofusion_bench.exp001.run_decision_surface_pilot \
   --q-proxy-table "${PRODUCER_OUT}/q_proxy_table.csv" \
   --q-diagnostics "${PRODUCER_OUT}/q_diagnostics.csv" \
   --corruption-manifest "${PRODUCER_OUT}/corruption_manifest.csv" \
-  --output-dir "$ANALYSIS_OUT"
+  --output "$ANALYSIS_OUT"
 
 echo "[exp-001] semvis text-stress diagnostic complete"
 date
