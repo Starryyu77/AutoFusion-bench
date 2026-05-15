@@ -6,6 +6,7 @@ import unittest
 
 from autofusion_bench.exp001.costs import build_budget_profile, load_cost_table
 from autofusion_bench.exp001.meld_producer import (
+    build_q_policy_map,
     build_feature_bundle,
     build_matrix,
     load_annotations,
@@ -133,6 +134,8 @@ class Exp001ProtocolTests(unittest.TestCase):
                 "32",
                 "--semvis-device",
                 "cpu",
+                "--degradation-profile",
+                "text_stress",
             ]
         )
         self.assertEqual(args.video_source, "semvis_clip")
@@ -140,6 +143,51 @@ class Exp001ProtocolTests(unittest.TestCase):
         self.assertEqual(args.semvis_frame_count, 16)
         self.assertEqual(args.semvis_batch_frames, 32)
         self.assertEqual(args.semvis_device, "cpu")
+        self.assertEqual(args.degradation_profile, "text_stress")
+
+    def test_text_stress_profile_degrades_text_across_degraded_slices(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            annotations = root / "annotations"
+            features = root / "features"
+            annotations.mkdir()
+            features.mkdir()
+            for filename in ("train_sent_emo.csv", "dev_sent_emo.csv", "test_sent_emo.csv"):
+                _write_annotation(annotations / filename)
+            payload = [
+                {"0_0": [1.0, 0.0], "0_1": [0.5, 0.5]},
+                {"0_0": [0.0, 1.0], "0_1": [0.2, 0.8]},
+                {"0_0": [0.3, 0.7], "0_1": [0.9, 0.1]},
+            ]
+            for filename in (
+                "text_glove_average_emotion.pkl",
+                "audio_embeddings_feature_selection_emotion.pkl",
+                "visual_embeddings_feature_selection_emotion.pkl",
+            ):
+                with (features / filename).open("wb") as handle:
+                    pickle.dump(payload, handle)
+
+            records = load_annotations(annotations)
+            default_bundle = build_feature_bundle(records, features_dir=features, raw_root=None, video_source="pickle")
+            stress_bundle = build_feature_bundle(
+                records,
+                features_dir=features,
+                raw_root=None,
+                video_source="pickle",
+                degradation_profile="text_stress",
+            )
+            default_text, _ = build_matrix(default_bundle, "validation", "T", slice_name="degraded_audio", seed=0)
+            stress_text, _ = build_matrix(stress_bundle, "validation", "T", slice_name="degraded_audio", seed=0)
+            stress_video, _ = build_matrix(stress_bundle, "validation", "V", slice_name="degraded_audio", seed=0)
+
+            self.assertGreater(float(default_text.sum()), 0.0)
+            self.assertEqual(float(stress_text.sum()), 0.0)
+            self.assertGreater(float(stress_video.sum()), 0.0)
+
+    def test_text_stress_q_policy_map_avoids_text_when_other_modalities_degrade(self) -> None:
+        mapping = {row["slice"]: row["proposed_template"] for row in build_q_policy_map("text_stress")}
+        self.assertEqual(mapping["degraded_audio"], "V")
+        self.assertEqual(mapping["degraded_video"], "A")
 
 
 if __name__ == "__main__":

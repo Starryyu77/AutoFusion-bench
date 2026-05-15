@@ -32,6 +32,7 @@ def main(argv: list[str] | None = None) -> int:
                 semvis_frame_count=args.semvis_frame_count,
                 semvis_batch_frames=args.semvis_batch_frames,
                 semvis_device=args.semvis_device,
+                degradation_profile=args.degradation_profile,
             )
         )
     except ProtocolError as exc:
@@ -96,6 +97,12 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         "--semvis-device",
         default="auto",
         help="Torch device for semvis_clip, e.g. auto, cuda, cuda:0, or cpu.",
+    )
+    parser.add_argument(
+        "--degradation-profile",
+        choices=("default", "text_stress"),
+        default="default",
+        help="default preserves exp-001 prior corruption; text_stress additionally suppresses text in all degraded slices for the final MELD diagnostic run.",
     )
     return parser.parse_args(argv)
 

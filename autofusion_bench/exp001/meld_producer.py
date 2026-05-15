@@ -65,6 +65,7 @@ class ProducerInputs:
     semvis_frame_count: int = 8
     semvis_batch_frames: int = 64
     semvis_device: str = "auto"
+    degradation_profile: str = "default"
 
 
 @dataclass(frozen=True)
@@ -72,6 +73,7 @@ class FeatureBundle:
     records: dict[str, list[MeldRecord]]
     features: dict[str, dict[str, np.ndarray]]
     sources: dict[str, str]
+    degradation_profile: str = "default"
 
 
 def produce_meld_tables(inputs: ProducerInputs) -> dict[str, Any]:
@@ -88,6 +90,7 @@ def produce_meld_tables(inputs: ProducerInputs) -> dict[str, Any]:
         semvis_frame_count=inputs.semvis_frame_count,
         semvis_batch_frames=inputs.semvis_batch_frames,
         semvis_device=inputs.semvis_device,
+        degradation_profile=inputs.degradation_profile,
     )
 
     train_rows = bundle.records["train"]
@@ -132,7 +135,7 @@ def produce_meld_tables(inputs: ProducerInputs) -> dict[str, Any]:
     cost_rows = aggregate_cost_rows(profile_rows)
     corruption_rows = build_corruption_manifest(bundle.records)
     q_proxy_rows = build_q_proxy_rows(bundle)
-    q_policy_rows = build_q_policy_map()
+    q_policy_rows = build_q_policy_map(inputs.degradation_profile)
     q_diag_rows = build_q_diagnostics(bundle, outcome_rows)
 
     inputs.output_dir.mkdir(parents=True, exist_ok=True)
@@ -149,6 +152,7 @@ def produce_meld_tables(inputs: ProducerInputs) -> dict[str, Any]:
         "seeds": list(inputs.seeds),
         "video_source": inputs.video_source,
         "audio_source": inputs.audio_source,
+        "degradation_profile": inputs.degradation_profile,
         "semvis_model": inputs.semvis_model if inputs.video_source == "semvis_clip" else None,
         "semvis_frame_count": inputs.semvis_frame_count if inputs.video_source == "semvis_clip" else None,
         "outputs": {
@@ -214,7 +218,11 @@ def build_feature_bundle(
     semvis_frame_count: int = 8,
     semvis_batch_frames: int = 64,
     semvis_device: str = "auto",
+    degradation_profile: str = "default",
 ) -> FeatureBundle:
+    if degradation_profile not in {"default", "text_stress"}:
+        raise ProtocolError(f"unknown degradation_profile={degradation_profile!r}")
+
     features: dict[str, dict[str, np.ndarray]] = {}
     sources: dict[str, str] = {}
 
@@ -269,7 +277,12 @@ def build_feature_bundle(
             )
 
     assert_feature_alignment(records, features)
-    return FeatureBundle(records=records, features=features, sources=sources)
+    return FeatureBundle(
+        records=records,
+        features=features,
+        sources=sources,
+        degradation_profile=degradation_profile,
+    )
 
 
 def load_audio_features(
@@ -836,7 +849,14 @@ def build_matrix(
         modality_features = []
         for record in rows:
             vector = bundle.features[feature_key][record.sample_id]
-            vector = apply_degradation(vector, modality=modality, slice_name=slice_name, record=record, seed=seed)
+            vector = apply_degradation(
+                vector,
+                modality=modality,
+                slice_name=slice_name,
+                record=record,
+                seed=seed,
+                profile=bundle.degradation_profile,
+            )
             modality_features.append(vector)
         parts.append(np.vstack(modality_features))
     x = np.hstack(parts).astype(np.float32)
@@ -851,18 +871,29 @@ def apply_degradation(
     slice_name: str,
     record: MeldRecord,
     seed: int,
+    profile: str = "default",
 ) -> np.ndarray:
     if slice_name == CLEAN_SLICE:
         return vector
-    degraded_modalities = {
+    base_degraded_modalities = {
         "degraded_text": {"T"},
         "degraded_audio": {"A"},
         "degraded_video": {"V"},
         "mixed_degraded": {"T", "A", "V"},
     }[slice_name]
+    if profile == "default":
+        degraded_modalities = base_degraded_modalities
+    elif profile == "text_stress":
+        degraded_modalities = set(base_degraded_modalities) | {"T"}
+    else:
+        raise ProtocolError(f"unknown degradation profile: {profile!r}")
+
     if modality not in degraded_modalities:
         return vector
-    if slice_name == "mixed_degraded":
+
+    if profile == "text_stress" and modality == "T":
+        scale = 0.0
+    elif slice_name == "mixed_degraded":
         scale = 0.35
     else:
         scale = 0.0
@@ -975,14 +1006,24 @@ def q_proxy_fieldnames() -> tuple[str, ...]:
     )
 
 
-def build_q_policy_map() -> list[dict[str, str]]:
-    return [
-        {"slice": "clean", "proposed_template": "TAV", "proxy_rule": "all modalities reliable"},
-        {"slice": "degraded_text", "proposed_template": "AV", "proxy_rule": "avoid low-reliability text"},
-        {"slice": "degraded_audio", "proposed_template": "TV", "proxy_rule": "avoid low-reliability audio"},
-        {"slice": "degraded_video", "proposed_template": "TA", "proxy_rule": "avoid low-reliability video"},
-        {"slice": "mixed_degraded", "proposed_template": "T", "proxy_rule": "fallback to text anchor under mixed uncertainty"},
-    ]
+def build_q_policy_map(degradation_profile: str = "default") -> list[dict[str, str]]:
+    if degradation_profile == "default":
+        return [
+            {"slice": "clean", "proposed_template": "TAV", "proxy_rule": "all modalities reliable"},
+            {"slice": "degraded_text", "proposed_template": "AV", "proxy_rule": "avoid low-reliability text"},
+            {"slice": "degraded_audio", "proposed_template": "TV", "proxy_rule": "avoid low-reliability audio"},
+            {"slice": "degraded_video", "proposed_template": "TA", "proxy_rule": "avoid low-reliability video"},
+            {"slice": "mixed_degraded", "proposed_template": "T", "proxy_rule": "fallback to text anchor under mixed uncertainty"},
+        ]
+    if degradation_profile == "text_stress":
+        return [
+            {"slice": "clean", "proposed_template": "TAV", "proxy_rule": "all modalities reliable"},
+            {"slice": "degraded_text", "proposed_template": "AV", "proxy_rule": "avoid low-reliability text"},
+            {"slice": "degraded_audio", "proposed_template": "V", "proxy_rule": "avoid low-reliability text and audio"},
+            {"slice": "degraded_video", "proposed_template": "A", "proxy_rule": "avoid low-reliability text and video"},
+            {"slice": "mixed_degraded", "proposed_template": "V", "proxy_rule": "fallback to semantic visual anchor under text-stress mixed uncertainty"},
+        ]
+    raise ProtocolError(f"unknown degradation_profile={degradation_profile!r}")
 
 
 def build_q_diagnostics(bundle: FeatureBundle, outcome_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
