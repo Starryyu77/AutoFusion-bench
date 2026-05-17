@@ -1,7 +1,7 @@
 <!-- GENERATED FILE - DO NOT EDIT -->
 <!-- Source of truth: experiments/*/hypothesis.md frontmatter + .lablock/locks/ -->
 <!-- Regenerate: lablock-map -->
-<!-- Last generated: 2026-05-14T02:33:55.052Z -->
+<!-- Last generated: 2026-05-17T13:08:48.145Z -->
 
 # Experiment Matrix
 
