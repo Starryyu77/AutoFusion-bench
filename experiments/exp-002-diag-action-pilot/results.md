@@ -2,7 +2,8 @@
 
 ## Current status
 
-Status: Phase 0 media smoke passed; Qwen-family model panel passed smoke.
+Status: Phase 0 media smoke passed; Qwen-family model panel passed smoke; v1
+annotation-sheet and scorer smoke are implemented.
 
 The first-pilot model panel is now Qwen-only:
 
@@ -53,12 +54,27 @@ Model smoke result:
 
 Current blocker:
 
-- expert review of the screening/scoring standard recommended minor revision
-  before freezing; this has been incorporated into
-  `annotations/screening_scoring_guideline_v1.md`.
-- annotation sheet and scorer scripts are not implemented yet, so the current
-  model results are access/format evidence rather than scored research
-  evidence.
+- the 5-clip annotation sheet exists as
+  `annotations/smoke_annotation_sheet_v1.draft.{jsonl,csv}`, but it is a draft
+  review sheet, not human-adjudicated gold.
+- the v1 scorer is implemented and verified with a 3-row fixture. The fixture
+  intentionally produces `conditional_policy_failure=0.5`, `policy_action_accuracy=0.666667`,
+  and `rule_lift=0.333333`.
+- current real Qwen model results are still access/format evidence until the
+  smoke or pilot annotation sheet is manually reviewed and action outputs are
+  generated.
+
+Scoring smoke result:
+
+- `scripts/build_annotation_sheet_v1.py` generated the 5-row smoke annotation
+  draft JSONL and CSV.
+- `scripts/score_v1_metrics.py` produced:
+  - `results/scoring_smoke_per_instance.jsonl`
+  - `results/scoring_smoke_metrics.csv`
+  - `results/scoring_smoke_metrics.md`
+- The scorer computes the headline metric as
+  `P(policy_action_correct=false | triage_diagnosis_right=true)` and keeps final
+  answer correctness separate from policy action correctness.
 
 ## Boundary
 

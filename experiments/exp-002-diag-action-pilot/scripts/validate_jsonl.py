@@ -75,6 +75,8 @@ REQUIRED_FIELDS = {
         "abstain",
         "answer",
         "confidence",
+        "risk_policy",
+        "action_rationale",
     },
 }
 

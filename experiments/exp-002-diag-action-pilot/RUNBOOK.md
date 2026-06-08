@@ -140,6 +140,8 @@ Deliverables:
 - `annotations/annotation_guideline_v0.md`
 - `annotations/screening_scoring_guideline_v0.md`
 - `annotations/screening_scoring_guideline_v1.md`
+- `annotations/smoke_annotation_sheet_v1.draft.jsonl`
+- `annotations/smoke_annotation_sheet_v1.draft.csv`
 - `annotations/pilot_annotations.jsonl`
 - `annotations/adjudication_notes.md`
 - `results/annotation_agreement.md`
@@ -149,6 +151,19 @@ The v0 files are traceability drafts only. Recoverability is task-conditioned.
 If annotators cannot point to evidence, the instance is not `recoverable`.
 Headline scoring should use answerable vs unanswerable cases; partial cases go
 to risk-sensitive or ambiguous analysis.
+
+Build the draft annotation sheet from source and corruption manifests:
+
+```bash
+python3 experiments/exp-002-diag-action-pilot/scripts/build_annotation_sheet_v1.py \
+  --source-items experiments/exp-002-diag-action-pilot/data/smoke_source_items.jsonl \
+  --corruption-manifest experiments/exp-002-diag-action-pilot/data/smoke_corruption_manifest.jsonl \
+  --output-jsonl experiments/exp-002-diag-action-pilot/annotations/smoke_annotation_sheet_v1.draft.jsonl \
+  --output-csv experiments/exp-002-diag-action-pilot/annotations/smoke_annotation_sheet_v1.draft.csv
+```
+
+The generated smoke sheet is not gold. It uses generator metadata only as hints
+and marks rows as `needs_human_review`.
 
 ## Phase 4: Model runs
 
@@ -176,6 +191,7 @@ Deliverables:
 - `outputs/fixed_rule_actions.jsonl`
 - `results/pilot_metrics.csv`
 - `results/pilot_metrics.md`
+- `results/pilot_per_instance.jsonl`
 - `results/qualitative_failures.md`
 - `results/go_no_go_memo.md`
 
@@ -188,6 +204,32 @@ Primary metrics:
 - conditional action failure;
 - within-diagnosis rule lift;
 - false answer rate on unrecoverable cases.
+
+Run v1 scorer:
+
+```bash
+python3 experiments/exp-002-diag-action-pilot/scripts/score_v1_metrics.py \
+  --annotations experiments/exp-002-diag-action-pilot/annotations/pilot_annotations.jsonl \
+  --diagnoses experiments/exp-002-diag-action-pilot/outputs/model_diagnoses.jsonl \
+  --actions experiments/exp-002-diag-action-pilot/outputs/model_actions.jsonl \
+  --fixed-rule-actions experiments/exp-002-diag-action-pilot/outputs/fixed_rule_actions.jsonl \
+  --per-instance-jsonl experiments/exp-002-diag-action-pilot/results/pilot_per_instance.jsonl \
+  --metrics-csv experiments/exp-002-diag-action-pilot/results/pilot_metrics.csv \
+  --metrics-md experiments/exp-002-diag-action-pilot/results/pilot_metrics.md
+```
+
+Scoring smoke fixture:
+
+```bash
+python3 experiments/exp-002-diag-action-pilot/scripts/score_v1_metrics.py \
+  --annotations experiments/exp-002-diag-action-pilot/fixtures/scoring_v1_annotations.jsonl \
+  --diagnoses experiments/exp-002-diag-action-pilot/fixtures/scoring_v1_diagnoses.jsonl \
+  --actions experiments/exp-002-diag-action-pilot/fixtures/scoring_v1_model_actions.jsonl \
+  --fixed-rule-actions experiments/exp-002-diag-action-pilot/fixtures/scoring_v1_fixed_rule_actions.jsonl \
+  --per-instance-jsonl experiments/exp-002-diag-action-pilot/results/scoring_smoke_per_instance.jsonl \
+  --metrics-csv experiments/exp-002-diag-action-pilot/results/scoring_smoke_metrics.csv \
+  --metrics-md experiments/exp-002-diag-action-pilot/results/scoring_smoke_metrics.md
+```
 
 ## Validation helper
 

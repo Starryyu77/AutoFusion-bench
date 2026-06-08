@@ -12,4 +12,4 @@ protocol:
   frozen_diagnosis_required: true
   text_evidence_subset: optional
 metrics:
-  primary: self_inconsistency|policy_action_accuracy|conditional_action_failure|rule_lift
+  primary: health_diagnosis_macro_F1|recoverability_macro_F1|policy_action_accuracy|conditional_policy_failure|rule_lift|false_answer_on_unanswerable
