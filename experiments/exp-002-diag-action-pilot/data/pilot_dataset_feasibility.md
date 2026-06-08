@@ -46,7 +46,7 @@ Phase 0 action:
   the Hugging Face package.
 - [x] Inspect `question_relation` distribution.
 - [x] Check sample video frame readability.
-- [ ] Check audio stream readability with ffmpeg or equivalent tooling.
+- [x] Check audio stream readability with ffmpeg or equivalent tooling.
 - [ ] Inspect 20 examples across `question_relation`.
 
 ### MUSIC-AVQA
@@ -178,9 +178,37 @@ Current tooling gap:
 
 Implication:
 
-> Before corruption generation, install or provide an audio probing/extraction
-> path such as ffmpeg/ffprobe, imageio-ffmpeg, PyAV, or a fixed torchaudio
-> environment.
+> The original system image lacks audio tooling, but the experiment now has a
+> project-local `imageio-ffmpeg` install under `.deps/audio`. Use that path for
+> Phase 0 and pilot corruption generation unless a better shared environment is
+> installed.
+
+## Media smoke result
+
+5 source examples were selected and validated:
+
+```text
+experiments/exp-002-diag-action-pilot/data/smoke_source_items.jsonl
+```
+
+5 corruption examples were generated and validated:
+
+```text
+experiments/exp-002-diag-action-pilot/data/smoke_corruption_manifest.jsonl
+```
+
+Probe output:
+
+```text
+experiments/exp-002-diag-action-pilot/outputs/media_smoke/probe_results.jsonl
+```
+
+Result:
+
+- all 5 source MP4 files contained both audio and video streams
+- all 5 corrupted MP4 outputs retained both audio and video streams
+- corruption families covered audio mute, video blur, audio shift, irrelevant
+  video blur, and conflict-like audio replacement
 
 ## Decision
 

@@ -2,7 +2,7 @@
 
 ## Current status
 
-Status: initialized and Phase 0 dataset feasibility started.
+Status: Phase 0 media smoke passed; model smoke blocked on model access.
 
 No model result has been produced yet.
 
@@ -15,7 +15,9 @@ No model result has been produced yet.
 - [ ] Dataset source staged or confirmed stageable on `ntu-gpu43`.
 - [ ] At least 80-120 candidate source clips inspectable.
 - [ ] At least 2 audio-video-capable models verified.
-- [ ] Five-clip structured-output smoke completed.
+- [x] Five-clip media smoke completed.
+- [x] Five-clip diagnosis prompt pack completed.
+- [ ] Five-clip model-call smoke completed.
 
 ## Phase 0 dataset notes
 
@@ -24,11 +26,17 @@ package currently exposes 9,982 MP4 files that match 10,028 QA rows. A 15-video
 sample balanced across `Sound`, `View`, and `Both` downloaded successfully, and
 all sample MP4 files were readable through the existing `.deps/opencv` path.
 
-Current blocker for corruption work:
+Media smoke result:
 
-- audio probing/extraction tooling is missing or broken. Install/provide
-  ffmpeg/ffprobe or an equivalent Python audio-video backend before building
-  audio corruptions.
+- project-local `imageio-ffmpeg` installed under `.deps/audio` on `ntu-gpu43`
+- 5 source MP4 files had audio+video streams
+- 5 corrupted MP4 outputs retained audio+video streams
+- corruption manifest passed schema validation
+
+Current blocker:
+
+- no remote API key or staged local audio-video MLLM is available, so actual
+  model-call smoke has not run.
 
 ## Boundary
 

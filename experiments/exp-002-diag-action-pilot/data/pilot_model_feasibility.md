@@ -1,6 +1,6 @@
 # Pilot Model Feasibility
 
-Status: pending
+Status: blocked on model access
 
 ## Purpose
 
@@ -57,6 +57,14 @@ Output files:
 - `outputs/model_feasibility_smoke.jsonl`
 - `results/model_feasibility_smoke.md`
 
+Current status:
+
+- `outputs/model_smoke_prompt_pack.jsonl` has been created for the 5 media smoke
+  instances.
+- Actual model calls have not run because no remote API key or staged local
+  audio-video MLLM is available.
+- See `results/model_feasibility_smoke.md`.
+
 ## Kill criteria
 
 Kill or redesign if:
@@ -69,4 +77,5 @@ Kill or redesign if:
 
 ## Decision
 
-Pending.
+Blocked until model access is configured. The media and prompt-pack parts of the
+5-clip smoke are ready.

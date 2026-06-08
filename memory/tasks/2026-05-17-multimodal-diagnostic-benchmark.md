@@ -316,3 +316,36 @@ Immediate next action is Phase 0:
 2. verify dataset feasibility for AVQA / MUSIC-AVQA
 3. verify at least 2 audio-video-capable models
 4. run a 5-clip structured-output smoke before any large annotation
+
+## exp-002 media smoke result
+
+Completed the Phase 0 audio/video media smoke on `ntu-gpu43` on 2026-06-08.
+
+Result files:
+
+- `experiments/exp-002-diag-action-pilot/data/smoke_source_items.jsonl`
+- `experiments/exp-002-diag-action-pilot/data/smoke_corruption_manifest.jsonl`
+- `experiments/exp-002-diag-action-pilot/results/media_smoke.md`
+- `experiments/exp-002-diag-action-pilot/results/model_feasibility_smoke.md`
+
+What passed:
+
+- installed project-local `imageio-ffmpeg` under remote `.deps/audio`
+- selected 5 AVQA smoke clips: audio-necessary, video-necessary,
+  audio-video-complementary, corrupted-irrelevant, and conflict-like
+- confirmed all 5 source MP4 files have both audio and video streams
+- generated 5 corrupted MP4 outputs: audio mute, video blur, audio shift,
+  irrelevant video blur, and audio replacement conflict-like
+- confirmed all 5 corrupted outputs retain audio and video streams
+- validated `smoke_source_items.jsonl` and `smoke_corruption_manifest.jsonl`
+- built `outputs/model_smoke_prompt_pack.jsonl` for diagnosis-only model calls
+
+Current blocker:
+
+- actual model-call smoke has not run because no remote API credentials were
+  found and no local audio-video MLLM checkpoint/runtime is staged
+
+Next required action:
+
+- configure access to at least 2 audio-video-capable models, or explicitly
+  choose one API model and one local model candidate for the first model smoke
