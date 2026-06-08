@@ -138,6 +138,7 @@ type, severity, location, relevance, generator family, and seed.
 Deliverables:
 
 - `annotations/annotation_guideline_v0.md`
+- `annotations/screening_scoring_guideline_v0.md`
 - `annotations/pilot_annotations.jsonl`
 - `annotations/adjudication_notes.md`
 - `results/annotation_agreement.md`

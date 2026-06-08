@@ -9,6 +9,10 @@ audio-video evidence under a textual query. The question text is treated as the
 task query, not as corruptible evidence, unless a separate text-evidence subset
 is explicitly added.
 
+For the full source-screening, corrupted-instance labeling, model-output
+scoring, and adjudication rubric, see
+`annotations/screening_scoring_guideline_v0.md`.
+
 ## Labels
 
 ### Modality necessity
