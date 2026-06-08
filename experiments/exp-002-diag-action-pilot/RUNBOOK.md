@@ -139,12 +139,16 @@ Deliverables:
 
 - `annotations/annotation_guideline_v0.md`
 - `annotations/screening_scoring_guideline_v0.md`
+- `annotations/screening_scoring_guideline_v1.md`
 - `annotations/pilot_annotations.jsonl`
 - `annotations/adjudication_notes.md`
 - `results/annotation_agreement.md`
 
-Recoverability is task-conditioned. If annotators cannot point to evidence, the
-instance is not `recoverable`.
+Use `screening_scoring_guideline_v1.md` for the current annotation standard.
+The v0 files are traceability drafts only. Recoverability is task-conditioned.
+If annotators cannot point to evidence, the instance is not `recoverable`.
+Headline scoring should use answerable vs unanswerable cases; partial cases go
+to risk-sensitive or ambiguous analysis.
 
 ## Phase 4: Model runs
 

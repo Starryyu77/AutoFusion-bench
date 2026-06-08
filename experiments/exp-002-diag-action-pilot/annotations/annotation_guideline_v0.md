@@ -1,6 +1,7 @@
 # Annotation Guideline v0
 
-Status: draft
+Status: superseded conceptual draft; current schema lives in
+`screening_scoring_guideline_v1.md`
 
 ## Scope
 
@@ -9,9 +10,13 @@ audio-video evidence under a textual query. The question text is treated as the
 task query, not as corruptible evidence, unless a separate text-evidence subset
 is explicitly added.
 
-For the full source-screening, corrupted-instance labeling, model-output
-scoring, and adjudication rubric, see
-`annotations/screening_scoring_guideline_v0.md`.
+For the current source-screening, corrupted-instance labeling, model-output
+scoring, and adjudication rubric, use
+`annotations/screening_scoring_guideline_v1.md`. The earlier v0 screening
+guideline is superseded and retained only for traceability.
+
+The field examples below are historical v0 examples. Do not implement scorer or
+annotation sheets from these examples.
 
 ## Labels
 

@@ -1,6 +1,6 @@
 # Structured Output Schemas
 
-Status: draft
+Status: draft, aligned with `annotations/screening_scoring_guideline_v1.md`
 
 All model outputs should be parseable as JSON. Free-form rationales are allowed
 only inside bounded string fields.
@@ -11,11 +11,17 @@ only inside bounded string fields.
 {
   "instance_id": "...",
   "model": "...",
-  "modality_status": {
-    "text": "not_applicable|clean|corrupted|missing|conflicting|irrelevant",
-    "audio": "clean|corrupted|missing|conflicting|irrelevant",
-    "video": "clean|corrupted|missing|conflicting|irrelevant"
+  "modality_quality_status": {
+    "text": "not_applicable",
+    "audio": "clean|corrupted_usable|corrupted_unusable|missing|not_applicable",
+    "video": "clean|corrupted_usable|corrupted_unusable|missing|not_applicable"
   },
+  "modality_task_relevance": {
+    "text": "not_applicable",
+    "audio": "necessary|sufficient|supportive|irrelevant|unclear",
+    "video": "necessary|sufficient|supportive|irrelevant|unclear"
+  },
+  "cross_modal_relation": "consistent|conflicting|misaligned|not_applicable|unclear",
   "defect_location": {
     "audio_time": [0.0, 0.0],
     "video_time": [0.0, 0.0],
@@ -23,7 +29,9 @@ only inside bounded string fields.
     "region_note": null
   },
   "corruption_relevance": "answer_relevant|answer_irrelevant|unclear",
-  "recoverability": "recoverable|partially_recoverable|unrecoverable",
+  "corruption_effect": "no_effect|route_change_only|confidence_drop|makes_unanswerable|creates_conflict|unclear",
+  "post_corruption_answerability": "answerable|partially_answerable|unanswerable|unclear",
+  "cross_modal_recoverability": "recoverable|partially_recoverable|unrecoverable|not_needed|unclear",
   "recovery_source": ["audio", "video"],
   "recovery_evidence": {
     "audio_time": [0.0, 0.0],
@@ -47,6 +55,7 @@ Do not include final answer in diagnosis-only output.
   "abstain": false,
   "answer": "...",
   "confidence": "high|medium|low",
+  "risk_policy": "normal|cautious",
   "action_rationale": "short rationale"
 }
 ```
@@ -60,12 +69,19 @@ action prompt.
 {
   "instance_id": "...",
   "model": "...",
-  "modality_status": {
+  "modality_quality_status": {
     "text": "not_applicable",
-    "audio": "clean|corrupted|missing|conflicting|irrelevant",
-    "video": "clean|corrupted|missing|conflicting|irrelevant"
+    "audio": "clean|corrupted_usable|corrupted_unusable|missing|not_applicable",
+    "video": "clean|corrupted_usable|corrupted_unusable|missing|not_applicable"
   },
-  "recoverability": "recoverable|partially_recoverable|unrecoverable",
+  "modality_task_relevance": {
+    "text": "not_applicable",
+    "audio": "necessary|sufficient|supportive|irrelevant|unclear",
+    "video": "necessary|sufficient|supportive|irrelevant|unclear"
+  },
+  "cross_modal_relation": "consistent|conflicting|misaligned|not_applicable|unclear",
+  "post_corruption_answerability": "answerable|partially_answerable|unanswerable|unclear",
+  "cross_modal_recoverability": "recoverable|partially_recoverable|unrecoverable|not_needed|unclear",
   "selected_route": ["audio", "video"],
   "abstain": false,
   "answer": "...",
@@ -82,7 +98,7 @@ action prompt.
   "selected_route": ["audio"],
   "abstain": false,
   "rule_id": "v0",
-  "rule_trace": ["recoverability_recoverable", "selected_clean_recovery_source"]
+  "rule_trace": ["answerable", "selected_acceptable_recovery_source"]
 }
 ```
 

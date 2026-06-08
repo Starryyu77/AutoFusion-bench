@@ -1,6 +1,10 @@
 # Manual Screening and Scoring Guideline v0
 
-Status: draft
+Status: superseded by `screening_scoring_guideline_v1.md`
+
+This v0 guideline is retained for traceability. Use
+`screening_scoring_guideline_v1.md` for annotation-sheet and scorer
+implementation.
 
 ## 目的
 

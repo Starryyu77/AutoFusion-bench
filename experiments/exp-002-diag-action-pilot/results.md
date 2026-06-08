@@ -53,11 +53,12 @@ Model smoke result:
 
 Current blocker:
 
-- the 5-clip smoke found task-conditioned label ambiguity, so generator
-  metadata must be verified by human labels for `modality_necessity` and
-  `corruption_relevance`.
-- scorer scripts are not implemented yet, so the current model results are
-  access/format evidence rather than scored research evidence.
+- expert review of the screening/scoring standard recommended minor revision
+  before freezing; this has been incorporated into
+  `annotations/screening_scoring_guideline_v1.md`.
+- annotation sheet and scorer scripts are not implemented yet, so the current
+  model results are access/format evidence rather than scored research
+  evidence.
 
 ## Boundary
 
