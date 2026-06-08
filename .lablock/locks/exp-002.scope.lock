@@ -1,0 +1,75 @@
+exp_id: exp-002
+shortname: diag-action-pilot
+hypothesis: >-
+  MLLMs show a measurable diagnosis-to-action gap on unreliable audio-video evidence under textual queries: they may
+  diagnose evidence damage but still route answer or abstain incorrectly.
+parent: null
+created: '2026-06-08'
+status: active
+locked_invariants:
+  config:
+    hardware:
+      target: ntu-gpu43
+    execution:
+      mode: direct_ssh_tmux
+    dataset:
+      primary: AVQA_MUSIC_AVQA_style
+      meld_primary: false
+    protocol:
+      scope: audio_video_textual_query
+      source_items: 40
+      scored_instances: 160
+      frozen_diagnosis_required: true
+      text_evidence_subset: optional
+    metrics:
+      primary: self_inconsistency|policy_action_accuracy|conditional_action_failure|rule_lift
+  files:
+    - path: plans/2026-06-08-exp-diagnosis-to-action-pilot.md
+      hash: sha256:6e4530e6cb3d2507b89938d7053b6ce3b83cf5859435c22c250f36e2c61c0ff0
+      reason: source experiment design
+    - path: reviews/2026-06-08-pilot-expert-replies-synthesis.md
+      hash: sha256:499aabb3a874ff10072c46f382eec0511ef9a168d6d0e828b2fca88462c04554
+      reason: expert correction boundary
+    - path: handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-v2.md
+      hash: sha256:b054f8553a08af98f7200223d518f80469195ef819a0f1117551a15654770008
+      reason: pilot protocol boundary
+    - path: paper/2026-06-08-evidence-governance-story.md
+      hash: sha256:097a74565291f059f22372d90a44be158bc3103668abea9f93a968c16b18cee1
+      reason: paper story boundary
+  probes: []
+controlled_changes:
+  added:
+    - AVQA_MUSIC_AVQA source selection
+    - modality necessity labeling
+    - controlled audio-video corruption manifest
+    - human recoverability route abstention labels
+    - diagnosis-only structured prompt
+    - model action from frozen diagnosis
+    - fixed rule from same frozen diagnosis
+    - oracle route and oracle defect-location probes
+  removed: []
+  modified:
+    - pilot scope narrowed to audio-video evidence governance under textual queries
+    - MELD demoted to diagnostic or control substrate
+    - budget routing reframed as constrained evidence selection
+    - final answer accuracy demoted to secondary metric
+naming:
+  matrix_id: mat-002
+  variable_id: var-002
+  canonical_variable: diagnosis_to_action_protocol
+  variant_value: audio_video_textual_query_pilot
+  paper_label: Diagnosis-to-action pilot
+kill_criteria:
+  - fewer than 2 audio-video capable models after feasibility check
+  - AVQA or MUSIC-AVQA raw data cannot be staged legally
+  - question-only baseline solves most candidate items
+  - recoverability agreement kappa below 0.4
+  - quality-only route detector approaches oracle
+  - no clear diagnosis-to-action gap after 200 scored instances
+success_criteria:
+  - self-inconsistency appears in at least 2 models and 10 cases
+  - conditional action failure exceeds 25 percent on a core subset
+  - fixed rule gives 5 to 10 point rule lift
+  - unrecoverable false-answer rate materially exceeds false abstention rate
+  - quality-only detector does not approach oracle
+  - recoverability annotation reaches at least moderate agreement

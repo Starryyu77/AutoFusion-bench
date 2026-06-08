@@ -1,0 +1,15 @@
+hardware:
+  target: ntu-gpu43
+execution:
+  mode: direct_ssh_tmux
+dataset:
+  primary: AVQA_MUSIC_AVQA_style
+  meld_primary: false
+protocol:
+  scope: audio_video_textual_query
+  source_items: 40
+  scored_instances: 160
+  frozen_diagnosis_required: true
+  text_evidence_subset: optional
+metrics:
+  primary: self_inconsistency|policy_action_accuracy|conditional_action_failure|rule_lift

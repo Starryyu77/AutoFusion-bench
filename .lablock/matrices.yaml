@@ -15,3 +15,16 @@ matrices:
       - budget_definition
       - reliability_proxy_boundary
     likely_paper_target: pilot diagnostic table
+  - matrix_id: mat-002
+    slug: evidence-governance-pilot
+    research_question: Can MLLMs act consistently on their own diagnosis of unreliable audio-video evidence under textual queries?
+    primary_variable: diagnosis_to_action_protocol
+    controlled_axes:
+      - dataset_family
+      - modality_necessity_filter
+      - corruption_family
+      - annotation_schema
+      - frozen_diagnosis_action_mapping
+      - model_panel
+      - hardware_target
+    likely_paper_target: diagnosis-to-action pilot table

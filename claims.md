@@ -55,3 +55,30 @@ future paper claims. Do not upgrade a claim's strength without linked evidence.
 - **Evidence**: pending pilot and baseline runs.
 - **Boundary**: This must not be asserted as a result until the pilot benchmark
   and baseline suite are run.
+
+## C005: Revised Story After Expert Feedback
+
+- **Statement**: The paper should be framed around unreliable multimodal
+  evidence governance and the diagnosis-to-action gap, not around five parallel
+  claims that modality diagnosis, recovery, or routing are individually new.
+- **Strength**: accepted revised positioning.
+- **Evidence**:
+  - `reviews/2026-06-08-expert-replies-synthesis.md`
+  - `paper/2026-06-08-evidence-governance-story.md`
+- **Boundary**: This is a story and claim-boundary decision. It still needs a
+  pilot to verify whether current MLLMs exhibit a measurable diagnosis-to-action
+  gap on non-text-dominant raw multimodal data.
+
+## C006: Pilot Scope After Expert Feedback
+
+- **Statement**: The first pilot should validate diagnosis-to-action gap on
+  audio-video evidence governance under textual queries, with an optional small
+  transcript/caption subset; it should not claim to validate the full
+  text-audio-video benchmark story by itself.
+- **Strength**: accepted pilot-scope correction.
+- **Evidence**:
+  - `reviews/2026-06-08-pilot-expert-replies-synthesis.md`
+  - `handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-v2.md`
+- **Boundary**: This is a pilot design decision, not a final benchmark scope.
+  The scaled benchmark may still target text-audio-video evidence governance if
+  a real text-evidence substrate is added and validated.
