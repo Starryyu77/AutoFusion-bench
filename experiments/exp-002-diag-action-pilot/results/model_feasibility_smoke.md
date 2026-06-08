@@ -1,6 +1,6 @@
 # Model Feasibility Smoke
 
-Status: first API model smoke passed; model panel still incomplete
+Status: Qwen-family audio-video panel passed smoke
 
 Checked on: 2026-06-08
 
@@ -30,6 +30,8 @@ repository.
 | `qwen3.7-plus` | text probe | passed | API credentials and OpenAI-compatible client work |
 | `qwen3.7-plus` | 1-clip video diagnosis smoke | passed parse | accepts video input, but current usage reports no audio tokens |
 | `qwen3.5-omni-plus` | 5-clip audio-video diagnosis smoke | passed parse | consumes both audio and video tokens in the same instance |
+| `qwen3-omni-flash` | 5-clip audio-video diagnosis smoke | passed parse | consumes both audio and video tokens in the same instance |
+| `qwen3.5-omni-flash` | 5-clip audio-video diagnosis smoke | inconclusive | stream call stalled before first row completed; interrupted |
 
 Local output files:
 
@@ -37,6 +39,8 @@ Local output files:
 outputs/qwen37_text_probe.jsonl
 outputs/qwen37_plus_video_smoke_attempt.jsonl
 outputs/qwen35_omni_video_smoke.jsonl
+outputs/qwen3_omni_flash_video_smoke.jsonl
+outputs/qwen3_omni_flash_video_smoke_attempt.jsonl
 ```
 
 The first successful audio-video model smoke is `qwen3.5-omni-plus`, not
@@ -44,12 +48,17 @@ The first successful audio-video model smoke is `qwen3.5-omni-plus`, not
 `audio_tokens=null`, so it should not be counted yet as a same-instance
 audio-video model for this pilot.
 
+The second successful audio-video model smoke is `qwen3-omni-flash`. This makes
+the first pilot a Qwen-family model panel rather than a single-model smoke.
+
 ## Smoke results
 
 | Model | Instances | Status OK | JSON parsed | Audio tokens | Video tokens | Notes |
 |---|---:|---:|---:|---|---|---|
 | `qwen3.5-omni-plus` | 5 | 5 | 5 | present in all 5 | present in all 5 | first valid A/V smoke |
+| `qwen3-omni-flash` | 5 | 5 | 5 | present in all 5 | present in all 5 | second valid Qwen A/V smoke |
 | `qwen3.7-plus` | 1 | 1 | 1 | not reported | present | video/text probe only for now |
+| `qwen3.5-omni-flash` | 5 attempted | 0 completed | 0 | not scored | not scored | deferred after long no-output wait |
 
 Observed `qwen3.5-omni-plus` usage:
 
@@ -57,6 +66,13 @@ Observed `qwen3.5-omni-plus` usage:
 - audio tokens per instance: 58 to 72;
 - video tokens per instance: 4,842 to 5,942;
 - completion tokens per instance: 226 to 267.
+
+Observed `qwen3-omni-flash` usage:
+
+- prompt tokens per instance: 5,475 to 6,562;
+- audio tokens per instance: 113 to 136;
+- video tokens per instance: 4,842 to 5,942;
+- completion tokens per instance: 211 to 237.
 
 ## Qualitative audit
 
@@ -66,6 +82,8 @@ Useful signals:
 
 - `qwen3.5-omni-plus` can process the prepared corrupted MP4 files and return
   structured diagnosis JSON.
+- `qwen3-omni-flash` can also process the same prepared corrupted MP4 files and
+  return structured diagnosis JSON.
 - The audio-mute case was diagnosed as audio missing and unrecoverable.
 - The corrupted-irrelevant visual blur control was diagnosed as answer
   irrelevant and recoverable from audio.
@@ -86,15 +104,17 @@ Issues found:
 
 ## Decision
 
-The previous access blocker is removed. The next gate is model-panel
-completion:
+The previous access blocker is removed, and the first-pilot model panel can
+proceed as a Qwen-only panel:
 
 - keep `qwen3.5-omni-plus` as the first confirmed same-instance audio-video
   MLLM baseline;
+- keep `qwen3-omni-flash` as the second confirmed same-instance audio-video
+  MLLM baseline;
 - keep `qwen3.7-plus` as a text/video probe unless a different input mode shows
   real audio consumption;
-- find at least one more same-instance audio-video model before scaling the
-  160-instance pilot;
+- do not rely on `qwen3.5-omni-flash` unless its stalled stream behavior is
+  resolved;
 - revise the prompt/schema so the model does not need to self-report model
   identity;
 - add a scoring script that separates parse success, high-level diagnosis,

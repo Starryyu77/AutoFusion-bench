@@ -2,11 +2,13 @@
 
 ## Current status
 
-Status: Phase 0 media smoke passed; first API model smoke passed.
+Status: Phase 0 media smoke passed; Qwen-family model panel passed smoke.
 
-The first same-instance audio-video model smoke has been produced with
-`qwen3.5-omni-plus`. The minimum model panel is still incomplete because the
-pilot needs at least 2 same-instance audio-video models before scaling.
+The first-pilot model panel is now Qwen-only:
+
+- `qwen3.5-omni-plus` as the main same-instance audio-video MLLM;
+- `qwen3-omni-flash` as the second same-instance audio-video MLLM;
+- `qwen3.7-plus` as a video/text control, not counted as audio-video.
 
 ## Phase 0 checklist
 
@@ -16,10 +18,10 @@ pilot needs at least 2 same-instance audio-video models before scaling.
 - [ ] Full dataset source selected.
 - [ ] Dataset source staged or confirmed stageable on `ntu-gpu43`.
 - [ ] At least 80-120 candidate source clips inspectable.
-- [ ] At least 2 audio-video-capable models verified.
+- [x] At least 2 audio-video-capable models verified in the Qwen family.
 - [x] Five-clip media smoke completed.
 - [x] Five-clip diagnosis prompt pack completed.
-- [x] Five-clip model-call smoke completed for first A/V model.
+- [x] Five-clip model-call smoke completed for Qwen A/V panel.
 
 ## Phase 0 dataset notes
 
@@ -44,14 +46,18 @@ Model smoke result:
   same-instance audio-video model.
 - `qwen3.5-omni-plus` processed all 5 corrupted MP4 smoke instances with both
   audio and video tokens observed and 5/5 JSON parse success.
+- `qwen3-omni-flash` processed all 5 corrupted MP4 smoke instances with both
+  audio and video tokens observed and 5/5 JSON parse success.
+- `qwen3.5-omni-flash` was attempted but the stream call stalled before a first
+  row completed; it is deferred unless needed.
 
 Current blocker:
 
-- only 1 same-instance audio-video model has been confirmed; the Phase 0 model
-  panel gate requires at least 2 before scaling.
 - the 5-clip smoke found task-conditioned label ambiguity, so generator
   metadata must be verified by human labels for `modality_necessity` and
   `corruption_relevance`.
+- scorer scripts are not implemented yet, so the current model results are
+  access/format evidence rather than scored research evidence.
 
 ## Boundary
 
