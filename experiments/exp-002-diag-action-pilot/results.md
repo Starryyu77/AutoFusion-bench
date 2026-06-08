@@ -2,9 +2,11 @@
 
 ## Current status
 
-Status: Phase 0 media smoke passed; model smoke blocked on model access.
+Status: Phase 0 media smoke passed; first API model smoke passed.
 
-No model result has been produced yet.
+The first same-instance audio-video model smoke has been produced with
+`qwen3.5-omni-plus`. The minimum model panel is still incomplete because the
+pilot needs at least 2 same-instance audio-video models before scaling.
 
 ## Phase 0 checklist
 
@@ -17,7 +19,7 @@ No model result has been produced yet.
 - [ ] At least 2 audio-video-capable models verified.
 - [x] Five-clip media smoke completed.
 - [x] Five-clip diagnosis prompt pack completed.
-- [ ] Five-clip model-call smoke completed.
+- [x] Five-clip model-call smoke completed for first A/V model.
 
 ## Phase 0 dataset notes
 
@@ -33,10 +35,23 @@ Media smoke result:
 - 5 corrupted MP4 outputs retained audio+video streams
 - corruption manifest passed schema validation
 
+Model smoke result:
+
+- DashScope/OpenAI-compatible client access was confirmed on `ntu-gpu43`.
+- `qwen3.7-plus` text probe passed.
+- `qwen3.7-plus` accepted a 1-clip video diagnosis request, but the response
+  usage reported `video_tokens` and no `audio_tokens`; do not count it yet as a
+  same-instance audio-video model.
+- `qwen3.5-omni-plus` processed all 5 corrupted MP4 smoke instances with both
+  audio and video tokens observed and 5/5 JSON parse success.
+
 Current blocker:
 
-- no remote API key or staged local audio-video MLLM is available, so actual
-  model-call smoke has not run.
+- only 1 same-instance audio-video model has been confirmed; the Phase 0 model
+  panel gate requires at least 2 before scaling.
+- the 5-clip smoke found task-conditioned label ambiguity, so generator
+  metadata must be verified by human labels for `modality_necessity` and
+  `corruption_relevance`.
 
 ## Boundary
 

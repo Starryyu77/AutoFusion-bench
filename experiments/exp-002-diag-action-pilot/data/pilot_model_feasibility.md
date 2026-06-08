@@ -1,6 +1,6 @@
 # Pilot Model Feasibility
 
-Status: blocked on model access
+Status: first API model smoke passed; need second same-instance audio-video model
 
 ## Purpose
 
@@ -26,7 +26,8 @@ Preferred panel:
 
 | Model | Access | Audio input | Video input | Same-instance A/V | Structured output | Limits | Status |
 |---|---|---|---|---|---|---|---|
-| TBD | TBD | TBD | TBD | TBD | TBD | TBD | pending |
+| `qwen3.5-omni-plus` | DashScope API | yes; `audio_tokens` observed | yes; `video_tokens` observed | yes | 5/5 parsed on smoke | short MP4 smoke passed; broader limits still need documentation | first confirmed A/V baseline |
+| `qwen3.7-plus` | DashScope API | not confirmed; `audio_tokens=null` in video attempt | yes; `video_tokens` observed | no, not counted yet | 1/1 parsed on video attempt; text probe passed | video/text only under current input path | text/video probe only |
 
 ## Required checks
 
@@ -61,9 +62,22 @@ Current status:
 
 - `outputs/model_smoke_prompt_pack.jsonl` has been created for the 5 media smoke
   instances.
-- Actual model calls have not run because no remote API key or staged local
-  audio-video MLLM is available.
+- DashScope API access was tested without storing credentials in the repository.
+- `qwen3.7-plus` text probe passed.
+- `qwen3.7-plus` accepted one video diagnosis instance and returned parseable
+  JSON, but reported no audio tokens, so it is not counted as a same-instance
+  audio-video model yet.
+- `qwen3.5-omni-plus` processed all 5 smoke instances with both audio and video
+  tokens observed and 5/5 structured JSON parse success.
 - See `results/model_feasibility_smoke.md`.
+
+## Immediate interpretation
+
+The access problem is solved for the first model. The experiment still has not
+passed the full model feasibility gate because the minimum panel requires at
+least 2 same-instance audio-video models. The next model-feasibility task is to
+find a second A/V-capable baseline or explicitly redesign the pilot around a
+single-model diagnostic plus non-MLLM controls.
 
 ## Kill criteria
 
@@ -77,5 +91,6 @@ Kill or redesign if:
 
 ## Decision
 
-Blocked until model access is configured. The media and prompt-pack parts of the
-5-clip smoke are ready.
+Access is configured for the first confirmed audio-video model. Do not scale the
+pilot yet: the next gate is confirming a second same-instance audio-video model
+or formally redesigning the model panel.
