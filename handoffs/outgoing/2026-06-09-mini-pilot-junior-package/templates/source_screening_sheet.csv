@@ -1,0 +1,6 @@
+source_id,source_dataset,video_id,question,choices,gold_answer,bucket,question_only_answerable_without_media,question_only_blind_answer,question_only_blind_confidence,clean_audio_quality,clean_video_quality,source_decision,audio_relevance,video_relevance,audio_video_joint_required,evidence_note,confidence,problem_note
+TODO_001,AVQA_HF_sample,TODO_VIDEO_ID,"TODO question","[""choice A"",""choice B"",""choice C"",""choice D""]",TODO_ANSWER,audio_necessary,no,,low,clean,clean,adjudicate,unclear,unclear,unclear,,low,
+TODO_002,AVQA_HF_sample,TODO_VIDEO_ID,"TODO question","[""choice A"",""choice B"",""choice C"",""choice D""]",TODO_ANSWER,video_necessary,no,,low,clean,clean,adjudicate,unclear,unclear,unclear,,low,
+TODO_003,AVQA_HF_sample,TODO_VIDEO_ID,"TODO question","[""choice A"",""choice B"",""choice C"",""choice D""]",TODO_ANSWER,audio_video_complementary,no,,low,clean,clean,adjudicate,unclear,unclear,unclear,,low,
+TODO_004,AVQA_HF_sample,TODO_VIDEO_ID,"TODO question","[""choice A"",""choice B"",""choice C"",""choice D""]",TODO_ANSWER,corrupted_irrelevant_control,no,,low,clean,clean,adjudicate,unclear,unclear,unclear,,low,
+TODO_005,AVQA_HF_sample,TODO_VIDEO_ID,"TODO question","[""choice A"",""choice B"",""choice C"",""choice D""]",TODO_ANSWER,conflict_or_temporal,no,,low,clean,clean,adjudicate,unclear,unclear,unclear,,low,
