@@ -9,14 +9,19 @@ annotators exactly what to do.
 
 ## 1. Annotation Goal
 
-For each corrupted audio-video QA instance, decide:
+For each corrupted audio-video QA instance, decide only the fields that require
+human judgment:
 
-1. whether the original question truly needs media evidence;
-2. which modalities are technically usable after corruption;
-3. which modalities matter for the current question;
-4. whether the corrupted instance is still answerable;
-5. whether missing information can be recovered from another modality;
-6. which route a reliable system should use, or whether it should abstain.
+1. whether the current question still has enough evidence after corruption;
+2. whether missing information can be recovered from another modality;
+3. which route a reliable system should use, or whether it should abstain;
+4. whether the sample is clear enough for headline scoring.
+
+Do not spend annotation time re-entering mechanical facts that are already known
+from the corruption generator, such as "audio was muted" or "video blur was
+applied." Those fields should be auto-prefilled. Human annotators only override
+them when the generated metadata is wrong or when the mechanical corruption has
+a different task-conditioned effect than expected.
 
 The annotation target is not model preference. The target is an evidence-backed
 gold label for scoring model behavior.
@@ -75,6 +80,8 @@ Allowed relevance values:
 - `irrelevant`: not useful for the current question.
 - `unclear`: cannot decide reliably.
 
+For the 5-clip smoke task, these fields can be treated as prefilled hints. Only
+edit them when the hint is visibly wrong or when source evidence is ambiguous.
 Reject or adjudicate the source if the clean gold answer is unsupported,
 ambiguous, or primarily prior-only.
 
@@ -95,6 +102,9 @@ Allowed quality values:
 - `missing`: absent or equivalent to absent, such as full silence.
 - `not_applicable`: not a presented evidence modality.
 
+This is mostly an auto/prefilled field because the generator knows whether it
+muted audio, blurred video, shifted audio, or replaced audio. Human annotators
+should only correct it if the actual media does not match the generator record.
 Do not write `irrelevant` as a quality value. Relevance is a separate field.
 
 ### Step 4: Task relevance after corruption
@@ -121,8 +131,8 @@ Allowed cross-modal relation values:
 - `not_applicable`: only one evidence modality matters.
 - `unclear`: cannot decide.
 
-Important: a modality can be `corrupted_usable` and `irrelevant` at the same
-time.
+This is a human judgment field because relevance depends on the question. A
+modality can be `corrupted_usable` and `irrelevant` at the same time.
 
 ### Step 5: Corruption effect
 
@@ -146,7 +156,9 @@ Allowed `corruption_effect`:
 - `creates_conflict`: corruption creates incompatible evidence.
 - `unclear`: cannot decide.
 
-Generator metadata is a hint only. It is not gold.
+Generator metadata tells us what was changed, but not whether the change matters
+for this question. The human decision here is usually only: no effect, confidence
+drop, route change, unanswerable, or conflict.
 
 ### Step 6: Answerability and recovery
 

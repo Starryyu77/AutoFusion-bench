@@ -504,7 +504,7 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
     <aside className="form-panel">
       <div className="panel-header sticky">
         <div>
-          <h2>v1 标注字段</h2>
+          <h2>标注任务</h2>
           <span>{annotation.instance_id}</span>
         </div>
         <SelectField
@@ -515,7 +515,111 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
         />
       </div>
 
-      <FieldGroup title="Source screening">
+      <div className="annotation-guidance">
+        <strong>优先填 3 件事：</strong>
+        <span>污染后还能不能答；如果能答该看哪个模态；如果不能答是否拒答。</span>
+        <span>模态坏没坏、怎么坏，通常由脚本预填；只在你发现不对时修改。</span>
+      </div>
+
+      <FieldGroup title="1. 人工必填：能否回答 / 能否恢复">
+        <SelectField
+          label="污染后还能不能答"
+          value={annotation.post_corruption_answerability}
+          options={options.post_corruption_answerability}
+          onChange={(value) => onChange(["post_corruption_answerability"], value)}
+        />
+        <SelectField
+          label="能否从另一模态补回来"
+          value={annotation.cross_modal_recoverability}
+          options={options.cross_modal_recoverability}
+          onChange={(value) => onChange(["cross_modal_recoverability"], value)}
+        />
+        <SelectField
+          label="是否进入主评测"
+          value={annotation.main_answerability}
+          options={options.main_answerability}
+          onChange={(value) => onChange(["main_answerability"], value)}
+        />
+        <CheckboxGroup
+          label="恢复证据来自"
+          values={annotation.recovery_source || []}
+          options={["audio", "video"]}
+          onChange={(values) => onChange(["recovery_source"], values)}
+        />
+        <TextAreaField
+          label="证据说明"
+          value={annotation.recovery_evidence?.note || ""}
+          onChange={(value) => onChange(["recovery_evidence", "note"], value)}
+        />
+      </FieldGroup>
+
+      <FieldGroup title="2. 人工必填：正确路线 / 是否拒答">
+        <RouteButtons
+          label="哪些路线可接受"
+          routes={annotation.oracle_policy_action?.acceptable_routes || []}
+          onToggle={(route) => setRouteList(["oracle_policy_action", "acceptable_routes"], route)}
+        />
+        <CheckboxGroup
+          label="首选路线"
+          values={annotation.oracle_policy_action?.preferred_route || []}
+          options={["audio", "video"]}
+          onChange={(values) => onChange(["oracle_policy_action", "preferred_route"], values)}
+        />
+        <RouteButtons
+          label="哪些路线不应该用"
+          routes={annotation.oracle_policy_action?.disallowed_routes || []}
+          onToggle={(route) => setRouteList(["oracle_policy_action", "disallowed_routes"], route)}
+        />
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={Boolean(annotation.oracle_policy_action?.abstain)}
+            onChange={(event) => onChange(["oracle_policy_action", "abstain"], event.target.checked)}
+          />
+          证据不足，应拒答
+        </label>
+        <SelectField
+          label="oracle answerability"
+          value={annotation.oracle_policy_action?.answerability}
+          options={options.oracle_answerability}
+          onChange={(value) => onChange(["oracle_policy_action", "answerability"], value)}
+        />
+        <TextField
+          label="expected answer"
+          value={annotation.oracle_policy_action?.expected_answer || ""}
+          onChange={(value) => onChange(["oracle_policy_action", "expected_answer"], value || null)}
+        />
+        <SelectField
+          label="risk level"
+          value={annotation.oracle_policy_action?.risk_level}
+          options={options.oracle_risk_level}
+          onChange={(value) => onChange(["oracle_policy_action", "risk_level"], value)}
+        />
+      </FieldGroup>
+
+      <FieldGroup title="3. 人工必填：质量控制">
+        <SelectField
+          label="标注信心"
+          value={annotation.annotation_confidence}
+          options={options.annotation_confidence}
+          onChange={(value) => onChange(["annotation_confidence"], value)}
+        />
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={Boolean(annotation.risk_sensitive)}
+            onChange={(event) => onChange(["risk_sensitive"], event.target.checked)}
+          />
+          边界样本，除非仲裁否则不进主表
+        </label>
+        <TextAreaField
+          label="标注备注"
+          value={annotation.annotator_notes || ""}
+          onChange={(value) => onChange(["annotator_notes"], value)}
+        />
+      </FieldGroup>
+
+      <DetailsGroup title="自动/抽查字段：题目偏置与原始证据">
         <SelectField
           label="仅看题目是否可答"
           value={annotation.question_only_blind?.answerable_without_media}
@@ -558,9 +662,9 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
           value={annotation.source_evidence_note || ""}
           onChange={(value) => onChange(["source_evidence_note"], value)}
         />
-      </FieldGroup>
+      </DetailsGroup>
 
-      <FieldGroup title="Corrupted instance">
+      <DetailsGroup title="自动/抽查字段：模态质量与污染影响">
         <TwoColumn>
           <SelectField
             label="audio quality"
@@ -607,105 +711,7 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
           options={options.corruption_effect}
           onChange={(value) => onChange(["corruption_effect"], value)}
         />
-      </FieldGroup>
-
-      <FieldGroup title="Answerability and recovery">
-        <SelectField
-          label="post-corruption answerability"
-          value={annotation.post_corruption_answerability}
-          options={options.post_corruption_answerability}
-          onChange={(value) => onChange(["post_corruption_answerability"], value)}
-        />
-        <SelectField
-          label="cross-modal recoverability"
-          value={annotation.cross_modal_recoverability}
-          options={options.cross_modal_recoverability}
-          onChange={(value) => onChange(["cross_modal_recoverability"], value)}
-        />
-        <SelectField
-          label="main answerability"
-          value={annotation.main_answerability}
-          options={options.main_answerability}
-          onChange={(value) => onChange(["main_answerability"], value)}
-        />
-        <CheckboxGroup
-          label="recovery source"
-          values={annotation.recovery_source || []}
-          options={["audio", "video"]}
-          onChange={(values) => onChange(["recovery_source"], values)}
-        />
-        <TextAreaField
-          label="recovery note"
-          value={annotation.recovery_evidence?.note || ""}
-          onChange={(value) => onChange(["recovery_evidence", "note"], value)}
-        />
-      </FieldGroup>
-
-      <FieldGroup title="Oracle policy action">
-        <RouteButtons
-          label="acceptable routes"
-          routes={annotation.oracle_policy_action?.acceptable_routes || []}
-          onToggle={(route) => setRouteList(["oracle_policy_action", "acceptable_routes"], route)}
-        />
-        <CheckboxGroup
-          label="preferred route"
-          values={annotation.oracle_policy_action?.preferred_route || []}
-          options={["audio", "video"]}
-          onChange={(values) => onChange(["oracle_policy_action", "preferred_route"], values)}
-        />
-        <RouteButtons
-          label="disallowed routes"
-          routes={annotation.oracle_policy_action?.disallowed_routes || []}
-          onToggle={(route) => setRouteList(["oracle_policy_action", "disallowed_routes"], route)}
-        />
-        <label className="checkbox-row">
-          <input
-            type="checkbox"
-            checked={Boolean(annotation.oracle_policy_action?.abstain)}
-            onChange={(event) => onChange(["oracle_policy_action", "abstain"], event.target.checked)}
-          />
-          oracle abstain
-        </label>
-        <SelectField
-          label="oracle answerability"
-          value={annotation.oracle_policy_action?.answerability}
-          options={options.oracle_answerability}
-          onChange={(value) => onChange(["oracle_policy_action", "answerability"], value)}
-        />
-        <TextField
-          label="expected answer"
-          value={annotation.oracle_policy_action?.expected_answer || ""}
-          onChange={(value) => onChange(["oracle_policy_action", "expected_answer"], value || null)}
-        />
-        <SelectField
-          label="risk level"
-          value={annotation.oracle_policy_action?.risk_level}
-          options={options.oracle_risk_level}
-          onChange={(value) => onChange(["oracle_policy_action", "risk_level"], value)}
-        />
-      </FieldGroup>
-
-      <FieldGroup title="QC notes">
-        <SelectField
-          label="annotation confidence"
-          value={annotation.annotation_confidence}
-          options={options.annotation_confidence}
-          onChange={(value) => onChange(["annotation_confidence"], value)}
-        />
-        <label className="checkbox-row">
-          <input
-            type="checkbox"
-            checked={Boolean(annotation.risk_sensitive)}
-            onChange={(event) => onChange(["risk_sensitive"], event.target.checked)}
-          />
-          risk-sensitive / exclude unless adjudicated
-        </label>
-        <TextAreaField
-          label="annotator notes"
-          value={annotation.annotator_notes || ""}
-          onChange={(value) => onChange(["annotator_notes"], value)}
-        />
-      </FieldGroup>
+      </DetailsGroup>
     </aside>
   );
 }
@@ -716,6 +722,15 @@ function FieldGroup({ title, children }) {
       <h3>{title}</h3>
       {children}
     </section>
+  );
+}
+
+function DetailsGroup({ title, children }) {
+  return (
+    <details className="field-group details-group">
+      <summary>{title}</summary>
+      <div className="details-body">{children}</div>
+    </details>
   );
 }
 

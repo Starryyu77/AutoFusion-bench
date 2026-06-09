@@ -202,6 +202,22 @@ textarea {
   background: var(--surface);
 }
 
+.annotation-guidance {
+  display: grid;
+  gap: 6px;
+  margin: 12px;
+  padding: 12px;
+  border: 1px solid #cfe2d8;
+  border-radius: 8px;
+  background: #edf7f2;
+  color: #244036;
+  font-size: 13px;
+}
+
+.annotation-guidance strong {
+  color: var(--ink);
+}
+
 .status-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -496,6 +512,23 @@ textarea {
   margin: 0 0 2px;
   font-size: 13px;
   color: var(--ink);
+}
+
+.details-group {
+  background: #fafbf9;
+}
+
+.details-group summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.details-body {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .two-column {
