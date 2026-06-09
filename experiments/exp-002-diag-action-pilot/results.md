@@ -133,6 +133,46 @@ Interpretation:
 - `qwen3.5-omni-plus` has a clearer diagnosis signal than `qwen3-omni-flash` on
   this tiny smoke set, but the sample is too small for a paper claim.
 
+4-row real action run:
+
+- added `prompts/action_from_diagnosis_prompt_v1.md`;
+- added `scripts/run_dashscope_real_actions.py`;
+- ran real action calls for `qwen3.5-omni-plus` and `qwen3-omni-flash` on the
+  4-row smoke gold;
+- each call consumed the corrupted media, the question/options, and the frozen
+  diagnosis row for the same model;
+- both models produced 4/4 parseable action JSON rows;
+- no API key is stored in the result files.
+
+Outputs:
+
+- `results/smoke_v1_real_action_logs.qwen35_omni_plus.jsonl`
+- `results/smoke_v1_real_action_logs.qwen3_omni_flash.jsonl`
+- `results/smoke_v1_real_actions.qwen35_omni_plus.jsonl`
+- `results/smoke_v1_real_actions.qwen3_omni_flash.jsonl`
+- `results/smoke_v1_real_actions.combined.jsonl`
+- `results/smoke_v1_fixed_rule_actions.jsonl`
+- `results/smoke_v1_real_action_scoring_per_instance.jsonl`
+- `results/smoke_v1_real_action_scoring_metrics.csv`
+- `results/smoke_v1_real_action_scoring_metrics.md`
+
+Real-action headline metrics:
+
+| Model | Policy action accuracy | Conditional policy failure | Task accuracy on answerable rows | Governed success |
+|---|---:|---:|---:|---:|
+| `qwen3.5-omni-plus` | 1.000000 | 0.000000 | 0.666667 | 0.750000 |
+| `qwen3-omni-flash` | 0.750000 | n/a | 0.333333 | 0.500000 |
+
+Interpretation:
+
+- the action-stage route/abstention scores match the earlier proxy-action smoke,
+  so the proxy path was directionally consistent for this 4-row set;
+- real action adds final-answer evidence: both models selected the right visual
+  route for `smoke-conflict-like__audio_replace_conflict_like`, but answered
+  `street` while the gold answer is `On the road`;
+- this is a useful pilot warning: policy action correctness and final answer
+  correctness must remain separate metrics.
+
 ## Boundary
 
 MELD is not the main positive substrate for this experiment. It may be used only
