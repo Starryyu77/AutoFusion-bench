@@ -140,6 +140,7 @@ Deliverables:
 - `annotations/annotation_guideline_v0.md`
 - `annotations/screening_scoring_guideline_v0.md`
 - `annotations/screening_scoring_guideline_v1.md`
+- `annotations/annotation_task_protocol_v1.md`
 - `annotations/smoke_annotation_sheet_v1.draft.jsonl`
 - `annotations/smoke_annotation_sheet_v1.draft.csv`
 - `annotations/pilot_annotations.jsonl`
@@ -151,6 +152,10 @@ The v0 files are traceability drafts only. Recoverability is task-conditioned.
 If annotators cannot point to evidence, the instance is not `recoverable`.
 Headline scoring should use answerable vs unanswerable cases; partial cases go
 to risk-sensitive or ambiguous analysis.
+
+Use `annotation_task_protocol_v1.md` as the annotator-facing task protocol. It
+defines the required annotation order, allowed values, adjudication triggers,
+headline inclusion rules, and the 5-clip smoke annotation gate.
 
 Build the draft annotation sheet from source and corruption manifests:
 
@@ -164,6 +169,20 @@ python3 experiments/exp-002-diag-action-pilot/scripts/build_annotation_sheet_v1.
 
 The generated smoke sheet is not gold. It uses generator metadata only as hints
 and marks rows as `needs_human_review`.
+
+If an annotator edits the CSV directly, convert it back to scorer-compatible
+JSONL with:
+
+```bash
+python3 experiments/exp-002-diag-action-pilot/scripts/annotation_csv_to_jsonl_v1.py \
+  --input-csv experiments/exp-002-diag-action-pilot/annotations/smoke_annotation_sheet_v1.reviewed.csv \
+  --base-jsonl experiments/exp-002-diag-action-pilot/annotations/smoke_annotation_sheet_v1.draft.jsonl \
+  --output-jsonl experiments/exp-002-diag-action-pilot/annotations/smoke_annotations_v1.gold.jsonl \
+  --strict-gold
+```
+
+`--strict-gold` should fail if accepted rows still contain unresolved headline
+fields.
 
 ### 3.1 Local annotation app
 

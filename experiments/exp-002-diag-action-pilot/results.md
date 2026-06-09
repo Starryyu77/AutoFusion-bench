@@ -57,6 +57,9 @@ Current blocker:
 - the 5-clip annotation sheet exists as
   `annotations/smoke_annotation_sheet_v1.draft.{jsonl,csv}`, but it is a draft
   review sheet, not human-adjudicated gold.
+- the annotator-facing task protocol now lives at
+  `annotations/annotation_task_protocol_v1.md`. This should be used as the
+  normative annotation procedure before producing gold labels.
 - the v1 scorer is implemented and verified with a 3-row fixture. The fixture
   intentionally produces `conditional_policy_failure=0.5`, `policy_action_accuracy=0.666667`,
   and `rule_lift=0.333333`.
@@ -68,6 +71,8 @@ Scoring smoke result:
 
 - `scripts/build_annotation_sheet_v1.py` generated the 5-row smoke annotation
   draft JSONL and CSV.
+- `scripts/annotation_csv_to_jsonl_v1.py` converts reviewed CSV labels into
+  scorer-compatible JSONL and can enforce `--strict-gold` checks.
 - `scripts/score_v1_metrics.py` produced:
   - `results/scoring_smoke_per_instance.jsonl`
   - `results/scoring_smoke_metrics.csv`
