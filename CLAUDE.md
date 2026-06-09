@@ -47,6 +47,30 @@ Advisory skills:
 - `scope.lock` records the intended experimental frame. Drift events are research alignment notes by default; use `/lab-guard`, `/lab-fork`, or `lablock override` when you want to classify the drift.
 - Use `/lab-update` from any project to refresh the installed LabLock skill package from the local canonical LabLock checkout.
 
+### AutoFusion annotation workflow
+
+When a task involves AutoFusion annotation, labeling, human review, media review,
+annotation sheets, source/corruption manifests, annotator exports, or
+adjudication:
+
+- First use the repo-local skill at `skills/autofusion-annotation/SKILL.md`.
+- Read `skills/autofusion-annotation/references/data_spec.md` before designing
+  or changing annotation data.
+- Use `experiments/exp-002-diag-action-pilot/annotation_app/` as the reusable
+  local annotation website. Docker is optional; the default path is local
+  Python venv + npm via that app's scripts.
+- Keep generator metadata as hints only. Do not treat generated corruption or
+  modality fields as gold labels until human/adjudicated review.
+- Organize every AutoFusion annotation batch under its experiment folder using
+  the shared source-items, corruption-manifest, draft-sheet, annotator-export,
+  merge, and adjudication contract from the data spec.
+- Before handing annotation work to people, run the annotation app smoke test:
+  `.venv/bin/python scripts/smoke_test.py` from the annotation app directory.
+- Validate every exported annotation JSONL with the existing validator before
+  scorer handoff.
+- Record annotation status, output paths, and blockers in the relevant
+  experiment runbook and project memory; do not leave conclusions only in chat.
+
 ### Do not
 
 - Do not manually edit `MAP.md`, `experiments/matrix.md`, or `.lablock/state/*`.
