@@ -52,7 +52,10 @@ medium confidence, all rows are no longer risk-sensitive, and 4/5 rows now
 enter headline scoring as `instance_decision=accept`.
 
 The file is still not a fully adjudicated 5-row gold set. One row remains
-adjudication-only because it is still `partially_answerable`.
+adjudication-only because it is still `partially_answerable`. We intentionally
+keep `smoke-video-necessary__video_blur` out of headline scoring for now: the
+clean and corrupted clips appear answerable only with some experience/common
+sense, rather than with fully clear visual evidence.
 
 The annotation app export path now derives scorer-facing `instance_decision`
 conservatively. A row enters headline scoring only when its clean source is
@@ -64,9 +67,7 @@ main-table gold row.
 ## Next Action
 
 Use this file as a partial smoke gold export: 4 rows can enter headline scoring,
-while 1 row remains an adjudication case. Required fix before promoting all 5
-rows:
-
-1. For `smoke-video-necessary__video_blur`, either change
-   `post_corruption_answerability` to `answerable` if the evidence is clear
-   enough, or leave it adjudicated.
+while 1 row remains an adjudication/qualitative case. Do not promote
+`smoke-video-necessary__video_blur` to headline gold unless a later adjudicator
+decides the visual evidence is clear enough without relying mainly on common
+sense.
