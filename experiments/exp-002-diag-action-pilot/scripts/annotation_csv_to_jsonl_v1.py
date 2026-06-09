@@ -107,6 +107,18 @@ def derive_instance_decision(annotation: dict[str, Any]) -> str:
     return "accept"
 
 
+def normalize_oracle_policy(annotation: dict[str, Any]) -> dict[str, Any]:
+    oracle = annotation.setdefault("oracle_policy_action", {})
+    main_answerability = annotation.get("main_answerability")
+    post_answerability = annotation.get("post_corruption_answerability")
+    if main_answerability == "unanswerable" and oracle.get("abstain") is True:
+        oracle["answerability"] = "unanswerable"
+        oracle["expected_answer"] = None
+    elif main_answerability == "answerable" and post_answerability == "answerable":
+        oracle["answerability"] = "answerable"
+    return annotation
+
+
 def row_to_annotation(
     row: dict[str, str],
     base: dict[str, Any] | None,
@@ -210,6 +222,7 @@ def row_to_annotation(
         "annotation_confidence": clean(row.get("annotation_confidence")),
         "annotator_notes": clean(row.get("annotator_notes")),
     }
+    annotation = normalize_oracle_policy(annotation)
     annotation["instance_decision"] = derive_instance_decision(annotation)
     return annotation
 

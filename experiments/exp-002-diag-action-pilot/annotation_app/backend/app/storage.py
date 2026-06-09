@@ -128,6 +128,20 @@ def derive_instance_decision(row: dict[str, Any]) -> str:
     return "accept"
 
 
+def normalize_oracle_policy(row: dict[str, Any]) -> dict[str, Any]:
+    normalized = json.loads(json.dumps(row, ensure_ascii=False))
+    oracle = normalized.setdefault("oracle_policy_action", {})
+    main_answerability = normalized.get("main_answerability")
+    post_answerability = normalized.get("post_corruption_answerability")
+
+    if main_answerability == "unanswerable" and oracle.get("abstain") is True:
+        oracle["answerability"] = "unanswerable"
+        oracle["expected_answer"] = None
+    elif main_answerability == "answerable" and post_answerability == "answerable":
+        oracle["answerability"] = "answerable"
+    return normalized
+
+
 def import_sheet(
     db_path: Path,
     sheet_path: Path,
@@ -312,6 +326,7 @@ def export_annotations(db_path: Path, output_path: Path) -> dict[str, Any]:
     for row in rows:
         annotation = json.loads(row["row_json"])
         annotation.setdefault("source_decision", "adjudicate")
+        annotation = normalize_oracle_policy(annotation)
         annotation["instance_decision"] = derive_instance_decision(annotation)
         annotations.append(annotation)
     count = write_jsonl(output_path, annotations)
