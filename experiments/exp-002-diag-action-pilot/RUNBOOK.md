@@ -143,9 +143,11 @@ Deliverables:
 - `annotations/annotation_task_protocol_v1.md`
 - `annotations/smoke_annotation_sheet_v1.draft.jsonl`
 - `annotations/smoke_annotation_sheet_v1.draft.csv`
+- `annotations/pilot_annotations.local.jsonl`
 - `annotations/pilot_annotations.jsonl`
 - `annotations/adjudication_notes.md`
 - `results/annotation_agreement.md`
+- `results/pilot_annotation_local_validation.md`
 
 Use `screening_scoring_guideline_v1.md` for the current annotation standard.
 The v0 files are traceability drafts only. Recoverability is task-conditioned.
@@ -199,6 +201,20 @@ audio/video time spans, and less error-prone v1 field editing than a CSV sheet.
 It stores local progress in SQLite and exports scorer-compatible JSONL.
 Docker is optional; the default setup path is local Python venv + npm so each
 annotator can map their own local media directory.
+
+The current local 5-row website export is:
+
+`annotations/pilot_annotations.local.jsonl`
+
+It passes the annotation validator, but it is not final gold. All five exported
+rows are low-confidence, risk-sensitive, and `main_answerability=exclude_from_main`,
+so the conservative export logic marks them as `instance_decision=reject`.
+See `results/pilot_annotation_local_validation.md`.
+
+Website `review_status=reviewed` means only that the row has been inspected. A
+row enters scorer headline tables only when exported as `instance_decision=accept`,
+which requires reviewed status, `main_answerability=answerable|unanswerable`,
+high/medium confidence, and `risk_sensitive=false`.
 
 Check local configuration:
 

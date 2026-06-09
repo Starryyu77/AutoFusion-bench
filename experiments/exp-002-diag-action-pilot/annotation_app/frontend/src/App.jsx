@@ -519,6 +519,7 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
         <strong>优先填 3 件事：</strong>
         <span>污染后还能不能答；如果能答该看哪个模态；如果不能答是否拒答。</span>
         <span>模态坏没坏、怎么坏，通常由脚本预填；只在你发现不对时修改。</span>
+        <span>“保存完成”只表示已审核；进入主表还需要高/中置信度、非边界样本、且明确可答或不可答。</span>
       </div>
 
       <FieldGroup title="1. 人工必填：能否回答 / 能否恢复">

@@ -254,8 +254,22 @@ Fill:
 - `annotation_confidence`: `high|medium|low`
 - `annotator_notes`: short free text
 
-Use `review_status=adjudicate` if confidence is low or if two reasonable labels
-would lead to different scorer outcomes.
+In the website, use:
+
+- `review_status=reviewed` when the row has been inspected;
+- `review_status=needs_adjudication` when confidence is low or when two
+  reasonable labels would lead to different scorer outcomes;
+- `review_status=rejected` when the row should not be used.
+
+Saving a row as `reviewed` does not by itself put it into headline scoring. On
+export, the app derives the scorer-facing `instance_decision` conservatively:
+
+- `accept`: reviewed, `main_answerability=answerable|unanswerable`,
+  `annotation_confidence=high|medium`, and `risk_sensitive=false`;
+- `reject`: rejected rows, or reviewed rows with
+  `main_answerability=exclude_from_main`;
+- `adjudicate`: low-confidence, risk-sensitive, incomplete, or explicitly
+  adjudication-needed rows.
 
 ## 4. Adjudication Rules
 
@@ -275,9 +289,10 @@ Adjudicated rows should record a short reason in `annotator_notes`.
 
 Only rows with these properties enter headline scoring:
 
-- `review_status=accept`
+- `instance_decision=accept`
 - `main_answerability=answerable|unanswerable`
 - `annotation_confidence=high|medium`
+- `risk_sensitive=false`
 - no unresolved `unclear` in headline fields
 
 Rows with `main_answerability=exclude_from_main` remain useful for qualitative

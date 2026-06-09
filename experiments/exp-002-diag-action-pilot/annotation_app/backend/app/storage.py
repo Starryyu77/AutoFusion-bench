@@ -10,6 +10,9 @@ from typing import Any
 
 from .jsonl_io import read_jsonl, write_jsonl
 
+HEADLINE_ANSWERABILITY = {"answerable", "unanswerable"}
+HEADLINE_CONFIDENCE = {"high", "medium"}
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -70,6 +73,27 @@ def normalize_annotation(row: dict[str, Any], annotator: str | None = None) -> d
         metadata["annotator"] = annotator
 
     return normalized
+
+
+def derive_instance_decision(row: dict[str, Any]) -> str:
+    """Map local review state to the scorer's conservative gold decision."""
+    explicit = row.get("instance_decision")
+    if explicit in {"accept", "reject", "adjudicate"}:
+        return explicit
+
+    review_status = row.get("review_status")
+    if review_status == "rejected":
+        return "reject"
+    if review_status != "reviewed":
+        return "adjudicate"
+
+    if row.get("main_answerability") not in HEADLINE_ANSWERABILITY:
+        return "reject"
+    if row.get("annotation_confidence") not in HEADLINE_CONFIDENCE:
+        return "adjudicate"
+    if row.get("risk_sensitive") is True:
+        return "adjudicate"
+    return "accept"
 
 
 def import_sheet(
@@ -252,7 +276,11 @@ def export_annotations(db_path: Path, output_path: Path) -> dict[str, Any]:
         rows = connection.execute(
             "SELECT row_json FROM annotations ORDER BY instance_id"
         ).fetchall()
-    annotations = [json.loads(row["row_json"]) for row in rows]
+    annotations = []
+    for row in rows:
+        annotation = json.loads(row["row_json"])
+        annotation["instance_decision"] = derive_instance_decision(annotation)
+        annotations.append(annotation)
     count = write_jsonl(output_path, annotations)
     return {"output_path": str(output_path), "rows_exported": count}
 
@@ -270,4 +298,3 @@ def summary(db_path: Path) -> dict[str, Any]:
         "status_counts": {row["review_status"]: row["n"] for row in status_rows},
         "sessions": [dict(row) for row in sessions],
     }
-
