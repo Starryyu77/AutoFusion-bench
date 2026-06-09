@@ -165,6 +165,70 @@ python3 experiments/exp-002-diag-action-pilot/scripts/build_annotation_sheet_v1.
 The generated smoke sheet is not gold. It uses generator metadata only as hints
 and marks rows as `needs_human_review`.
 
+### 3.1 Local annotation app
+
+A configurable local review app lives at:
+
+`experiments/exp-002-diag-action-pilot/annotation_app/`
+
+The reusable AutoFusion annotation skill and human/AI data spec live at:
+
+`skills/autofusion-annotation/`
+
+Use it when manual review needs synchronized media playback, bbox evidence,
+audio/video time spans, and less error-prone v1 field editing than a CSV sheet.
+It stores local progress in SQLite and exports scorer-compatible JSONL.
+Docker is optional; the default setup path is local Python venv + npm so each
+annotator can map their own local media directory.
+
+Check local configuration:
+
+```bash
+cd experiments/exp-002-diag-action-pilot/annotation_app
+./scripts/check_config.py
+```
+
+Recommended first setup:
+
+```bash
+cp .env.example .env
+# edit AUTOFUSION_REPO_ROOT, ANNOTATION_DB_PATH, and ANNOTATION_MEDIA_MAP
+./scripts/bootstrap_local.sh
+.venv/bin/python scripts/check_config.py --require-runtime-deps
+.venv/bin/python scripts/smoke_test.py
+./scripts/run_local.sh
+```
+
+Open `http://127.0.0.1:8000`. Docker remains available via
+`docker compose up --build` when the annotator prefers a container.
+
+Latest reusable smoke evidence is recorded at:
+
+`experiments/exp-002-diag-action-pilot/results/annotation_app_smoke.md`
+
+For CLI-only smoke:
+
+```bash
+cd experiments/exp-002-diag-action-pilot/annotation_app/backend
+python3 -m app.cli --db ../state/smoke.sqlite import-sheet \
+  --sheet ../../annotations/smoke_annotation_sheet_v1.draft.jsonl \
+  --annotator local-smoke
+python3 -m app.cli --db ../state/smoke.sqlite export \
+  --output ../../annotations/pilot_annotations.local-smoke.jsonl
+python3 ../../scripts/validate_jsonl.py \
+  --kind annotations \
+  ../../annotations/pilot_annotations.local-smoke.jsonl
+```
+
+For multiple local annotator exports, use:
+
+```bash
+python3 -m app.cli merge \
+  --annotations ../../annotations/pilot_annotations.annotator_a.jsonl ../../annotations/pilot_annotations.annotator_b.jsonl \
+  --output ../../annotations/pilot_annotations.merged.jsonl \
+  --report ../../results/annotation_disagreements.md
+```
+
 ## Phase 4: Model runs
 
 Deliverables:

@@ -1,0 +1,3 @@
+display_name: AutoFusion Annotation
+short_description: Organize AutoFusion annotation batches, run the local annotation website, validate exports, and merge annotators.
+default_prompt: Use the AutoFusion annotation workflow to prepare or validate this experiment's annotation batch.
