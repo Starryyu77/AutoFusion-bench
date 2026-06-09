@@ -80,6 +80,9 @@ Recommended fields:
 - `media.items` when clean evidence is split across multiple files.
 
 Source-level modality fields are hints until human reviewed.
+For annotation exports, `source_decision` records the human source gate:
+`accept`, `reject`, or `adjudicate`. A corrupted instance must not enter
+headline scoring unless its clean source is accepted first.
 
 ## 4. Corruption Manifest
 
@@ -143,9 +146,13 @@ Draft rows must use:
 
 ```json
 {
-  "review_status": "needs_human_review"
+  "review_status": "needs_human_review",
+  "source_decision": "adjudicate"
 }
 ```
+
+`source_decision=adjudicate` is the safe default. Annotators promote it to
+`accept` only after the clean source media clearly supports the gold answer.
 
 ## 6. Media Contract
 

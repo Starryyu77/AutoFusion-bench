@@ -218,6 +218,16 @@ textarea {
   color: var(--ink);
 }
 
+.field-help {
+  margin: 0;
+  padding: 9px 10px;
+  border-left: 3px solid var(--accent-2);
+  background: #fff7ed;
+  color: #6b4a22;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .status-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -12,6 +12,13 @@ from .jsonl_io import read_jsonl, write_jsonl
 
 HEADLINE_ANSWERABILITY = {"answerable", "unanswerable"}
 HEADLINE_CONFIDENCE = {"high", "medium"}
+LOCAL_REVIEW_STATUSES = {
+    "needs_human_review",
+    "in_progress",
+    "reviewed",
+    "needs_adjudication",
+    "rejected",
+}
 
 
 def utc_now() -> str:
@@ -61,6 +68,7 @@ def normalize_annotation(row: dict[str, Any], annotator: str | None = None) -> d
 
     normalized = json.loads(json.dumps(row, ensure_ascii=False))
     normalized.setdefault("review_status", "needs_human_review")
+    normalized.setdefault("source_decision", "adjudicate")
     normalized.setdefault("modalities_presented", ["audio", "video"])
     normalized.setdefault("annotation_confidence", "low")
     normalized.setdefault("annotator_notes", "")
@@ -78,10 +86,16 @@ def normalize_annotation(row: dict[str, Any], annotator: str | None = None) -> d
 def derive_instance_decision(row: dict[str, Any]) -> str:
     """Map local review state to the scorer's conservative gold decision."""
     explicit = row.get("instance_decision")
-    if explicit in {"accept", "reject", "adjudicate"}:
+    review_status = row.get("review_status")
+    if review_status not in LOCAL_REVIEW_STATUSES and explicit in {"accept", "reject", "adjudicate"}:
         return explicit
 
-    review_status = row.get("review_status")
+    source_decision = row.get("source_decision", "adjudicate")
+    if source_decision == "reject":
+        return "reject"
+    if source_decision != "accept":
+        return "adjudicate"
+
     if review_status == "rejected":
         return "reject"
     if review_status != "reviewed":
@@ -216,7 +230,7 @@ def get_annotation(db_path: Path, instance_id: str) -> dict[str, Any] | None:
         ).fetchone()
     if row is None:
         return None
-    return json.loads(row["row_json"])
+    return normalize_annotation(json.loads(row["row_json"]))
 
 
 def save_annotation(db_path: Path, instance_id: str, annotation: dict[str, Any], annotator: str | None = None) -> dict[str, Any]:
@@ -279,6 +293,7 @@ def export_annotations(db_path: Path, output_path: Path) -> dict[str, Any]:
     annotations = []
     for row in rows:
         annotation = json.loads(row["row_json"])
+        annotation.setdefault("source_decision", "adjudicate")
         annotation["instance_decision"] = derive_instance_decision(annotation)
         annotations.append(annotation)
     count = write_jsonl(output_path, annotations)

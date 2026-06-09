@@ -5,6 +5,24 @@ const DEFAULT_SHEET =
 const DEFAULT_EXPORT =
   "experiments/exp-002-diag-action-pilot/annotations/pilot_annotations.local.jsonl";
 
+const OPTION_LABELS = {
+  source_decision: {
+    accept: "原始样本合格",
+    reject: "原始样本不合格",
+    adjudicate: "拿不准，需仲裁"
+  },
+  main_answerability: {
+    answerable: "污染后证据清楚，可以回答",
+    unanswerable: "污染后证据不足，应该拒答",
+    exclude_from_main: "不确定/边界，先不进主表"
+  },
+  annotation_confidence: {
+    high: "高",
+    medium: "中",
+    low: "低"
+  }
+};
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
@@ -516,13 +534,52 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
       </div>
 
       <div className="annotation-guidance">
-        <strong>优先填 3 件事：</strong>
-        <span>污染后还能不能答；如果能答该看哪个模态；如果不能答是否拒答。</span>
+        <strong>先看原始样本，再看污染后结果。</strong>
+        <span>如果干净原始视频本身都不支持答案，直接标为原始样本不合格或需仲裁。</span>
+        <span>原始样本合格后，再判断污染后还能不能答、该看哪个模态、是否拒答。</span>
         <span>模态坏没坏、怎么坏，通常由脚本预填；只在你发现不对时修改。</span>
         <span>“保存完成”只表示已审核；进入主表还需要高/中置信度、非边界样本、且明确可答或不可答。</span>
       </div>
 
-      <FieldGroup title="1. 人工必填：能否回答 / 能否恢复">
+      <FieldGroup title="0. 前置检查：原始样本是否合格">
+        <SelectField
+          label="原始样本是否合格"
+          value={annotation.source_decision}
+          options={options.source_decision}
+          optionLabels={OPTION_LABELS.source_decision}
+          onChange={(value) => onChange(["source_decision"], value)}
+        />
+        <TwoColumn>
+          <SelectField
+            label="原始 audio 对答案的作用"
+            value={annotation.source_modality_necessity?.audio}
+            options={options.source_modality}
+            onChange={(value) => onChange(["source_modality_necessity", "audio"], value)}
+          />
+          <SelectField
+            label="原始 video 对答案的作用"
+            value={annotation.source_modality_necessity?.video}
+            options={options.source_modality}
+            onChange={(value) => onChange(["source_modality_necessity", "video"], value)}
+          />
+        </TwoColumn>
+        <SelectField
+          label="原始音视频是否必须一起看"
+          value={annotation.source_modality_necessity?.audio_video_joint_required}
+          options={options.audio_video_joint_required}
+          onChange={(value) => onChange(["source_modality_necessity", "audio_video_joint_required"], value)}
+        />
+        <TextAreaField
+          label="原始样本证据说明"
+          value={annotation.source_evidence_note || ""}
+          onChange={(value) => onChange(["source_evidence_note"], value)}
+        />
+        <p className="field-help">
+          原始样本不合格包括：干净视频也看不出答案、答案不唯一、题目主要靠常识猜、或关键证据找不到。
+        </p>
+      </FieldGroup>
+
+      <FieldGroup title="1. 人工必填：污染后能否回答 / 能否恢复">
         <SelectField
           label="污染后还能不能答"
           value={annotation.post_corruption_answerability}
@@ -539,6 +596,7 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
           label="是否进入主评测"
           value={annotation.main_answerability}
           options={options.main_answerability}
+          optionLabels={OPTION_LABELS.main_answerability}
           onChange={(value) => onChange(["main_answerability"], value)}
         />
         <CheckboxGroup
@@ -603,6 +661,7 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
           label="标注信心"
           value={annotation.annotation_confidence}
           options={options.annotation_confidence}
+          optionLabels={OPTION_LABELS.annotation_confidence}
           onChange={(value) => onChange(["annotation_confidence"], value)}
         />
         <label className="checkbox-row">
@@ -620,7 +679,7 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
         />
       </FieldGroup>
 
-      <DetailsGroup title="自动/抽查字段：题目偏置与原始证据">
+      <DetailsGroup title="自动/抽查字段：题目偏置">
         <SelectField
           label="仅看题目是否可答"
           value={annotation.question_only_blind?.answerable_without_media}
@@ -637,31 +696,6 @@ function AnnotationForm({ annotation, options, onChange, onWholeChange }) {
           label="blind answer"
           value={annotation.question_only_blind?.blind_answer || ""}
           onChange={(value) => onChange(["question_only_blind", "blind_answer"], value)}
-        />
-        <TwoColumn>
-          <SelectField
-            label="source audio"
-            value={annotation.source_modality_necessity?.audio}
-            options={options.source_modality}
-            onChange={(value) => onChange(["source_modality_necessity", "audio"], value)}
-          />
-          <SelectField
-            label="source video"
-            value={annotation.source_modality_necessity?.video}
-            options={options.source_modality}
-            onChange={(value) => onChange(["source_modality_necessity", "video"], value)}
-          />
-        </TwoColumn>
-        <SelectField
-          label="joint required"
-          value={annotation.source_modality_necessity?.audio_video_joint_required}
-          options={options.audio_video_joint_required}
-          onChange={(value) => onChange(["source_modality_necessity", "audio_video_joint_required"], value)}
-        />
-        <TextAreaField
-          label="source evidence note"
-          value={annotation.source_evidence_note || ""}
-          onChange={(value) => onChange(["source_evidence_note"], value)}
         />
       </DetailsGroup>
 
@@ -739,14 +773,14 @@ function TwoColumn({ children }) {
   return <div className="two-column">{children}</div>;
 }
 
-function SelectField({ label, value, options = [], onChange }) {
+function SelectField({ label, value, options = [], optionLabels = {}, onChange }) {
   return (
     <label className="field">
       <span>{label}</span>
       <select value={value || ""} onChange={(event) => onChange(event.target.value)}>
         <option value="">unset</option>
         {(options || []).map((option) => (
-          <option key={option} value={option}>{option}</option>
+          <option key={option} value={option}>{optionLabels[option] || option}</option>
         ))}
       </select>
     </label>

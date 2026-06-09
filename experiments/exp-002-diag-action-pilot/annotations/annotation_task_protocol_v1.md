@@ -12,10 +12,11 @@ annotators exactly what to do.
 For each corrupted audio-video QA instance, decide only the fields that require
 human judgment:
 
-1. whether the current question still has enough evidence after corruption;
-2. whether missing information can be recovered from another modality;
-3. which route a reliable system should use, or whether it should abstain;
-4. whether the sample is clear enough for headline scoring.
+1. whether the clean source media itself supports the gold answer;
+2. whether the current question still has enough evidence after corruption;
+3. whether missing information can be recovered from another modality;
+4. which route a reliable system should use, or whether it should abstain;
+5. whether the sample is clear enough for headline scoring.
 
 Do not spend annotation time re-entering mechanical facts that are already known
 from the corruption generator, such as "audio was muted" or "video blur was
@@ -24,7 +25,8 @@ them when the generated metadata is wrong or when the mechanical corruption has
 a different task-conditioned effect than expected.
 
 The annotation target is not model preference. The target is an evidence-backed
-gold label for scoring model behavior.
+gold label for scoring model behavior. If the clean source is already ambiguous,
+do not use that corrupted instance as headline gold.
 
 ## 2. Files
 
@@ -61,16 +63,25 @@ Rules:
   confidence, set `review_status=reject` or send to adjudication.
 - If unsure, use `unclear` and continue to media inspection.
 
-### Step 2: Clean source evidence check
+### Step 2: Clean source gate
 
 Inspect the original clean media if available.
 
 Fill:
 
+- `source_decision`
 - `source_audio_relevance`
 - `source_video_relevance`
 - `source_audio_video_joint_required`
 - `source_evidence_note`
+
+Allowed `source_decision` values:
+
+- `accept`: the clean media clearly supports the gold answer.
+- `reject`: the clean media does not support the gold answer, the answer is
+  questionable, or the question can only be answered by guessing/common sense.
+- `adjudicate`: the annotator cannot confidently decide whether the clean
+  source supports the gold answer.
 
 Allowed relevance values:
 
@@ -80,10 +91,15 @@ Allowed relevance values:
 - `irrelevant`: not useful for the current question.
 - `unclear`: cannot decide reliably.
 
-For the 5-clip smoke task, these fields can be treated as prefilled hints. Only
-edit them when the hint is visibly wrong or when source evidence is ambiguous.
-Reject or adjudicate the source if the clean gold answer is unsupported,
-ambiguous, or primarily prior-only.
+For the 5-clip smoke task, modality relevance fields can be treated as
+prefilled hints. `source_decision` is not a mechanical corruption field; it is a
+human source-quality gate. Reject or adjudicate the source if the clean gold
+answer is unsupported, ambiguous, or primarily prior-only.
+
+Hard rule:
+
+> If the clean source is not `accept`, the corrupted instance cannot enter
+> headline scoring.
 
 ### Step 3: Corrupted media quality
 
@@ -265,8 +281,9 @@ Saving a row as `reviewed` does not by itself put it into headline scoring. On
 export, the app derives the scorer-facing `instance_decision` conservatively:
 
 - `accept`: reviewed, `main_answerability=answerable|unanswerable`,
-  `annotation_confidence=high|medium`, and `risk_sensitive=false`;
-- `reject`: rejected rows, or reviewed rows with
+  `source_decision=accept`, `annotation_confidence=high|medium`, and
+  `risk_sensitive=false`;
+- `reject`: source-rejected rows, rejected rows, or reviewed rows with
   `main_answerability=exclude_from_main`;
 - `adjudicate`: low-confidence, risk-sensitive, incomplete, or explicitly
   adjudication-needed rows.
@@ -290,6 +307,7 @@ Adjudicated rows should record a short reason in `annotator_notes`.
 Only rows with these properties enter headline scoring:
 
 - `instance_decision=accept`
+- `source_decision=accept`
 - `main_answerability=answerable|unanswerable`
 - `annotation_confidence=high|medium`
 - `risk_sensitive=false`

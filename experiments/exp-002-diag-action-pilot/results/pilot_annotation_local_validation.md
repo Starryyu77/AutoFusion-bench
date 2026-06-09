@@ -25,38 +25,42 @@ ok: experiments/exp-002-diag-action-pilot/annotations/pilot_annotations.local.js
 ## Export Summary
 
 - rows: 5
+- `source_decision`: 5 adjudicate
 - `review_status`: 5 reviewed
-- `instance_decision`: 5 reject
+- `instance_decision`: 5 adjudicate
 - `main_answerability`: 5 exclude_from_main
 - `annotation_confidence`: 5 low
 - `risk_sensitive`: 5 true
 
 Per-row decisions:
 
-| instance_id | instance_decision | post_corruption_answerability | cross_modal_recoverability | preferred_route | confidence | risk_sensitive |
-|---|---|---|---|---|---|---|
-| smoke-audio-necessary__audio_mute | reject | unclear | unclear | [] | low | true |
-| smoke-av-complementary__audio_shift_1500ms | reject | answerable | not_needed | ["audio"] | low | true |
-| smoke-conflict-like__audio_replace_conflict_like | reject | answerable | not_needed | ["video"] | low | true |
-| smoke-corrupted-irrelevant__video_blur_irrelevant | reject | partially_answerable | unrecoverable | ["audio"] | low | true |
-| smoke-video-necessary__video_blur | reject | partially_answerable | recoverable | ["video"] | low | true |
+| instance_id | source_decision | instance_decision | post_corruption_answerability | cross_modal_recoverability | preferred_route | confidence | risk_sensitive |
+|---|---|---|---|---|---|---|---|
+| smoke-audio-necessary__audio_mute | adjudicate | adjudicate | unclear | unclear | [] | low | true |
+| smoke-av-complementary__audio_shift_1500ms | adjudicate | adjudicate | answerable | not_needed | ["audio"] | low | true |
+| smoke-conflict-like__audio_replace_conflict_like | adjudicate | adjudicate | answerable | not_needed | ["video"] | low | true |
+| smoke-corrupted-irrelevant__video_blur_irrelevant | adjudicate | adjudicate | partially_answerable | unrecoverable | ["audio"] | low | true |
+| smoke-video-necessary__video_blur | adjudicate | adjudicate | partially_answerable | recoverable | ["video"] | low | true |
 
 ## Interpretation
 
 This export proves that the local annotation app can export a validator-compatible
 5-row JSONL file. It should not be treated as final gold for headline scoring.
-All five rows are low-confidence, risk-sensitive, and excluded from the main
+All five rows still need the clean-source gate: `source_decision=adjudicate`.
+They are also low-confidence, risk-sensitive, and excluded from the main
 answerability split.
 
 The annotation app export path now derives scorer-facing `instance_decision`
-conservatively. A row enters headline scoring only when it is reviewed,
-answerable or unanswerable, high/medium confidence, and not risk-sensitive.
+conservatively. A row enters headline scoring only when its clean source is
+accepted, it is reviewed, it is answerable or unanswerable, it has high/medium
+confidence, and it is not risk-sensitive.
 This prevents a row saved as `reviewed` from being accidentally interpreted as a
 main-table gold row.
 
 ## Next Action
 
 Use this file as a local smoke export only. For `smoke_annotations_v1.gold.jsonl`,
-redo or adjudicate the five rows under the simplified required-field protocol
-and require at least one clear answerable or unanswerable row with high/medium
-confidence and `risk_sensitive=false`.
+first adjudicate the clean source for each row. Only rows with
+`source_decision=accept` should proceed to corrupted-instance judgment. Require
+at least one clear answerable or unanswerable row with high/medium confidence
+and `risk_sensitive=false`.

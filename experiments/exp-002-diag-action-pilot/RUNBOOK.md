@@ -207,14 +207,21 @@ The current local 5-row website export is:
 `annotations/pilot_annotations.local.jsonl`
 
 It passes the annotation validator, but it is not final gold. All five exported
-rows are low-confidence, risk-sensitive, and `main_answerability=exclude_from_main`,
-so the conservative export logic marks them as `instance_decision=reject`.
+rows still have `source_decision=adjudicate`, are low-confidence,
+risk-sensitive, and `main_answerability=exclude_from_main`, so the conservative
+export logic marks them as `instance_decision=adjudicate`.
 See `results/pilot_annotation_local_validation.md`.
 
 Website `review_status=reviewed` means only that the row has been inspected. A
 row enters scorer headline tables only when exported as `instance_decision=accept`,
-which requires reviewed status, `main_answerability=answerable|unanswerable`,
-high/medium confidence, and `risk_sensitive=false`.
+which requires `source_decision=accept`, reviewed status,
+`main_answerability=answerable|unanswerable`, high/medium confidence, and
+`risk_sensitive=false`.
+
+Clean-source gate rule: if the original uncorrupted media does not clearly
+support the gold answer, reject or adjudicate the source before reasoning about
+the corrupted instance. This prevents dataset noise from being mistaken for
+model failure under corruption.
 
 Check local configuration:
 

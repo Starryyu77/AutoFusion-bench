@@ -24,6 +24,9 @@ HEADLINE_FIELDS = [
     "main_answerability",
 ]
 
+HEADLINE_ANSWERABILITY = {"answerable", "unanswerable"}
+HEADLINE_CONFIDENCE = {"high", "medium"}
+
 
 def read_jsonl(path: Path) -> dict[str, dict[str, Any]]:
     rows = {}
@@ -65,6 +68,29 @@ def clean(value: str | None) -> str:
     return (value or "").strip()
 
 
+def derive_instance_decision(annotation: dict[str, Any]) -> str:
+    review_status = annotation.get("review_status")
+    if review_status in {"accept", "reject", "adjudicate"}:
+        return review_status
+
+    source_decision = annotation.get("source_decision", "adjudicate")
+    if source_decision == "reject":
+        return "reject"
+    if source_decision != "accept":
+        return "adjudicate"
+    if review_status == "rejected":
+        return "reject"
+    if review_status != "reviewed":
+        return "adjudicate"
+    if annotation.get("main_answerability") not in HEADLINE_ANSWERABILITY:
+        return "reject"
+    if annotation.get("annotation_confidence") not in HEADLINE_CONFIDENCE:
+        return "adjudicate"
+    if annotation.get("risk_sensitive") is True:
+        return "adjudicate"
+    return "accept"
+
+
 def row_to_annotation(
     row: dict[str, str],
     base: dict[str, Any] | None,
@@ -92,7 +118,7 @@ def row_to_annotation(
         row.get("disallowed_routes_json", ""), "disallowed_routes_json", row_number
     )
 
-    return {
+    annotation = {
         "instance_id": clean(row.get("instance_id")),
         "source_id": clean(row.get("source_id")),
         "source_dataset": clean(row.get("source_dataset")),
@@ -101,7 +127,7 @@ def row_to_annotation(
         "modalities_presented": base.get("modalities_presented", ["audio", "video"]),
         "gold_answer": clean(row.get("gold_answer")) or None,
         "review_status": review_status,
-        "instance_decision": review_status,
+        "source_decision": clean(row.get("source_decision")) or base.get("source_decision", "adjudicate"),
         "question_only_blind": {
             "answerable_without_media": clean(
                 row.get("question_only_answerable_without_media")
@@ -168,6 +194,8 @@ def row_to_annotation(
         "annotation_confidence": clean(row.get("annotation_confidence")),
         "annotator_notes": clean(row.get("annotator_notes")),
     }
+    annotation["instance_decision"] = derive_instance_decision(annotation)
+    return annotation
 
 
 def strict_errors(annotation: dict[str, Any], row_number: int) -> list[str]:
@@ -175,7 +203,9 @@ def strict_errors(annotation: dict[str, Any], row_number: int) -> list[str]:
     prefix = f"row {row_number} ({annotation.get('instance_id')}):"
     if annotation["review_status"] == "needs_human_review":
         errors.append(f"{prefix} review_status is still needs_human_review")
-    if annotation["review_status"] == "accept":
+    if annotation.get("instance_decision") == "accept":
+        if annotation.get("source_decision") != "accept":
+            errors.append(f"{prefix} accepted row must have source_decision=accept")
         for field in HEADLINE_FIELDS:
             if field == "modality_quality_audio":
                 value = annotation["modality_quality_status"]["audio"]
