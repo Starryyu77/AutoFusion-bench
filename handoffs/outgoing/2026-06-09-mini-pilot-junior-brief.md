@@ -2,6 +2,15 @@
 
 这份文档可以直接发给学弟。
 
+## 0. 先看这几个链接
+
+- 我们的 GitHub 仓库：https://github.com/Starryyu77/AutoFusion-bench
+- AVQA 官方项目页：http://mn.cs.tsinghua.edu.cn/avqa/
+- AVQA 原作者 GitHub：https://github.com/AlyssaYoung/AVQA
+- AVQA-videos Hugging Face 打包版：https://huggingface.co/datasets/juyil/AVQA-videos
+
+建议你优先看 Hugging Face 的 `AVQA-videos`，因为它已经把视频和官方 train/val annotations 放在一起，更适合我们快速做 mini-pilot。官方项目页和原作者 GitHub 主要用于确认数据来源、字段含义和论文引用。
+
 ## 1. 你的主要任务
 
 你后面主要负责 **数据集准备和第一轮人工筛查**，不是训练模型，也不是写论文故事。
@@ -119,7 +128,7 @@ experiments/exp-002-diag-action-pilot/
 ## 6. 本地标注网站怎么跑
 
 ```bash
-git clone <REPO_URL> AutoFusion-bench
+git clone https://github.com/Starryyu77/AutoFusion-bench.git
 cd AutoFusion-bench/experiments/exp-002-diag-action-pilot/annotation_app
 ./scripts/bootstrap_local.sh
 .venv/bin/python scripts/smoke_test.py
