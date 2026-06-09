@@ -54,9 +54,9 @@ Model smoke result:
 
 Current blocker:
 
-- the 5-clip annotation sheet exists as
-  `annotations/smoke_annotation_sheet_v1.draft.{jsonl,csv}`, but it is a draft
-  review sheet, not human-adjudicated gold.
+- the 5-clip annotation sheet now has a first formal pass at
+  `annotations/smoke_annotations_v1.codex_pass.jsonl`, but it is not
+  human-adjudicated gold yet.
 - the annotator-facing task protocol now lives at
   `annotations/annotation_task_protocol_v1.md`. This should be used as the
   normative annotation procedure before producing gold labels.
@@ -64,8 +64,18 @@ Current blocker:
   intentionally produces `conditional_policy_failure=0.5`, `policy_action_accuracy=0.666667`,
   and `rule_lift=0.333333`.
 - current real Qwen model results are still access/format evidence until the
-  smoke or pilot annotation sheet is manually reviewed and action outputs are
+  smoke or pilot annotation sheet is promoted to gold and action outputs are
   generated.
+
+Smoke annotation pass:
+
+- synced the 5 source/corrupted MP4 pairs from `ntu-gpu43` into local temp
+  storage for inspection;
+- generated visual contact sheets and ffmpeg volume diagnostics;
+- produced `annotations/smoke_annotations_v1.codex_pass.jsonl`;
+- produced `annotations/adjudication_notes_smoke_v1.md`;
+- validation passed with `validate_jsonl.py --kind annotations`;
+- summary: 5 rows, 4 accepted, 1 adjudication, 4 headline-eligible.
 
 Scoring smoke result:
 
