@@ -101,12 +101,30 @@ def derive_instance_decision(row: dict[str, Any]) -> str:
     if review_status != "reviewed":
         return "adjudicate"
 
-    if row.get("main_answerability") not in HEADLINE_ANSWERABILITY:
+    main_answerability = row.get("main_answerability")
+    if main_answerability not in HEADLINE_ANSWERABILITY:
         return "reject"
     if row.get("annotation_confidence") not in HEADLINE_CONFIDENCE:
         return "adjudicate"
     if row.get("risk_sensitive") is True:
         return "adjudicate"
+
+    post_answerability = row.get("post_corruption_answerability")
+    if main_answerability == "answerable" and post_answerability != "answerable":
+        return "adjudicate"
+    if main_answerability == "unanswerable" and post_answerability != "unanswerable":
+        return "adjudicate"
+
+    oracle = row.get("oracle_policy_action") or {}
+    acceptable_routes = oracle.get("acceptable_routes") or []
+    preferred_route = oracle.get("preferred_route") or []
+    if main_answerability == "answerable" and not acceptable_routes:
+        return "adjudicate"
+    if main_answerability == "unanswerable":
+        if oracle.get("abstain") is not True:
+            return "adjudicate"
+        if acceptable_routes or preferred_route:
+            return "adjudicate"
     return "accept"
 
 

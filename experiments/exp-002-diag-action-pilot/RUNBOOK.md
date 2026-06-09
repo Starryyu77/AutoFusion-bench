@@ -206,14 +206,11 @@ The current local 5-row website export is:
 
 `annotations/pilot_annotations.local.jsonl`
 
-It passes the annotation validator, but it is not final gold. All five exported
-rows are still marked `risk_sensitive=true`, so the conservative export logic
-marks them as `instance_decision=adjudicate`. This version is near-gold: 4/5
-clean sources have `source_decision=accept`, all rows have high/medium
-confidence, and `main_answerability` is explicit. Remaining blockers are the
-all-true risk-sensitive flags, one source-level adjudication row, and the
-unanswerable audio-mute row whose oracle policy still selects audio instead of
-abstaining.
+It passes the annotation validator and is now a partial smoke gold export. Two
+rows enter headline scoring with `instance_decision=accept`; three rows remain
+adjudication-only. Remaining blockers are one source-level adjudication row, one
+partially answerable row, and the unanswerable audio-mute row whose oracle
+policy still selects audio instead of abstaining.
 See `results/pilot_annotation_local_validation.md`.
 
 Website `review_status=reviewed` means only that the row has been inspected. A
