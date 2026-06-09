@@ -206,10 +206,9 @@ The current local 5-row website export is:
 
 `annotations/pilot_annotations.local.jsonl`
 
-It passes the annotation validator and is now a partial smoke gold export. Three
-rows enter headline scoring with `instance_decision=accept`; two rows remain
-adjudication-only. Remaining blockers are one source-level adjudication row and
-one partially answerable row.
+It passes the annotation validator and is now a partial smoke gold export. Four
+rows enter headline scoring with `instance_decision=accept`; one row remains
+adjudication-only because it is still partially answerable.
 See `results/pilot_annotation_local_validation.md`.
 
 Website `review_status=reviewed` means only that the row has been inspected. A
