@@ -91,6 +91,48 @@ Scoring smoke result:
   `P(policy_action_correct=false | triage_diagnosis_right=true)` and keeps final
   answer correctness separate from policy action correctness.
 
+4-row smoke gold and real scorer run:
+
+- froze `annotations/smoke_annotations_v1.gold.jsonl` from the local human
+  export, using only rows with `source_decision=accept` and
+  `instance_decision=accept`;
+- intentionally excluded `smoke-video-necessary__video_blur` because it remains
+  `partially_answerable` / adjudication-only;
+- added `scripts/freeze_smoke_gold_v1.py`,
+  `scripts/adapt_smoke_qwen_diagnoses_v1.py`, and
+  `scripts/build_smoke_actions_v1.py`;
+- adapted the existing `qwen3.5-omni-plus` and `qwen3-omni-flash` smoke
+  diagnosis logs to scorer v1 rows;
+- generated proxy model-implied actions and fixed-rule actions from the same
+  frozen diagnosis rows;
+- ran `scripts/score_v1_metrics.py` on the real Qwen smoke outputs.
+
+Outputs:
+
+- `annotations/smoke_annotations_v1.gold.jsonl`
+- `results/smoke_v1_real_scoring_per_instance.jsonl`
+- `results/smoke_v1_real_scoring_metrics.csv`
+- `results/smoke_v1_real_scoring_metrics.md`
+
+Headline metrics:
+
+| Model | Headline n | Health F1 | Recoverability F1 | Policy action accuracy | Conditional policy failure |
+|---|---:|---:|---:|---:|---:|
+| `qwen3.5-omni-plus` | 4 | 0.896296 | 0.666667 | 1.000000 | 0.000000 |
+| `qwen3-omni-flash` | 4 | 0.505952 | 0.477778 | 0.750000 | n/a |
+
+Interpretation:
+
+- this is a real scorer run over real Qwen diagnosis outputs, not only the
+  synthetic fixture;
+- the action rows are proxy actions derived from diagnosis, not a fresh model
+  action-call result;
+- `answer` is intentionally `null` in generated actions to avoid leaking gold
+  answers, so final-answer execution accuracy is not the target metric of this
+  smoke;
+- `qwen3.5-omni-plus` has a clearer diagnosis signal than `qwen3-omni-flash` on
+  this tiny smoke set, but the sample is too small for a paper claim.
+
 ## Boundary
 
 MELD is not the main positive substrate for this experiment. It may be used only
