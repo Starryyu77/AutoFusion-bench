@@ -25,6 +25,8 @@ Current status:
 - Local scan complete.
 - GitHub remote head confirmed.
 - Server scan attempted but blocked by SSH timeout.
+- Cleanup branch created: `codex/repo-governance-cleanup`.
+- First local cleanup pass completed; see `governance/2026-06-13-cleanup-log.md`.
 
 ## Phase 1: Top-Level Documentation Reset
 
@@ -49,6 +51,8 @@ Top-level docs should point readers first to:
 - `experiments/exp-002-diag-action-pilot/`
 
 Do not make `exp-001` appear as the current mainline.
+
+Status: completed in first cleanup pass.
 
 ## Phase 2: Local Workspace Cleanup Plan
 
@@ -88,6 +92,8 @@ Delete only after approval:
 - `__pycache__/`;
 - `.DS_Store`;
 - stale local outputs superseded by committed `results/`.
+
+Status: first cleanup pass completed. Active exp-002 outputs, `.env`, and local annotation state were intentionally left in place.
 
 ## Phase 3: GitHub Synchronization
 
@@ -237,4 +243,3 @@ Release policy:
 - release derived annotation labels where licensing allows;
 - keep raw media download instructions rather than redistributing restricted videos;
 - keep large PDFs, local caches, and API logs out of Git.
-

@@ -2,6 +2,7 @@
 
 > Scope: local repository, GitHub remote state, and attempted server check for `ntu-gpu43`.
 > This is a scan report only. No cleanup, deletion, or archival move has been performed.
+> Cleanup was later executed on branch `codex/repo-governance-cleanup`; see `governance/2026-06-13-cleanup-log.md`.
 
 ## 1. Current State Summary
 
@@ -187,4 +188,3 @@ Before moving files, decide these policy questions:
 3. Should `exp-001` be fully archived, or kept temporarily until tests are rewritten around exp-002?
 4. Should top-level docs be rewritten before or after archival moves?
 5. Should server cleanup wait until local/GitHub cleanup is merged, then mirror the cleaned state?
-

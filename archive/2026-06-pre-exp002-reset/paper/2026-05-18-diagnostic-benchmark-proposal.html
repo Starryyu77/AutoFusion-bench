@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AutoFusion-Bench Research Proposal</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; }
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; }
+code span.at { color: #7d9029; }
+code span.bn { color: #40a070; }
+code span.bu { color: #008000; }
+code span.cf { color: #007020; font-weight: bold; }
+code span.ch { color: #4070a0; }
+code span.cn { color: #880000; }
+code span.co { color: #60a0b0; font-style: italic; }
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; }
+code span.do { color: #ba2121; font-style: italic; }
+code span.dt { color: #902000; }
+code span.dv { color: #40a070; }
+code span.er { color: #ff0000; font-weight: bold; }
+code span.ex { }
+code span.fl { color: #40a070; }
+code span.fu { color: #06287e; }
+code span.im { color: #008000; font-weight: bold; }
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; }
+code span.kw { color: #007020; font-weight: bold; }
+code span.op { color: #666666; }
+code span.ot { color: #007020; }
+code span.pp { color: #bc7a00; }
+code span.sc { color: #4070a0; }
+code span.ss { color: #bb6688; }
+code span.st { color: #4070a0; }
+code span.va { color: #19177c; }
+code span.vs { color: #4070a0; }
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
+</style>
+  <style type="text/css">:root {
+--ink: #202124;
+--muted: #5d6670;
+--paper: #f6f7f3;
+--surface: #ffffff;
+--line: #d9ded6;
+--green: #2f7d5f;
+--blue: #3f6ea8;
+--red: #b54b4b;
+--gold: #a87519;
+}
+html {
+color: var(--ink);
+background: var(--paper);
+}
+body {
+max-width: 920px;
+margin: 0 auto;
+padding: 54px 34px 72px;
+font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+font-size: 16px;
+line-height: 1.72;
+text-rendering: optimizeLegibility;
+}
+body::before {
+content: "AutoFusion-Bench Proposal";
+display: inline-block;
+margin-bottom: 22px;
+padding: 6px 10px;
+border: 1px solid rgba(47, 125, 95, 0.28);
+border-radius: 999px;
+color: var(--green);
+background: rgba(47, 125, 95, 0.08);
+font-size: 13px;
+font-weight: 800;
+}
+h1 {
+margin: 0 0 28px;
+padding-bottom: 24px;
+border-bottom: 4px solid var(--green);
+font-size: 42px;
+line-height: 1.08;
+letter-spacing: 0;
+}
+h2 {
+margin-top: 46px;
+padding-top: 22px;
+border-top: 1px solid var(--line);
+font-size: 27px;
+line-height: 1.25;
+letter-spacing: 0;
+}
+h3 {
+margin-top: 30px;
+font-size: 20px;
+}
+p {
+margin: 0 0 16px;
+}
+a {
+color: var(--blue);
+}
+blockquote {
+margin: 20px 0;
+padding: 16px 20px;
+border-left: 5px solid var(--green);
+background: var(--surface);
+color: #30343a;
+box-shadow: 0 10px 28px rgba(32, 33, 36, 0.05);
+}
+table {
+width: 100%;
+margin: 18px 0 26px;
+border-collapse: collapse;
+background: var(--surface);
+border: 1px solid var(--line);
+border-radius: 8px;
+overflow: hidden;
+box-shadow: 0 10px 28px rgba(32, 33, 36, 0.04);
+}
+th,
+td {
+padding: 12px 14px;
+border-bottom: 1px solid var(--line);
+text-align: left;
+vertical-align: top;
+}
+th {
+color: #fff;
+background: #30343a;
+font-size: 13px;
+text-transform: uppercase;
+}
+tr:last-child td {
+border-bottom: 0;
+}
+code {
+padding: 2px 5px;
+border-radius: 5px;
+background: rgba(63, 110, 168, 0.1);
+color: #1d3557;
+font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+font-size: 0.9em;
+}
+pre {
+padding: 18px;
+overflow-x: auto;
+border-radius: 8px;
+background: #202124;
+color: #eef3ef;
+}
+pre code {
+padding: 0;
+background: transparent;
+color: inherit;
+}
+#TOC {
+margin: 26px 0 34px;
+padding: 18px 22px;
+border: 1px solid var(--line);
+border-radius: 8px;
+background: var(--surface);
+}
+#TOC ul {
+margin: 0;
+}
+#TOC a {
+color: var(--ink);
+text-decoration: none;
+}
+li {
+margin: 5px 0;
+}
+@media print {
+html {
+background: #fff;
+}
+body {
+max-width: none;
+padding: 0;
+font-size: 11pt;
+}
+body::before {
+display: none;
+}
+h2 {
+page-break-after: avoid;
+}
+}
+@media (max-width: 720px) {
+body {
+padding: 28px 16px 54px;
+font-size: 15px;
+}
+h1 {
+font-size: 32px;
+}
+h2 {
+font-size: 23px;
+}
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AutoFusion-Bench Research Proposal</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#research-proposal-autofusion-bench" id="toc-research-proposal-autofusion-bench">Research Proposal:
+AutoFusion-Bench</a>
+<ul>
+<li><a href="#题目" id="toc-题目">题目</a></li>
+<li><a href="#摘要" id="toc-摘要">摘要</a></li>
+<li><a href="#背景与动机" id="toc-背景与动机">1. 背景与动机</a></li>
+<li><a href="#相关工作与研究缺口" id="toc-相关工作与研究缺口">2.
+相关工作与研究缺口</a></li>
+<li><a href="#研究目标" id="toc-研究目标">3. 研究目标</a></li>
+<li><a href="#benchmark-设计" id="toc-benchmark-设计">4. Benchmark
+设计</a>
+<ul>
+<li><a href="#输入与模态组合" id="toc-输入与模态组合">4.1
+输入与模态组合</a></li>
+<li><a href="#五个任务层" id="toc-五个任务层">4.2 五个任务层</a></li>
+<li><a href="#缺陷类型" id="toc-缺陷类型">4.3 缺陷类型</a></li>
+<li><a href="#数据来源" id="toc-数据来源">4.4 数据来源</a></li>
+</ul></li>
+<li><a href="#标注方案" id="toc-标注方案">5. 标注方案</a>
+<ul>
+<li><a href="#机械生成标签" id="toc-机械生成标签">5.1
+机械生成标签</a></li>
+<li><a href="#人工验证标签" id="toc-人工验证标签">5.2
+人工验证标签</a></li>
+<li><a href="#样本-schema" id="toc-样本-schema">5.3 样本 schema</a></li>
+</ul></li>
+<li><a href="#评价指标" id="toc-评价指标">6. 评价指标</a></li>
+<li><a href="#baseline-设计" id="toc-baseline-设计">7. Baseline
+设计</a></li>
+<li><a href="#预期贡献" id="toc-预期贡献">8. 预期贡献</a></li>
+<li><a href="#执行计划" id="toc-执行计划">9. 执行计划</a>
+<ul>
+<li><a href="#第-1-周文献与数据筛选" id="toc-第-1-周文献与数据筛选">第 1
+周：文献与数据筛选</a></li>
+<li><a href="#第-2-周taxonomy-与-corruption-generator" id="toc-第-2-周taxonomy-与-corruption-generator">第 2 周：Taxonomy 与
+corruption generator</a></li>
+<li><a href="#第-3-4-周gold-annotation-pilot" id="toc-第-3-4-周gold-annotation-pilot">第 3-4 周：Gold annotation
+pilot</a></li>
+<li><a href="#第-5-6-周扩展数据与-baseline" id="toc-第-5-6-周扩展数据与-baseline">第 5-6 周：扩展数据与
+baseline</a></li>
+<li><a href="#第-7-周论文主表与错误分析" id="toc-第-7-周论文主表与错误分析">第 7 周：论文主表与错误分析</a></li>
+</ul></li>
+<li><a href="#风险与应对" id="toc-风险与应对">10. 风险与应对</a></li>
+<li><a href="#交付物" id="toc-交付物">11. 交付物</a></li>
+<li><a href="#一句话定位" id="toc-一句话定位">12. 一句话定位</a></li>
+<li><a href="#references" id="toc-references">References</a>
+<ul>
+<li><a href="#low-quality-missing-modality-multimodal-learning" id="toc-low-quality-missing-modality-multimodal-learning">Low-quality /
+missing-modality multimodal learning</a></li>
+<li><a href="#close-competitors-direct-novelty-boundary" id="toc-close-competitors-direct-novelty-boundary">2026 close
+competitors / direct novelty boundary</a></li>
+<li><a href="#policy-documentation-references-for-benchmark-release" id="toc-policy-documentation-references-for-benchmark-release">Policy /
+documentation references for benchmark release</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="research-proposal-autofusion-bench">Research Proposal:
+AutoFusion-Bench</h1>
+<h2 id="题目">题目</h2>
+<p><strong>When to Read, Listen, or Watch? A Diagnostic Benchmark for
+Modality Triage, Cross-Modal Recovery, and Budget-Aware Routing in
+Multimodal Large Language Models</strong></p>
+<p>中文题目：</p>
+<p><strong>模型什么时候该读、听、看？面向多模态大模型的模态分诊、跨模态恢复与预算化路由
+Benchmark</strong></p>
+<h2 id="摘要">摘要</h2>
+<p>多模态大模型通常被默认输入尽可能多的模态，例如文本、音频和视频。然而在真实场景中，不同模态的质量并不稳定：文本可能被截断，音频可能存在噪声或静音，视频可能发生遮挡、模糊或关键帧缺失。同时，推理预算也经常受限，模型不能总是无成本地读取所有模态。现有
+missing-modality 或 robust multimodal learning
+工作多关注“缺失模态下最终任务性能是否下降”，但较少系统评估模型是否知道哪个模态坏了、坏在哪里、是否能从其他模态补回信息，以及在预算有限时应该调用哪些模态。</p>
+<p>本项目拟提出
+<strong>AutoFusion-Bench</strong>：一个基于公开原始多模态数据构建的新
+benchmark 层，用于评估多模态大模型在感知退化下的 <strong>modality
+triage</strong>、<strong>cross-modal recovery</strong> 和
+<strong>budget-aware routing</strong>
+能力。我们不从零采集大规模数据，而是选择具有原始 text/audio/video
+的公开数据集作为底座，通过可复现脚本生成受控缺陷，并结合人工验证标注
+recoverability、evidence、oracle route 和 abstention 标签。Benchmark
+将包含五个任务层：模态健康诊断、缺陷定位、跨模态补偿、预算受限模态路由、最终任务表现或拒答。我们将评估多种
+MLLM 与传统多模态
+baseline，分析它们在不同缺陷类型、严重程度、可恢复性和预算条件下的系统性失败模式。</p>
+<p>目标论文定位为 AAAI benchmark / evaluation
+paper。核心贡献不是“在已有数据集上刷分”，而是提出一个新的诊断式评测协议，揭示现有模型是否真正知道该读什么、听什么、看什么，以及什么时候应该不使用某个模态。</p>
+<h2 id="背景与动机">1. 背景与动机</h2>
+<p>多模态学习的常见假设是：更多模态通常带来更强的感知能力。因此，许多模型默认融合所有可用输入，例如
+text + audio + video。但这个假设在真实场景中并不总成立。</p>
+<p>第一，模态质量会随样本动态变化。同一条数据中，文本可能完整但语音噪声严重；另一条数据中，视频可能被遮挡但音频语气仍然提供关键信息。第二，不同模态之间并非总是冗余关系，有时是互补关系，有时甚至存在冲突。第三，推理预算有限时，全模态输入可能成本过高，模型需要判断哪些模态是必要的、哪些可以跳过。</p>
+<p>因此，一个更贴近真实使用的问题是：</p>
+<blockquote>
+<p>当 text、audio、video
+的质量发生变化，且推理预算有限时，模型是否能判断哪个模态可信、缺失信息能否从其他模态补回，以及应该调用哪些模态完成任务？</p>
+</blockquote>
+<p>这不是单纯的 missing modality
+robustness，也不是普通的多模态融合架构改进。它更接近一个“模态调用决策”问题：模型需要像调用工具一样决定什么时候读文本、什么时候听音频、什么时候看视频、什么时候使用两种或三种模态，以及什么时候应该拒答。</p>
+<h2 id="相关工作与研究缺口">2. 相关工作与研究缺口</h2>
+<p>已有研究覆盖了若干相邻方向：</p>
+<ul>
+<li><strong>Missing modality
+robustness</strong>：研究训练或测试阶段部分模态缺失时，模型如何保持最终任务性能，例如
+ACL 2024 的 multimodal prompt learning 工作，以及 AAAI 2026 的
+sample-specific modality diagnosis / cross-modal enhancement 工作 [R2,
+R8]。</li>
+<li><strong>Missing-modality benchmark</strong>：例如 MissMAC-Bench 和
+MissBench，它们分别从 unified missing-modality protocol、shared /
+imbalanced missing-rate protocol 和 modality equity 等角度推进 robust
+multimodal affective computing 评测 [R10, R11]。</li>
+<li><strong>Low-quality multimodal
+fusion</strong>：近期综述将低质量多模态问题总结为
+noisy、incomplete、imbalanced、quality-varying
+等类型，并说明真实系统中的模态质量会动态变化 [R1]。</li>
+<li><strong>Dynamic modality selection / budgeted
+inference</strong>：JMLR 2024、EMNLP 2024 和 ICCV 2025
+的相关工作已经讨论了 modality selection、inference serving 和
+latency-budget-aware adaptive inference [R3, R4, R7]。</li>
+<li><strong>MLLM evaluation and cross-modal
+inconsistency</strong>：Video-MME 评估 MLLM
+的视频、字幕和音频综合理解能力；MMIR 和 CrossCheck-Bench 则显示现有 MLLM
+在跨模态不一致和冲突解析上仍有明显缺口 [R5, R6, R9]。</li>
+</ul>
+<p>这些工作说明“多模态缺失/噪声”“动态模态选择”和“跨模态冲突检测”本身都不是空白。因此，本项目不能把
+novelty 写成“我们研究 missing modality”。我们的研究缺口应定义为：</p>
+<blockquote>
+<p>现有工作多评估缺失或低质量模态下的最终任务性能；我们进一步评估多模态大模型是否能显式完成
+modality
+triage：识别哪个模态坏了、坏在哪里、是否可恢复、应从哪个健康模态补偿，以及在预算有限时应选择哪些模态。</p>
+</blockquote>
+<p>这个缺口要求新的数据标注、新的任务定义和新的评价指标，而不只是对已有数据集做噪声增强。</p>
+<h2 id="研究目标">3. 研究目标</h2>
+<p>本项目目标是构建一个新的多模态诊断式
+Benchmark，用于回答以下研究问题：</p>
+<ol type="1">
+<li><strong>模态健康诊断</strong>：模型能否判断 text、audio、video
+中哪些模态可用、损坏、缺失或冲突？</li>
+<li><strong>缺陷定位</strong>：模型能否指出缺陷发生在文本
+span、音频时间段、视频帧区间或区域？</li>
+<li><strong>跨模态补偿</strong>：当某个模态缺失关键信息时，模型能否判断该信息是否能从其他模态恢复，并指出证据来源？</li>
+<li><strong>预算化路由</strong>：在限制只能使用一个或两个模态，或限制
+token / audio seconds / video frames / API cost
+的情况下，模型能否选择最低成本且足够的模态组合？</li>
+<li><strong>拒答能力</strong>：当所有可用模态都不足以支持判断时，模型能否输出
+unrecoverable / abstain，而不是硬猜？</li>
+</ol>
+<h2 id="benchmark-设计">4. Benchmark 设计</h2>
+<h3 id="输入与模态组合">4.1 输入与模态组合</h3>
+<p>每条原始样本包含三类核心模态：</p>
+<ul>
+<li><code>T</code>: text / transcript / caption</li>
+<li><code>A</code>: audio waveform / audio clip</li>
+<li><code>V</code>: video / frames</li>
+</ul>
+<p>三模态的非空组合共有七种：</p>
+<pre class="text"><code>T, A, V, TA, TV, AV, TAV</code></pre>
+<p>Benchmark
+不默认全模态输入，而是要求模型在样本级判断应该使用哪个组合。</p>
+<h3 id="五个任务层">4.2 五个任务层</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>任务</th>
+<th>名称</th>
+<th>模型要输出什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>Modality Health Diagnosis</td>
+<td>每个模态是否 clean / corrupted / missing / conflicting</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>Defect Localization</td>
+<td>缺陷位置：文本 span、音频时间戳、视频帧或区域</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>Cross-Modal Recovery</td>
+<td>是否可从其他模态恢复，恢复来源和证据位置</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>Budget-Aware Routing</td>
+<td>给定预算下应选择的模态组合</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>Final Task / Abstention</td>
+<td>最终答案，或证据不足时拒答</td>
+</tr>
+</tbody>
+</table>
+<h3 id="缺陷类型">4.3 缺陷类型</h3>
+<p>缺陷应由可复现脚本生成，而不是随机、不可解释地加噪。</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>模态</th>
+<th>缺陷类型</th>
+<th>可控参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text</td>
+<td>截断、span deletion、ASR 错词、语义替换、矛盾文本、时间错位</td>
+<td>删除比例、span 位置、关键词是否保留</td>
+</tr>
+<tr>
+<td>Audio</td>
+<td>加噪、静音、clipping、低码率、speaker overlap、prosody
+masking、时间错位</td>
+<td>SNR、持续时间、噪声类型、位置</td>
+</tr>
+<tr>
+<td>Video</td>
+<td>面部遮挡、关键帧丢失、blur、低光、freeze frame、crop、object/face
+masking</td>
+<td>遮挡比例、帧区间、区域</td>
+</tr>
+<tr>
+<td>Cross-modal</td>
+<td>文本与音频冲突、音频与视频错位、一个模态损坏但另一个可恢复</td>
+<td>conflict type、recoverability</td>
+</tr>
+</tbody>
+</table>
+<p>每个 corruption operator 都必须输出
+metadata，包括受损模态、缺陷类型、严重程度、位置和随机种子。</p>
+<h3 id="数据来源">4.4 数据来源</h3>
+<p>不建议从零采集大规模数据。建议采用：</p>
+<blockquote>
+<p>public raw multimodal datasets + controlled corruption +
+human-verified annotation + benchmark protocol</p>
+</blockquote>
+<p>候选数据集包括：</p>
+<ul>
+<li>Multimodal sentiment / emotion: <code>CMU-MOSI</code>,
+<code>CMU-MOSEI</code>, <code>IEMOCAP</code>, <code>MELD</code></li>
+<li>中文或跨语言扩展: <code>CH-SIMS</code>, <code>CH-SIMS v2</code>,
+<code>M3ED</code></li>
+<li>非情感类扩展: audio-centric video understanding 或 AVQA-style
+数据集</li>
+</ul>
+<p>初版建议至少包含一个情感/情绪类数据集和一个非情感类音视频理解数据集。原因是：SMCIR、MissMAC-Bench、MissBench
+和 UMQ 已经在 multimodal affective computing / multimodal sentiment
+analysis 上建立了很近的参照系 [R8, R10, R11, R12]；如果只使用 CMU-MOSEI
+/ MELD / IEMOCAP，审稿人可能认为该工作只是另一个 multimodal sentiment
+analysis missing-modality benchmark。</p>
+<h2 id="标注方案">5. 标注方案</h2>
+<h3 id="机械生成标签">5.1 机械生成标签</h3>
+<p>以下标签由 corruption generator 自动生成，可作为机械 gold：</p>
+<ul>
+<li>corrupted modality</li>
+<li>corruption type</li>
+<li>severity</li>
+<li>text span</li>
+<li>audio timestamp</li>
+<li>video timestamp / frame region</li>
+<li>random seed</li>
+<li>generator version</li>
+</ul>
+<h3 id="人工验证标签">5.2 人工验证标签</h3>
+<p>以下标签需要人工验证：</p>
+<ul>
+<li>recoverability: <code>recoverable</code>,
+<code>partially_recoverable</code>, <code>unrecoverable</code></li>
+<li>recovery source modality: <code>T</code>, <code>A</code>,
+<code>V</code>, <code>TA</code>, <code>TV</code>, <code>AV</code></li>
+<li>evidence location: text span / audio timestamp / video time or
+region</li>
+<li>oracle route under budget</li>
+<li>final answer under corrupted input</li>
+<li>abstention label</li>
+</ul>
+<p>LLM 可以生成候选标注，但不能直接作为 gold label。所有用于 test set
+的语义标签必须经过人工复核或冲突裁决。</p>
+<h3 id="样本-schema">5.3 样本 schema</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sample_id&quot;</span><span class="fu">:</span> <span class="st">&quot;cmu_mosei_00042_v3&quot;</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;source_dataset&quot;</span><span class="fu">:</span> <span class="st">&quot;CMU-MOSEI&quot;</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;modalities&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;text&quot;</span><span class="ot">,</span> <span class="st">&quot;audio&quot;</span><span class="ot">,</span> <span class="st">&quot;video&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;original_label&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;task&quot;</span><span class="fu">:</span> <span class="st">&quot;sentiment&quot;</span><span class="fu">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="fl">-1.4</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;corruption&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;corrupted&quot;</span><span class="fu">,</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;span_deletion&quot;</span><span class="fu">,</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;severity&quot;</span><span class="fu">:</span> <span class="st">&quot;medium&quot;</span><span class="fu">,</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;span&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">12</span><span class="ot">,</span> <span class="dv">25</span><span class="ot">]</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;audio&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;clean&quot;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;video&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;corrupted&quot;</span><span class="fu">,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;face_occlusion&quot;</span><span class="fu">,</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;severity&quot;</span><span class="fu">:</span> <span class="st">&quot;mild&quot;</span><span class="fu">,</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;time&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">3.2</span><span class="ot">,</span> <span class="fl">5.8</span><span class="ot">]</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;recoverability&quot;</span><span class="fu">:</span> <span class="st">&quot;recoverable&quot;</span><span class="fu">,</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;recovery_source&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;modality&quot;</span><span class="fu">:</span> <span class="st">&quot;audio&quot;</span><span class="fu">,</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;time&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">3.1</span><span class="ot">,</span> <span class="fl">4.7</span><span class="ot">]</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;oracle_route&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;audio&quot;</span><span class="ot">,</span> <span class="st">&quot;video&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;gold_answer&quot;</span><span class="fu">:</span> <span class="st">&quot;negative affect&quot;</span><span class="fu">,</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;abstention_label&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h2 id="评价指标">6. 评价指标</h2>
+<p>Benchmark 不应只报告最终任务 accuracy / F1。建议分层评估：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>能力</th>
+<th>指标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模态损坏检测</td>
+<td>per-modality F1, macro-F1</td>
+</tr>
+<tr>
+<td>缺陷类型识别</td>
+<td>classification accuracy, defect-type macro-F1</td>
+</tr>
+<tr>
+<td>严重程度判断</td>
+<td>weighted kappa, MAE</td>
+</tr>
+<tr>
+<td>缺陷定位</td>
+<td>text span F1, temporal IoU, frame/region IoU</td>
+</tr>
+<tr>
+<td>跨模态补偿</td>
+<td>source modality accuracy, recoverability F1, evidence hit rate</td>
+</tr>
+<tr>
+<td>模态路由</td>
+<td>oracle route match, budget violation rate, routing regret</td>
+</tr>
+<tr>
+<td>最终任务</td>
+<td>accuracy, macro-F1, MAE, correlation, task-specific score</td>
+</tr>
+<tr>
+<td>拒答能力</td>
+<td>coverage-risk curve, false abstention rate, false answer rate</td>
+</tr>
+</tbody>
+</table>
+<p>对于预算约束，可以定义成本归一化效用：</p>
+<pre class="text"><code>Score = TaskPerformance - lambda * Cost</code></pre>
+<p>其中 <code>Cost</code> 可以是 input token
+数、音频秒数、视频帧数、推理延迟、显存占用或 API 成本。不同 leaderboard
+必须明确使用哪一种 cost model。</p>
+<h2 id="baseline-设计">7. Baseline 设计</h2>
+<p>最低 baseline suite 应包括：</p>
+<ol type="1">
+<li><code>text_only</code></li>
+<li><code>audio_only</code></li>
+<li><code>video_only</code></li>
+<li><code>full_multimodal</code></li>
+<li><code>corrupted_multimodal_no_diagnosis</code></li>
+<li><code>random_legal_route</code></li>
+<li><code>static_best_route</code></li>
+<li><code>budget_only_route</code></li>
+<li><code>quality_only_route</code></li>
+<li><code>joint_quality_budget_route</code></li>
+<li><code>oracle_route</code></li>
+<li>MLLM structured prompting baseline</li>
+<li>task-specific robust fusion / missing-modality methods</li>
+</ol>
+<p>主表不应只比较最终任务性能，还应展示不同模型在 T1-T5
+各层能力上的差异。</p>
+<h2 id="预期贡献">8. 预期贡献</h2>
+<p>本项目预期形成五类贡献：</p>
+<ol type="1">
+<li><strong>新
+Benchmark</strong>：面向多模态大模型的模态分诊、跨模态恢复和预算化路由评测。</li>
+<li><strong>新标注层</strong>：缺陷位置、可恢复性、证据来源、oracle
+route 和 abstention。</li>
+<li><strong>新评测协议</strong>：single / double / all corrupted
+modalities，fixed / random corruption，cost-aware evaluation。</li>
+<li><strong>系统实验</strong>：评估 MLLM
+与传统多模态方法在不同缺陷类型、严重程度、可恢复性和预算下的失败模式。</li>
+<li><strong>可复现资产</strong>：corruption scripts、annotation
+guideline、benchmark card、datasheet 和 baseline code。</li>
+</ol>
+<h2 id="执行计划">9. 执行计划</h2>
+<h3 id="第-1-周文献与数据筛选">第 1 周：文献与数据筛选</h3>
+<ul>
+<li>完成 missing modality、robust multimodal learning、MLLM
+evaluation、dynamic modality selection、cross-modal inconsistency
+detection 的 related-work matrix。</li>
+<li>检查候选数据集的 raw data、license、下载方式和模态对齐质量。</li>
+<li>选定一个情感/情绪类数据集和一个非情感类数据集作为 pilot。</li>
+</ul>
+<h3 id="第-2-周taxonomy-与-corruption-generator">第 2 周：Taxonomy 与
+corruption generator</h3>
+<ul>
+<li>冻结 text/audio/video 缺陷 taxonomy。</li>
+<li>实现可复现 corruption generator。</li>
+<li>抽取 30 条样本做端到端检查。</li>
+</ul>
+<h3 id="第-3-4-周gold-annotation-pilot">第 3-4 周：Gold annotation
+pilot</h3>
+<ul>
+<li>选择 200-300 条原始 clips。</li>
+<li>生成 1,000-2,000 条 corrupted instances。</li>
+<li>人工标注 recoverability、evidence、oracle route、final answer 和
+abstention。</li>
+<li>统计标注耗时、冲突率和初步一致性。</li>
+</ul>
+<h3 id="第-5-6-周扩展数据与-baseline">第 5-6 周：扩展数据与
+baseline</h3>
+<ul>
+<li>扩展到 8k-15k instances。</li>
+<li>跑 unimodal、full multimodal、oracle route、MLLM prompting 和已有
+robust-fusion baseline。</li>
+<li>分析模型是否在 T1-T5 上表现出系统性弱点。</li>
+</ul>
+<h3 id="第-7-周论文主表与错误分析">第 7 周：论文主表与错误分析</h3>
+<ul>
+<li>按 defect type、severity、recoverability、budget level 分表。</li>
+<li>总结模型失败模式：信错模态、找错证据、漏掉可恢复信息、选择过贵路线、不该拒答或该拒答时硬猜。</li>
+<li>决定 AAAI 投稿版本的主线、数据规模和 claim boundary。</li>
+</ul>
+<h2 id="风险与应对">10. 风险与应对</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>风险</th>
+<th>说明</th>
+<th>应对</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新颖性风险</td>
+<td>SMCIR、CrossCheck-Bench、MissMAC-Bench、MissBench、UMQ
+等已有相近问题 [R8-R12]</td>
+<td>明确聚焦 modality triage + evidence-grounded recovery + cost-aware
+routing</td>
+</tr>
+<tr>
+<td>数据风险</td>
+<td>MELD / MOSEI 可能文本主导</td>
+<td>加入非情感类音视频理解数据，避免只做 MSA benchmark</td>
+</tr>
+<tr>
+<td>标注风险</td>
+<td>recoverability 和 evidence 标签成本高</td>
+<td>先做 200-300 clips gold pilot，验证 schema 后再扩展</td>
+</tr>
+<tr>
+<td>自动标注风险</td>
+<td>LLM 生成标签可能不可靠</td>
+<td>LLM 只做候选标注，test set 必须人工验证</td>
+</tr>
+<tr>
+<td>预算风险</td>
+<td>MLLM 多模态 API 成本高</td>
+<td>先用小规模 pilot 和开源模型确定失败模式</td>
+</tr>
+<tr>
+<td>复现风险</td>
+<td>数据处理和缺陷生成不透明</td>
+<td>从第一版开始发布 corruption scripts、metadata schema 和
+datasheet</td>
+</tr>
+</tbody>
+</table>
+<h2 id="交付物">11. 交付物</h2>
+<p>项目阶段性交付物包括：</p>
+<ul>
+<li><code>benchmark_taxonomy.md</code>:
+缺陷类型、可恢复性和路由标签定义。</li>
+<li><code>corruption_generator</code>: text/audio/video corruption
+scripts。</li>
+<li><code>annotation_guideline.md</code>: 人工标注规范和例子。</li>
+<li><code>benchmark_schema.json</code>: 每条样本的结构化格式。</li>
+<li><code>pilot_dataset</code>: 1k-2k 条 human-verified pilot
+instances。</li>
+<li><code>baseline_suite</code>: unimodal、full、routing、oracle、MLLM
+prompting baseline。</li>
+<li><code>benchmark_card</code> / <code>datasheet</code>:
+数据构成、生成过程、用途和限制。</li>
+<li>AAAI paper draft。</li>
+</ul>
+<h2 id="一句话定位">12. 一句话定位</h2>
+<blockquote>
+<p>AutoFusion-Bench 不是另一个 missing-modality robustness
+benchmark；它评估多模态大模型在感知退化和预算受限时，是否知道该信哪个模态、该从哪里补信息、该调用哪些模态，以及什么时候应该拒答。</p>
+</blockquote>
+<h2 id="references">References</h2>
+<p>以下是 proposal 当前最应该引用的近年核心文献。除 Datasheets for
+Datasets 作为数据集文档化方法论保留外，主叙事优先围绕 2024-2026
+的会议、期刊、AAAI 近邻工作和 arXiv 新近 benchmark
+展开。正式论文版本可以继续补充经典数据集论文和更完整的 related
+work。</p>
+<h3 id="low-quality-missing-modality-multimodal-learning">Low-quality /
+missing-modality multimodal learning</h3>
+<p>[R1] Zhang et al. <strong>Multimodal Fusion on Low-quality Data: A
+Comprehensive Survey</strong>. arXiv 2024.<br />
+<a href="https://arxiv.org/abs/2404.18947" class="uri">https://arxiv.org/abs/2404.18947</a></p>
+<p>[R2] Guo, Jin, and Zhao. <strong>Multimodal Prompt Learning with
+Missing Modalities for Sentiment Analysis and Emotion
+Recognition</strong>. ACL 2024.<br />
+<a href="https://aclanthology.org/2024.acl-long.94/" class="uri">https://aclanthology.org/2024.acl-long.94/</a></p>
+<p>[R3] Hu, Xu, Moon, Yadwadkar, and Akella. <strong>MOSEL: Inference
+Serving Using Dynamic Modality Selection</strong>. EMNLP 2024.<br />
+<a href="https://aclanthology.org/2024.emnlp-main.501/" class="uri">https://aclanthology.org/2024.emnlp-main.501/</a></p>
+<p>[R4] He et al. <strong>Efficient Modality Selection in Multimodal
+Learning</strong>. JMLR 2024.<br />
+<a href="https://jmlr.org/papers/v25/23-0439.html" class="uri">https://jmlr.org/papers/v25/23-0439.html</a></p>
+<p>[R5] Fu et al. <strong>Video-MME: The First-Ever Comprehensive
+Evaluation Benchmark of Multi-modal LLMs in Video Analysis</strong>.
+CVPR 2025.<br />
+<a href="https://arxiv.org/abs/2405.21075" class="uri">https://arxiv.org/abs/2405.21075</a></p>
+<p>[R6] Yan et al. <strong>Multimodal Inconsistency Reasoning (MMIR): A
+New Benchmark for Multimodal Reasoning Models</strong>. Findings of ACL
+2025.<br />
+<a href="https://arxiv.org/abs/2502.16033" class="uri">https://arxiv.org/abs/2502.16033</a></p>
+<p>[R7] Xu et al. <strong>Learning to Inference Adaptively for
+Multimodal Large Language Models</strong>. ICCV 2025.<br />
+<a href="https://arxiv.org/abs/2503.10905" class="uri">https://arxiv.org/abs/2503.10905</a></p>
+<h3 id="close-competitors-direct-novelty-boundary">2026 close
+competitors / direct novelty boundary</h3>
+<p>[R8] Chen et al. <strong>Sample-specific Modality Diagnosis and
+Cross-modal Enhancement for Incomplete Multimodal
+Representations</strong>. AAAI 2026.<br />
+<a href="https://ojs.aaai.org/index.php/AAAI/article/view/39102" class="uri">https://ojs.aaai.org/index.php/AAAI/article/view/39102</a></p>
+<p>[R9] Tian et al. <strong>CrossCheck-Bench: Diagnosing Compositional
+Failures in Multimodal Conflict Resolution</strong>. AAAI 2026.<br />
+<a href="https://ojs.aaai.org/index.php/AAAI/article/view/39788" class="uri">https://ojs.aaai.org/index.php/AAAI/article/view/39788</a></p>
+<p>[R10] Lin et al. <strong>MissMAC-Bench: Building Solid Benchmark for
+Missing Modality Issue in Robust Multimodal Affective
+Computing</strong>. arXiv 2026.<br />
+<a href="https://arxiv.org/abs/2602.00811" class="uri">https://arxiv.org/abs/2602.00811</a></p>
+<p>[R11] Pham et al. <strong>MissBench: Benchmarking Multimodal
+Affective Analysis under Imbalanced Missing Modalities</strong>. arXiv
+2026.<br />
+<a href="https://arxiv.org/abs/2603.09874" class="uri">https://arxiv.org/abs/2603.09874</a></p>
+<p>[R12] <strong>Addressing Missing and Noisy Modalities in One
+Solution: Unified Modality-Quality Framework for Low-quality Multimodal
+Data</strong>. arXiv 2026.<br />
+<a href="https://arxiv.org/abs/2603.02695" class="uri">https://arxiv.org/abs/2603.02695</a></p>
+<h3 id="policy-documentation-references-for-benchmark-release">Policy /
+documentation references for benchmark release</h3>
+<p>[R13] AAAI. <strong>Policies for AAAI-26 Authors</strong>.
+2026.<br />
+<a href="https://aaai.org/conference/aaai/aaai-26/policies-for-aaai-26-authors/" class="uri">https://aaai.org/conference/aaai/aaai-26/policies-for-aaai-26-authors/</a></p>
+<p>[R14] AAAI. <strong>AAAI-26 Supplementary Material</strong>.
+2026.<br />
+<a href="https://aaai.org/conference/aaai/aaai-26/supplementary-material/" class="uri">https://aaai.org/conference/aaai/aaai-26/supplementary-material/</a></p>
+<p>[R15] Gebru et al. <strong>Datasheets for Datasets</strong>. CACM
+2021 / arXiv 2018.<br />
+<a href="https://arxiv.org/abs/1803.09010" class="uri">https://arxiv.org/abs/1803.09010</a></p>
+</body>
+</html>
