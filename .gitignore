@@ -30,6 +30,9 @@ experiments/**/outputs/
 experiments/**/runs/
 experiments/**/tmp/
 experiments/**/wandb/
+experiments/**/data/media/
+experiments/**/data/raw_handoffs/
+experiments/**/*.zip
 experiments/**/*.ckpt
 experiments/**/*.pt
 
