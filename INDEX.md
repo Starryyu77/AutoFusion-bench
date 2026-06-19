@@ -1,10 +1,13 @@
-# AutoFusion-Bench Index
+# ENACT Index
 
 > Static project map. Current framing updated on 2026-06-19.
+> Public benchmark name: **ENACT**. Working repository: `AutoFusion-bench`.
 
 ## Start Here
 
 - [START_HERE.zh.md](START_HERE.zh.md) - Chinese owner-facing entrypoint: current project, active experiment, key docs, and next-week plan.
+- [paper/proposal/2026-06-19-ENACT-core-proposal.zh.md](paper/proposal/2026-06-19-ENACT-core-proposal.zh.md) - core ENACT proposal and primary reference for research and experiments.
+- [decision/proposals/2026-06-19-naming-decision-ENACT.zh.md](decision/proposals/2026-06-19-naming-decision-ENACT.zh.md) - naming decision and tagline.
 - [README.md](README.md) - public-facing project overview.
 - [PROJECT.md](PROJECT.md) - current project snapshot and next actions.
 - [governance/EXPERIMENT_CONSTITUTION.md](governance/EXPERIMENT_CONSTITUTION.md) - rules for experiments, gold labels, metrics, archive, GitHub, and server cleanup.
@@ -26,10 +29,12 @@
 
 ## Decision Team Docs
 
+- [paper/proposal/2026-06-19-ENACT-core-proposal.zh.md](paper/proposal/2026-06-19-ENACT-core-proposal.zh.md) - core proposal for story, experiment plan, and research boundaries.
 - [paper/proposal/2026-06-19-evidence-governance-research-proposal.md](paper/proposal/2026-06-19-evidence-governance-research-proposal.md) - current research proposal.
 - [paper/proposal/2026-06-19-detailed-research-proposal.zh.md](paper/proposal/2026-06-19-detailed-research-proposal.zh.md) - detailed Chinese proposal after June 19 literature and gate updates.
 - [paper/tables/2026-06-19-headline-metric-and-main-table.md](paper/tables/2026-06-19-headline-metric-and-main-table.md) - headline metric and main-table design.
 - [decision/literature/2026-06-19-related-work-positioning.md](decision/literature/2026-06-19-related-work-positioning.md) - related-work positioning.
+- [decision/proposals/2026-06-19-naming-decision-ENACT.zh.md](decision/proposals/2026-06-19-naming-decision-ENACT.zh.md) - naming decision.
 - [decision/plans/exp-002/2026-06-19-gold-freeze-adjudication-plan.md](decision/plans/exp-002/2026-06-19-gold-freeze-adjudication-plan.md) - mini-pilot gold-freeze adjudication plan.
 - [decision/plans/exp-002/2026-06-19-substrate-derisk.md](decision/plans/exp-002/2026-06-19-substrate-derisk.md) - substrate de-risking assessment.
 - [decision/plans/exp-002/2026-06-19-experiment-plan.zh.md](decision/plans/exp-002/2026-06-19-experiment-plan.zh.md) - Chinese experiment plan connecting buckets, model panel, metrics, and AAAI gates.

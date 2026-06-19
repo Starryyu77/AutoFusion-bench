@@ -13,6 +13,7 @@ decision/
   literature/   related-work positioning and citation-risk notes
   ops/          server and execution-environment notes
   plans/        experiment plans and decision-prep documents
+  proposals/    naming decisions and Decision Team proposal decisions
   reviews/      expert replies and review syntheses
 ```
 

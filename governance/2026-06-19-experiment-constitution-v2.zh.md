@@ -1,7 +1,8 @@
-# AutoFusion-Bench 项目宪法 v2.0
+# ENACT 项目宪法 v2.0
 
 > Status: v2.0（在 v1.0 基础上演进；v1.0 见 `governance/EXPERIMENT_CONSTITUTION.md`）
 > Date: 2026-06-19
+> Project name: **ENACT**（working repo: `AutoFusion-bench`）
 > 变更动因：本日完成文献核实（OMD-Bench / AVI-Bench 等）、锁定 headline 指标、
 > 确定数据底座去风险方案、确定目标 venue（AAAI-27）与质量门、纳入 Vibe Research 诚信规则。
 > Scope: 本地仓库、GitHub、服务器执行副本、Drive 媒体包，以及所有人类研究者与 AI Agent。
@@ -77,7 +78,7 @@ rule_lift = policy_acc(fixed_rule_on_frozen_diagnosis) - policy_acc(model_action
 
 ## 5. Venue 与诚信法（v2 新增）
 
-**目标 venue：AAAI-27 主技术轨**（摘要 2026-07-20、全文 2026-07-27 UTC-12；会议 2027-02 蒙特利尔）。
+**目标 venue：AAAI-27 主技术轨**（摘要 2026-07-21、全文 2026-07-28、补充材料和代码 2026-07-31，均为 UTC-12；会议 2027-02 蒙特利尔）。
 **策略：主轨为目标 + 明确后备**，用质量门决定冲刺 or 转后备（详见 `governance/2026-06-19-aaai27-timeline-and-gates.zh.md`）。
 后备阶梯：ICLR 2027（~9月）→ NeurIPS 2027 Evaluations & Datasets（~明年5月）。
 

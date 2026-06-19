@@ -1,6 +1,7 @@
-# AutoFusion-Bench Project Snapshot
+# ENACT Project Snapshot
 
 > Last refreshed: 2026-06-19
+> Working repository: `AutoFusion-bench`
 
 ## One-line Goal
 
@@ -69,6 +70,8 @@ Boundary:
 
 ## Current Canonical Files
 
+- `paper/proposal/2026-06-19-ENACT-core-proposal.zh.md`
+- `decision/proposals/2026-06-19-naming-decision-ENACT.zh.md`
 - `governance/EXPERIMENT_CONSTITUTION.md`
 - `START_HERE.zh.md`
 - `governance/2026-06-19-experiment-constitution-v2.zh.md`

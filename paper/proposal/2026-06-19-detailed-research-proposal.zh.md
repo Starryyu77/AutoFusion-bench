@@ -1,8 +1,10 @@
 # AutoFusion-Bench 详细研究 Proposal（2026-06-19, v1.0）
 
 > Status: Decision-Team 详版 proposal，取代 2026-06-19 v0.1（`paper/proposal/2026-06-19-evidence-governance-research-proposal.md`）。
+> Superseded by: `paper/proposal/2026-06-19-ENACT-core-proposal.zh.md`。
+> 对外项目 / benchmark 名称已改为 **ENACT**；本文件保留为历史详版草案。
 > 已纳入本日文献核实、headline 指标锁定、数据底座去风险、AAAI-27 时间线与质量门。
-> 目标 venue：AAAI-27 主技术轨（全文 2026-07-27），主轨为目标 + 明确后备。
+> 目标 venue：AAAI-27 主技术轨（全文 2026-07-28，补充材料和代码 2026-07-31），主轨为目标 + 明确后备。
 > 配套文档：`decision/literature/`、`paper/tables/`、`decision/plans/exp-002/`、
 > `governance/2026-06-19-aaai27-timeline-and-gates.zh.md`、`governance/2026-06-19-experiment-constitution-v2.zh.md`。
 
@@ -114,7 +116,7 @@ false_answer@unanswerable、false_abstention@answerable、answerable_task_acc、
 
 详见 `governance/2026-06-19-aaai27-timeline-and-gates.zh.md` 与 `decision/plans/exp-002/2026-06-19-experiment-plan.zh.md`。
 
-- P0 smoke（已过）→ **P1 mini-pilot gold + scorer（本周 = Gate 1）** → **P2 40-source（Gate 2，~7/6）** → P3 controls+taxonomy → **P4 写作+图（Gate 3，~7/18）→ 7/27 投** → P5（可选）text-evidence 扩展。
+- P0 smoke（已过）→ **P1 mini-pilot gold + scorer（本周 = Gate 1）** → **P2 40-source（Gate 2，~7/6）** → P3 controls+taxonomy → **P4 写作+图（Gate 3，~7/18）→ 7/28 投，7/31 交补充材料/代码** → P5（可选）text-evidence 扩展。
 - **质量门决定冲刺 or 转后备**：Gate 1 无清晰信号 → 重设计/转后备；Gate 2 数据未达标 → 转 ICLR 2027；Gate 3 草稿单薄 → 转后备。
 - 后备阶梯：ICLR 2027（~9月）→ NeurIPS 2027 Evaluations & Datasets（~明年5月，benchmark 理想归宿）。
 

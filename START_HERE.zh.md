@@ -1,13 +1,20 @@
-# AutoFusion-Bench 项目入口
+# ENACT 项目入口
 
 > 面向项目负责人、组会汇报、Research Execution Team 和 AI Agent。
 > 打开仓库后先看这个文件；不要从散落文件里猜当前状态。
+> 对外项目 / benchmark 名称是 **ENACT**；当前工作仓库仍叫 `AutoFusion-bench`。
 
 ## 1. 现在这个项目到底在做什么
 
 一句话：
 
 > 我们要做一个 benchmark，评估多模态大模型在音频/视频证据不可靠时，能不能把“证据诊断”转化成“正确行动”。
+
+项目名：
+
+```text
+ENACT = EvideNce-to-ACTion
+```
 
 核心现象叫：
 
@@ -125,8 +132,10 @@ Gate 1 通过条件：
 
 | 我想找 | 看这里 |
 |---|---|
+| 核心 proposal / 研究总参考 | `paper/proposal/2026-06-19-ENACT-core-proposal.zh.md` |
 | 当前项目快照 | `PROJECT.md` |
 | 全仓库索引 | `INDEX.md` |
+| 命名决定 | `decision/proposals/2026-06-19-naming-decision-ENACT.zh.md` |
 | 项目宪法 / 规则 | `governance/EXPERIMENT_CONSTITUTION.md` 和 `governance/2026-06-19-experiment-constitution-v2.zh.md` |
 | 协作工作流 / 怎么分任务 | `governance/COLLABORATION_WORKFLOW.md` |
 | AAAI 时间线 | `governance/2026-06-19-aaai27-timeline-and-gates.zh.md` |

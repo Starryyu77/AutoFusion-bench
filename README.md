@@ -1,9 +1,10 @@
-# AutoFusion-Bench
+# ENACT
 
 > 如果你是项目负责人、组会汇报人或新加入的执行同学，请先看
 > [START_HERE.zh.md](START_HERE.zh.md)。那里是当前项目导航、实验位置和下一步计划。
+> 对外项目 / benchmark 名称是 **ENACT**；当前工作仓库仍叫 `AutoFusion-bench`。
 
-AutoFusion-Bench is currently being organized around one research question:
+ENACT is currently organized around one research question:
 
 > Can multimodal large language models act correctly on their own diagnosis of unreliable multimodal evidence?
 
@@ -74,6 +75,8 @@ These smoke results prove the protocol can run. They are not paper-level finding
 
 ## Canonical Docs
 
+- [ENACT core proposal](paper/proposal/2026-06-19-ENACT-core-proposal.zh.md)
+- [Naming decision](decision/proposals/2026-06-19-naming-decision-ENACT.zh.md)
 - [Project overview](decision/handoffs/outgoing/2026-06-13-autofusion-project-overview.md)
 - [Experiment constitution](governance/EXPERIMENT_CONSTITUTION.md)
 - [Experiment constitution v2 note](governance/2026-06-19-experiment-constitution-v2.zh.md)

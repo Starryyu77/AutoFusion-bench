@@ -1,6 +1,6 @@
 # Paper Workspace
 
-This directory contains manuscript-facing material for AutoFusion-Bench.
+This directory contains manuscript-facing material for **ENACT**.
 
 ## Layout
 
@@ -14,3 +14,9 @@ paper/
 Decision Team planning, handoffs, expert reviews, and literature-risk notes live
 under `decision/`. Experiment outputs and scorer artifacts live under
 `experiments/exp-002-diag-action-pilot/`.
+
+Current core reference:
+
+```text
+paper/proposal/2026-06-19-ENACT-core-proposal.zh.md
+```

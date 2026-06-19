@@ -65,7 +65,7 @@ false-answer@unanswerable、false-abstention@answerable、answerable-task-acc、
 | **P1 mini-pilot（本周，Gate 1）** | 冻结 `mini_pilot.gold.jsonl`（10 src/约 21-23 headline）+ 跑 diagnosis/action/fixed-rule/scorer | mini 指标 + failure cases | **存在可解释 gap（CPF>0、rule_lift≥0、清晰失败案例）且数据质量站得住 → 扩；否则重设计/转后备** |
 | **P2 40-source（Gate 2，~7/6）** | 40 src / 约 160 instance，桶与 corruption 平衡，≥2 模型，IAA 达标 | 主表 + 标注一致性报告 | **7/6 前数据完备且质量达标 → 锁 AAAI；否则转 ICLR 2027** |
 | P3 controls + 错误分析 | 跑齐对照 + 定性 error taxonomy | 控制结果 + taxonomy | 控制行为符合设计 |
-| P4 写作 + 图（Gate 3，~7/18） | 全文 + Fig1（gap 示例）+ 主结果图 + pre-submission-reviewer | 投稿稿 | 草稿扎实 → 7/27 投；否则转后备 |
+| P4 写作 + 图（Gate 3，~7/18） | 全文 + Fig1（gap 示例）+ 主结果图 + pre-submission-reviewer | 投稿稿 | 草稿扎实 → 7/28 投，7/31 交补充材料/代码；否则转后备 |
 | P5（可选/后续） | text-evidence 扩展（ASR/subtitle/caption） | 与 OMD-Bench 区分（退化 vs 替换） | 仅在主线跑通后 |
 
 ## 8. 标注与质量
