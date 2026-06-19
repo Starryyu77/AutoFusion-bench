@@ -44,3 +44,4 @@ archive/**/*.zip
 /产物/
 /incoming-artifacts/
 /tmp-artifacts/
+/external/

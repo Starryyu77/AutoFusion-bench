@@ -1,6 +1,6 @@
 # AutoFusion-Bench Project Snapshot
 
-> Last refreshed: 2026-06-13
+> Last refreshed: 2026-06-19
 
 ## One-line Goal
 
@@ -67,17 +67,20 @@ Boundary:
 ## Current Canonical Files
 
 - `governance/EXPERIMENT_CONSTITUTION.md`
+- `governance/COLLABORATION_WORKFLOW.md`
+- `governance/REPOSITORY_STRUCTURE.md`
 - `governance/ROADMAP.md`
 - `governance/2026-06-13-repo-audit.md`
-- `handoffs/outgoing/2026-06-13-autofusion-project-overview.md`
-- `handoffs/outgoing/2026-06-09-mini-pilot-junior-brief.md`
+- `decision/handoffs/outgoing/2026-06-13-autofusion-project-overview.md`
+- `decision/handoffs/outgoing/2026-06-09-mini-pilot-junior-brief.md`
+- `paper/proposal/2026-06-19-evidence-governance-research-proposal.md`
 - `memory/tasks/exp-002.md`
 - `experiments/exp-002-diag-action-pilot/RUNBOOK.md`
 
 ## Next Actions
 
-1. Finish local repository cleanup on `codex/repo-governance-cleanup`.
-2. Decide how to synchronize local branch state with GitHub.
+1. Review and merge the dedicated cleanup PR from `codex/repo-structure-cleanup`.
+2. After merge, treat `governance/`, `decision/`, `experiments/`, `paper/`, `memory/`, and `archive/` as the default workspace layout.
 3. Restore `ntu-gpu43` SSH access and audit the server checkout before server cleanup.
 4. Have the junior collaborator prepare AVQA candidate sources.
 5. Run the 10-source / 40-instance mini-pilot.

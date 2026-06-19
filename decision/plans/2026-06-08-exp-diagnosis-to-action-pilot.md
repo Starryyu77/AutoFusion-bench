@@ -4,8 +4,8 @@ status: design
 parent: none
 target_exp_id: (will be assigned at /lab-exp-init)
 source_docs:
-  - reviews/2026-06-08-pilot-expert-replies-synthesis.md
-  - handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-v2.md
+  - decision/reviews/2026-06-08-pilot-expert-replies-synthesis.md
+  - decision/handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-v2.md
 ---
 
 # Design: Diagnosis-to-Action Pilot

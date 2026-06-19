@@ -40,4 +40,3 @@ Main tables should be sliced by:
 - single/double/all-corrupted modality state.
 
 Do not report only one aggregate accuracy table.
-

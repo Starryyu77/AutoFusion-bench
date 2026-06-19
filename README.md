@@ -70,10 +70,14 @@ These smoke results prove the protocol can run. They are not paper-level finding
 
 ## Canonical Docs
 
-- [Project overview](handoffs/outgoing/2026-06-13-autofusion-project-overview.md)
+- [Project overview](decision/handoffs/outgoing/2026-06-13-autofusion-project-overview.md)
 - [Experiment constitution](governance/EXPERIMENT_CONSTITUTION.md)
+- [Collaboration workflow](governance/COLLABORATION_WORKFLOW.md)
+- [Repository structure](governance/REPOSITORY_STRUCTURE.md)
 - [Roadmap](governance/ROADMAP.md)
+- [AAAI-27 timeline and gates](governance/2026-06-19-aaai27-timeline-and-gates.zh.md)
 - [Repository audit](governance/2026-06-13-repo-audit.md)
+- [Research proposal](paper/proposal/2026-06-19-evidence-governance-research-proposal.md)
 - [Active experiment runbook](experiments/exp-002-diag-action-pilot/RUNBOOK.md)
 - [Annotation workflow spec](skills/autofusion-annotation/references/data_spec.md)
 
@@ -81,13 +85,14 @@ These smoke results prove the protocol can run. They are not paper-level finding
 
 | Path | Role |
 |---|---|
+| `governance/` | Constitution, collaboration workflow, roadmap, audit, and repository structure. |
+| `decision/` | Decision Team proposals, plans, reviews, literature notes, handoffs, and ops notes. |
 | `experiments/exp-002-diag-action-pilot/` | Active diagnosis-to-action pilot. |
+| `paper/` | Manuscript-facing proposal, story, tables, and drafts. |
 | `skills/autofusion-annotation/` | Reusable annotation workflow and schema contract. |
-| `governance/` | Experiment constitution, cleanup policy, and roadmap. |
-| `handoffs/outgoing/` | Current project overview, junior brief, and expert handoffs. |
-| `paper/2026-06-08-evidence-governance-story.md` | Current paper story after expert feedback. |
-| `reviews/` | Expert feedback synthesis and review notes. |
+| `memory/` | Current project status and recovery pointers. |
 | `archive/2026-06-pre-exp002-reset/` | Historical exp-001 / May 2026 material moved out of the active workspace. |
+| `external/` | Ignored local-only incoming artifacts and Drive mirrors. |
 
 ## Cleanup Boundary
 

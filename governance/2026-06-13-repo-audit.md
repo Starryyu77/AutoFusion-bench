@@ -86,13 +86,13 @@ These files/directories are required for the current project direction:
 | `experiments/exp-002-diag-action-pilot/` | Active experiment: diagnosis-to-action pilot. |
 | `skills/autofusion-annotation/` | Reusable annotation workflow and data contract. |
 | `memory/tasks/exp-002.md` | Current state and next action truth source. |
-| `handoffs/outgoing/2026-06-13-autofusion-project-overview.md` | Current self-contained project overview. |
-| `handoffs/outgoing/2026-06-09-mini-pilot-junior-brief.md` | Current junior dataset-prep handoff. |
+| `decision/handoffs/outgoing/2026-06-13-autofusion-project-overview.md` | Current self-contained project overview. |
+| `decision/handoffs/outgoing/2026-06-09-mini-pilot-junior-brief.md` | Current junior dataset-prep handoff. |
 | `paper/2026-06-08-evidence-governance-story.md` | Current paper story after expert feedback. |
-| `reviews/2026-06-08-pilot-expert-replies-synthesis.md` | Basis for pilot narrowing. |
-| `reviews/2026-06-08-screening-scoring-guideline-expert-reply-synthesis.md` | Basis for annotation/scoring standard. |
-| `plans/2026-06-08-exp-diagnosis-to-action-pilot.md` | Current exp-002 execution plan. |
-| `infra/gpu/2026-06-08-ntu-gpu43-pilot-check.md` | Current server/gpu note for exp-002. |
+| `decision/reviews/2026-06-08-pilot-expert-replies-synthesis.md` | Basis for pilot narrowing. |
+| `decision/reviews/2026-06-08-screening-scoring-guideline-expert-reply-synthesis.md` | Basis for annotation/scoring standard. |
+| `decision/plans/2026-06-08-exp-diagnosis-to-action-pilot.md` | Current exp-002 execution plan. |
+| `decision/ops/gpu/2026-06-08-ntu-gpu43-pilot-check.md` | Current server/gpu note for exp-002. |
 | `AGENTS.md` | Repo instructions, LabLock and annotation workflow rules. |
 | `.gitignore` | Needed, but should be tightened for local dependency artifacts. |
 

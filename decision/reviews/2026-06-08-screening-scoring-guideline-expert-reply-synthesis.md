@@ -1,6 +1,6 @@
 ---
 type: screening-scoring-guideline-expert-reply-synthesis
-target: handoffs/outgoing/2026-06-08-screening-scoring-guideline-expert-review.md
+target: decision/handoffs/outgoing/2026-06-08-screening-scoring-guideline-expert-review.md
 created: 2026-06-08
 source:
   - /Users/starryyu/.codex/attachments/39a15d6e-e8f0-4f04-ae6f-7e04127e99a9/pasted-text.txt
