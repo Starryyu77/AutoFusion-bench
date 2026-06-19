@@ -13,6 +13,7 @@ Deliverables:
 - `governance/2026-06-13-repo-audit.md`
 - `governance/EXPERIMENT_CONSTITUTION.md`
 - `governance/ROADMAP.md`
+- `governance/REPOSITORY_STRUCTURE.md`
 
 Decision gates:
 
@@ -81,6 +82,40 @@ Required before full 40-source pilot:
 - `memory/tasks/exp-002.md` records current gate and next owner-facing action.
 
 Status: constitution and collaboration workflow upgraded to v1.0 on 2026-06-19.
+
+## Phase 1.6: Repository Structure Redesign
+
+Goal: reduce top-level clutter and make the repository readable for both
+Decision Team and AI Agent collaboration.
+
+Canonical design:
+
+- `governance/REPOSITORY_STRUCTURE.md`
+
+Target shape:
+
+```text
+governance/   rules, roadmap, audit, repo structure
+decision/     proposals, plans, reviews, literature, handoffs
+experiments/  active and reproducible experiments
+paper/        manuscript-facing material
+src/          reusable package code, after import-safe migration
+tools/        reusable apps/skills, after dependency-safe migration
+tests/        regression and contract tests
+memory/       project status and recovery pointers
+archive/      historical material
+external/     ignored local-only incoming artifacts
+```
+
+Required before migration:
+
+- do not move active `experiments/exp-002-diag-action-pilot/` in bulk;
+- first move lightweight Decision Team documents only;
+- update README / INDEX / PROJECT / memory after moves;
+- keep large media and raw packages out of GitHub;
+- run tests and `git diff --check` before pushing.
+
+Status: structure design drafted on 2026-06-19; migration not yet executed.
 
 ## Phase 2: Local Workspace Cleanup Plan
 

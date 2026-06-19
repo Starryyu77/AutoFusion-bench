@@ -239,8 +239,9 @@ AI Agent 每次接手项目时，先读：
 1. `AGENTS.md`
 2. `governance/EXPERIMENT_CONSTITUTION.md`
 3. `governance/COLLABORATION_WORKFLOW.md`
-4. `governance/ROADMAP.md`
-5. `memory/tasks/exp-002.md`
+4. `governance/REPOSITORY_STRUCTURE.md`
+5. `governance/ROADMAP.md`
+6. `memory/tasks/exp-002.md`
 
 如果涉及 annotation，再读：
 
