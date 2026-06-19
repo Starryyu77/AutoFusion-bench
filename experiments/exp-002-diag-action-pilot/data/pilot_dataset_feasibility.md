@@ -217,3 +217,33 @@ setup and manual modality-necessity inspection.
 
 MUSIC-AVQA remains a backup or complementary candidate and has not yet been
 staged.
+
+## 2026-06-18 mini-pilot handoff update
+
+A junior handoff package has been normalized into the experiment folder:
+
+- `data/mini_pilot_source_items.jsonl`
+- `data/mini_pilot_corruption_manifest.jsonl`
+- `annotations/mini_pilot.draft.jsonl`
+- `annotations/mini_pilot.local.jsonl`
+- `data/media/mini_pilot/`
+
+The batch contains 10 clean sources and 40 corrupted instances. Source balance:
+
+- 8 AVQA-derived sources;
+- 2 MUSIC-AVQA-derived sources;
+- 2 audio-necessary;
+- 2 video-necessary;
+- 2 audio-video joint;
+- 2 corrupted-irrelevant controls;
+- 2 cross-modal conflict candidates.
+
+Current interpretation:
+
+- The handoff is a useful 10-source mini-pilot draft.
+- It is not yet evidence that AVQA alone is sufficient as the main substrate.
+- Source-level labels are still candidate labels because clean-source acceptance
+  and modality necessity have not been human-adjudicated.
+- The next decision gate is source-level screening: accept, reject, or
+  adjudicate each clean source before using the 40 corrupted instances for model
+  scoring.

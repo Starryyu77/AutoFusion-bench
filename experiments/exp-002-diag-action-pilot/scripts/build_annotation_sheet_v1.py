@@ -13,6 +13,7 @@ from typing import Iterable
 
 CSV_COLUMNS = [
     "review_status",
+    "source_decision",
     "instance_id",
     "source_id",
     "source_dataset",
@@ -91,7 +92,7 @@ def write_jsonl(path: Path, rows: Iterable[dict]) -> None:
 def write_csv(path: Path, rows: Iterable[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=CSV_COLUMNS)
+        writer = csv.DictWriter(handle, fieldnames=CSV_COLUMNS, lineterminator="\n")
         writer.writeheader()
         for row in rows:
             writer.writerow({column: row.get(column, "") for column in CSV_COLUMNS})
@@ -127,6 +128,7 @@ def build_annotation_row(source: dict, corruption: dict) -> dict:
         "modalities_presented": ["audio", "video"],
         "gold_answer": source.get("gold_answer"),
         "review_status": "needs_human_review",
+        "source_decision": "adjudicate",
         "question_only_blind": {
             "answerable_without_media": "unclear",
             "blind_confidence": "low",
@@ -201,6 +203,7 @@ def build_csv_row(row: dict, source: dict) -> dict:
     blind = row["question_only_blind"]
     return {
         "review_status": row["review_status"],
+        "source_decision": row["source_decision"],
         "instance_id": row["instance_id"],
         "source_id": row["source_id"],
         "source_dataset": row["source_dataset"],

@@ -12,12 +12,16 @@ wandb/
 mlruns/
 outputs/
 __pycache__/
+.pytest_cache/
 .ipynb_checkpoints/
 
 # Folder-isolated experiment artifacts
+experiments/**/.env
 experiments/**/.cache/
 experiments/**/.venv/
 experiments/**/__pycache__/
+experiments/**/node_modules/
+experiments/**/dist/
 experiments/**/.ipynb_checkpoints/
 experiments/**/checkpoints/
 experiments/**/logs/
@@ -26,5 +30,17 @@ experiments/**/outputs/
 experiments/**/runs/
 experiments/**/tmp/
 experiments/**/wandb/
+experiments/**/data/media/
+experiments/**/data/raw_handoffs/
+experiments/**/*.zip
 experiments/**/*.ckpt
 experiments/**/*.pt
+
+# Local-only archives and heavy reference packs
+archive/**/local-only/
+archive/**/*.zip
+
+# Local handoff scratch space
+/产物/
+/incoming-artifacts/
+/tmp-artifacts/

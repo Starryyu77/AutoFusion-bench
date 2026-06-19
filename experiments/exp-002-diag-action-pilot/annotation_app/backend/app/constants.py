@@ -24,6 +24,7 @@ FIELD_OPTIONS = {
         "needs_adjudication",
         "rejected",
     ],
+    "source_decision": ["accept", "reject", "adjudicate"],
     "answerable_without_media": ["yes", "no", "unclear"],
     "blind_confidence": ["high", "medium", "low"],
     "source_modality": RELEVANCE_STATUS,
@@ -80,4 +81,3 @@ DISAGREEMENT_FIELDS = [
     "oracle_policy_action",
     "annotation_confidence",
 ]
-

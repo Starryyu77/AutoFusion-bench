@@ -10,6 +10,16 @@ from typing import Any
 
 from .jsonl_io import read_jsonl, write_jsonl
 
+HEADLINE_ANSWERABILITY = {"answerable", "unanswerable"}
+HEADLINE_CONFIDENCE = {"high", "medium"}
+LOCAL_REVIEW_STATUSES = {
+    "needs_human_review",
+    "in_progress",
+    "reviewed",
+    "needs_adjudication",
+    "rejected",
+}
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -58,6 +68,7 @@ def normalize_annotation(row: dict[str, Any], annotator: str | None = None) -> d
 
     normalized = json.loads(json.dumps(row, ensure_ascii=False))
     normalized.setdefault("review_status", "needs_human_review")
+    normalized.setdefault("source_decision", "adjudicate")
     normalized.setdefault("modalities_presented", ["audio", "video"])
     normalized.setdefault("annotation_confidence", "low")
     normalized.setdefault("annotator_notes", "")
@@ -69,6 +80,65 @@ def normalize_annotation(row: dict[str, Any], annotator: str | None = None) -> d
     if annotator:
         metadata["annotator"] = annotator
 
+    return normalized
+
+
+def derive_instance_decision(row: dict[str, Any]) -> str:
+    """Map local review state to the scorer's conservative gold decision."""
+    explicit = row.get("instance_decision")
+    review_status = row.get("review_status")
+    if review_status not in LOCAL_REVIEW_STATUSES and explicit in {"accept", "reject", "adjudicate"}:
+        return explicit
+
+    source_decision = row.get("source_decision", "adjudicate")
+    if source_decision == "reject":
+        return "reject"
+    if source_decision != "accept":
+        return "adjudicate"
+
+    if review_status == "rejected":
+        return "reject"
+    if review_status != "reviewed":
+        return "adjudicate"
+
+    main_answerability = row.get("main_answerability")
+    if main_answerability not in HEADLINE_ANSWERABILITY:
+        return "reject"
+    if row.get("annotation_confidence") not in HEADLINE_CONFIDENCE:
+        return "adjudicate"
+    if row.get("risk_sensitive") is True:
+        return "adjudicate"
+
+    post_answerability = row.get("post_corruption_answerability")
+    if main_answerability == "answerable" and post_answerability != "answerable":
+        return "adjudicate"
+    if main_answerability == "unanswerable" and post_answerability != "unanswerable":
+        return "adjudicate"
+
+    oracle = row.get("oracle_policy_action") or {}
+    acceptable_routes = oracle.get("acceptable_routes") or []
+    preferred_route = oracle.get("preferred_route") or []
+    if main_answerability == "answerable" and not acceptable_routes:
+        return "adjudicate"
+    if main_answerability == "unanswerable":
+        if oracle.get("abstain") is not True:
+            return "adjudicate"
+        if acceptable_routes or preferred_route:
+            return "adjudicate"
+    return "accept"
+
+
+def normalize_oracle_policy(row: dict[str, Any]) -> dict[str, Any]:
+    normalized = json.loads(json.dumps(row, ensure_ascii=False))
+    oracle = normalized.setdefault("oracle_policy_action", {})
+    main_answerability = normalized.get("main_answerability")
+    post_answerability = normalized.get("post_corruption_answerability")
+
+    if main_answerability == "unanswerable" and oracle.get("abstain") is True:
+        oracle["answerability"] = "unanswerable"
+        oracle["expected_answer"] = None
+    elif main_answerability == "answerable" and post_answerability == "answerable":
+        oracle["answerability"] = "answerable"
     return normalized
 
 
@@ -192,7 +262,7 @@ def get_annotation(db_path: Path, instance_id: str) -> dict[str, Any] | None:
         ).fetchone()
     if row is None:
         return None
-    return json.loads(row["row_json"])
+    return normalize_annotation(json.loads(row["row_json"]))
 
 
 def save_annotation(db_path: Path, instance_id: str, annotation: dict[str, Any], annotator: str | None = None) -> dict[str, Any]:
@@ -252,7 +322,13 @@ def export_annotations(db_path: Path, output_path: Path) -> dict[str, Any]:
         rows = connection.execute(
             "SELECT row_json FROM annotations ORDER BY instance_id"
         ).fetchall()
-    annotations = [json.loads(row["row_json"]) for row in rows]
+    annotations = []
+    for row in rows:
+        annotation = json.loads(row["row_json"])
+        annotation.setdefault("source_decision", "adjudicate")
+        annotation = normalize_oracle_policy(annotation)
+        annotation["instance_decision"] = derive_instance_decision(annotation)
+        annotations.append(annotation)
     count = write_jsonl(output_path, annotations)
     return {"output_path": str(output_path), "rows_exported": count}
 
@@ -270,4 +346,3 @@ def summary(db_path: Path) -> dict[str, Any]:
         "status_counts": {row["review_status"]: row["n"] for row in status_rows},
         "sessions": [dict(row) for row in sessions],
     }
-

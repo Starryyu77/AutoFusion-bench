@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoFusion-Bench 想法说明</title>
+  <style>
+    :root {
+      --ink: #202124;
+      --muted: #626a73;
+      --paper: #f7f8f5;
+      --surface: #ffffff;
+      --line: #d9ded6;
+      --green: #2f7d5f;
+      --teal: #2b6f77;
+      --red: #b54b4b;
+      --gold: #ac7a1f;
+      --violet: #6a5a9f;
+      --blue: #3f6ea8;
+      --shadow: 0 18px 50px rgba(32, 33, 36, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100vw - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      align-items: center;
+      padding: 48px 0 34px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(47, 125, 95, 0.08), transparent 38%),
+        linear-gradient(180deg, #ffffff 0%, var(--paper) 100%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(420px, 0.98fr);
+      gap: 44px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      background: var(--green);
+      display: inline-block;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(38px, 7vw, 78px);
+      line-height: 0.98;
+      letter-spacing: 0;
+      max-width: 10.5em;
+    }
+
+    .hero-copy {
+      margin: 24px 0 0;
+      max-width: 720px;
+      color: #384047;
+      font-size: clamp(18px, 2.4vw, 24px);
+      line-height: 1.45;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      color: #384047;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .decision-board {
+      position: relative;
+      min-height: 560px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 20px;
+    }
+
+    .board-title strong {
+      display: block;
+      font-size: 17px;
+    }
+
+    .board-title span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .route-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .modality-row {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr) 96px;
+      gap: 12px;
+      align-items: center;
+      min-height: 82px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+    }
+
+    .modality {
+      display: grid;
+      place-items: center;
+      height: 58px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .modality.text { background: var(--blue); }
+    .modality.audio { background: var(--green); }
+    .modality.video { background: var(--violet); }
+
+    .signal {
+      min-width: 0;
+    }
+
+    .signal strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .signal span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status {
+      justify-self: end;
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .status.bad {
+      color: var(--red);
+      border-color: rgba(181, 75, 75, 0.3);
+      background: rgba(181, 75, 75, 0.08);
+    }
+
+    .status.ok {
+      color: var(--green);
+      border-color: rgba(47, 125, 95, 0.3);
+      background: rgba(47, 125, 95, 0.08);
+    }
+
+    .status.warn {
+      color: var(--gold);
+      border-color: rgba(172, 122, 31, 0.35);
+      background: rgba(172, 122, 31, 0.1);
+    }
+
+    .route-result {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 8px;
+      background: #202124;
+      color: #fff;
+    }
+
+    .route-result .label {
+      color: #b9c2bd;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .route-result strong {
+      display: block;
+      font-size: 34px;
+      line-height: 1.08;
+      margin-top: 7px;
+      letter-spacing: 0;
+    }
+
+    .route-result p {
+      margin: 10px 0 0;
+      color: #dde4df;
+      font-size: 14px;
+    }
+
+    .nav-band {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(247, 248, 245, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .nav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #394049;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      background: #fff;
+    }
+
+    section {
+      padding: 72px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(320px, 0.55fr);
+      gap: 36px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .contrast {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(32, 33, 36, 0.05);
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .panel.bad {
+      border-left: 5px solid var(--red);
+    }
+
+    .panel.good {
+      border-left: 5px solid var(--green);
+    }
+
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .task {
+      min-height: 210px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .task .num {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 900;
+      margin-bottom: 18px;
+    }
+
+    .task:nth-child(1) .num { background: var(--blue); }
+    .task:nth-child(2) .num { background: var(--red); }
+    .task:nth-child(3) .num { background: var(--green); }
+    .task:nth-child(4) .num { background: var(--gold); }
+    .task:nth-child(5) .num { background: var(--violet); }
+
+    .task h3 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .task p {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .step {
+      position: relative;
+      min-height: 170px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 18px;
+    }
+
+    .step::after {
+      content: ">";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-weight: 900;
+      background: var(--paper);
+      width: 18px;
+      text-align: center;
+    }
+
+    .step:last-child::after {
+      content: "";
+      display: none;
+    }
+
+    .step .small {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .step h3 {
+      margin: 10px 0 8px;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(32, 33, 36, 0.04);
+    }
+
+    th, td {
+      text-align: left;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      color: #fff;
+      background: #30343a;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    td:first-child {
+      font-weight: 800;
+      color: #2f3439;
+      width: 30%;
+    }
+
+    .schema {
+      border: 1px solid #31363a;
+      border-radius: 8px;
+      background: #202124;
+      color: #eef3ef;
+      padding: 20px;
+      overflow-x: auto;
+      box-shadow: var(--shadow);
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      font-size: 13px;
+      line-height: 1.55;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .week {
+      border-top: 5px solid var(--green);
+      border-radius: 8px;
+      background: var(--surface);
+      padding: 18px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+      min-height: 190px;
+    }
+
+    .week:nth-child(2) { border-top-color: var(--gold); }
+    .week:nth-child(3) { border-top-color: var(--blue); }
+    .week:nth-child(4) { border-top-color: var(--violet); }
+
+    .week strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .week p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .warning {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 20px;
+      align-items: center;
+      padding: 24px;
+      border: 1px solid rgba(181, 75, 75, 0.28);
+      border-radius: 8px;
+      background: rgba(181, 75, 75, 0.06);
+    }
+
+    .warning strong {
+      font-size: 18px;
+      color: var(--red);
+    }
+
+    .warning p {
+      margin: 0;
+      color: #4b3a3a;
+    }
+
+    .footer {
+      padding: 34px 0 44px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-grid,
+      .section-head,
+      .contrast,
+      .matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .decision-board {
+        min-height: auto;
+      }
+
+      .task-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .flow,
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+
+      .step::after {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100vw - 24px, 1180px);
+      }
+
+      .hero {
+        padding-top: 34px;
+      }
+
+      .hero-grid {
+        gap: 28px;
+      }
+
+      .decision-board,
+      .panel,
+      .task,
+      .step,
+      .week,
+      .warning {
+        padding: 16px;
+      }
+
+      .modality-row {
+        grid-template-columns: 74px 1fr;
+      }
+
+      .status {
+        grid-column: 2;
+        justify-self: start;
+      }
+
+      .task-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .warning {
+        grid-template-columns: 1fr;
+      }
+
+      th, td {
+        padding: 11px 10px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="shell hero-grid">
+      <div>
+        <div class="eyebrow">AutoFusion-Bench / AAAI 方向</div>
+        <h1>模型什么时候该读、听、看？</h1>
+        <p class="hero-copy">
+          我们现在要做的不是在别人数据集上刷几个点，而是用公开原始多模态数据搭一个新的 Benchmark 层：
+          测模型能否诊断模态缺陷、从其他模态补回信息，并在预算有限时选择正确的模态组合。
+        </p>
+        <div class="hero-actions" aria-label="核心关键词">
+          <span class="pill">Modality triage</span>
+          <span class="pill">Cross-modal recovery</span>
+          <span class="pill">Budget-aware routing</span>
+          <span class="pill">Human-verified labels</span>
+        </div>
+      </div>
+
+      <aside class="decision-board" aria-label="模态路由示例">
+        <div class="board-title">
+          <div>
+            <strong>一个样本，不是默认全模态输入</strong>
+            <span>先判断质量，再决定路由。</span>
+          </div>
+          <span class="status warn">Budget: 2 modalities</span>
+        </div>
+
+        <div class="route-stack">
+          <div class="modality-row">
+            <div class="modality text">T</div>
+            <div class="signal">
+              <strong>Text transcript</strong>
+              <span>关键情绪词被删除，语义证据不完整。</span>
+            </div>
+            <span class="status bad">corrupted</span>
+          </div>
+          <div class="modality-row">
+            <div class="modality audio">A</div>
+            <div class="signal">
+              <strong>Audio prosody</strong>
+              <span>语气、停顿和音量仍能补回情绪线索。</span>
+            </div>
+            <span class="status ok">usable</span>
+          </div>
+          <div class="modality-row">
+            <div class="modality video">V</div>
+            <div class="signal">
+              <strong>Video frames</strong>
+              <span>面部遮挡轻微，表情证据部分可用。</span>
+            </div>
+            <span class="status warn">partial</span>
+          </div>
+        </div>
+
+        <div class="route-result">
+          <div class="label">Expected model behavior</div>
+          <strong>选择 A + V，拒绝盲信 T</strong>
+          <p>Benchmark 要测的是这个中间决策，而不只是最后 emotion 是否猜对。</p>
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <div class="nav-band">
+    <nav class="shell nav" aria-label="页面导航">
+      <a href="#position">定位</a>
+      <a href="#tasks">五个任务</a>
+      <a href="#pipeline">怎么构造</a>
+      <a href="#annotation">标注</a>
+      <a href="#metrics">评测</a>
+      <a href="#plan">路线</a>
+    </nav>
+  </div>
+
+  <section id="position">
+    <div class="shell">
+      <div class="section-head">
+        <h2>核心定位：不是 missing modality 的旧题重做</h2>
+        <p>
+          旧问题通常问“缺了某个模态，最终分类性能掉多少”。我们的新问题问：
+          模型是否知道哪个模态坏了、坏在哪里、能不能补、该用哪个模态补、预算不够时该怎么选。
+        </p>
+      </div>
+
+      <div class="contrast">
+        <div class="panel bad">
+          <h3>不要这样写</h3>
+          <p>“我们研究多模态缺失，提出一个方法让 CMU-MOSEI/MELD 涨点。”这会被认为接近已有 missing-modality robustness。</p>
+        </div>
+        <div class="panel good">
+          <h3>应该这样写</h3>
+          <p>“我们提出一个诊断式 Benchmark，评估 MLLM 在感知退化下的模态分诊、跨模态恢复和预算化路由能力。”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tasks">
+    <div class="shell">
+      <div class="section-head">
+        <h2>Benchmark 拆成五个任务层</h2>
+        <p>这五层让模型的中间判断暴露出来。即使最后答案碰巧对了，也能看出它有没有选错证据、信错模态。</p>
+      </div>
+
+      <div class="task-grid">
+        <article class="task">
+          <div>
+            <span class="num">T1</span>
+            <h3>模态健康诊断</h3>
+            <p>判断 text、audio、video 是否 clean、corrupted、missing 或 conflicting。</p>
+          </div>
+        </article>
+        <article class="task">
+          <div>
+            <span class="num">T2</span>
+            <h3>缺陷定位</h3>
+            <p>指出损坏发生在文本 span、音频时间段、视频帧区间或区域。</p>
+          </div>
+        </article>
+        <article class="task">
+          <div>
+            <span class="num">T3</span>
+            <h3>跨模态补偿</h3>
+            <p>判断缺失信息能否从其他模态恢复，并给出来源和证据位置。</p>
+          </div>
+        </article>
+        <article class="task">
+          <div>
+            <span class="num">T4</span>
+            <h3>预算化路由</h3>
+            <p>在成本限制下选择 T、A、V、TA、TV、AV、TAV 中的可行组合。</p>
+          </div>
+        </article>
+        <article class="task">
+          <div>
+            <span class="num">T5</span>
+            <h3>最终任务 / 拒答</h3>
+            <p>给出情绪、情感、事件等答案；证据不可恢复时要能 abstain。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="pipeline">
+    <div class="shell">
+      <div class="section-head">
+        <h2>怎么做：公开原始数据 + 自己构造 Benchmark 层</h2>
+        <p>路线 B 最稳：不从零采集，也不只是改别人数据集；用公开数据当底座，新增缺陷、标注、任务和评测协议。</p>
+      </div>
+
+      <div class="flow" aria-label="Benchmark 构造流程">
+        <div class="step">
+          <div class="small">Input</div>
+          <h3>公开原始数据</h3>
+          <p>优先选有 text / audio / video / label 的数据，如 CMU-MOSEI、IEMOCAP、MELD 或 AVQA。</p>
+        </div>
+        <div class="step">
+          <div class="small">Corrupt</div>
+          <h3>可控感知缺陷</h3>
+          <p>文本截断、音频加噪、视频遮挡、时间错位、跨模态冲突，全部记录 metadata。</p>
+        </div>
+        <div class="step">
+          <div class="small">Annotate</div>
+          <h3>人工验证语义标签</h3>
+          <p>人工确认 recoverability、evidence、oracle route、final answer 和 abstention。</p>
+        </div>
+        <div class="step">
+          <div class="small">Evaluate</div>
+          <h3>多层评测协议</h3>
+          <p>同时测诊断、定位、恢复、路由、最终任务，不只看 accuracy。</p>
+        </div>
+        <div class="step">
+          <div class="small">Analyze</div>
+          <h3>失败模式分析</h3>
+          <p>看模型什么时候信错模态、漏掉补偿证据、选了过贵路线或不该拒答。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="annotation">
+    <div class="shell">
+      <div class="section-head">
+        <h2>标注策略：机器生成可验证标签，人工验证语义标签</h2>
+        <p>LLM 可以做候选标注，但不能直接当 gold。Benchmark 可信度来自可复现 corruption metadata 和 human-verified labels。</p>
+      </div>
+
+      <div class="matrix">
+        <table>
+          <thead>
+            <tr>
+              <th>自动生成</th>
+              <th>为什么可以自动</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>受损模态</td>
+              <td>脚本知道这次改了 text、audio 还是 video。</td>
+            </tr>
+            <tr>
+              <td>缺陷类型</td>
+              <td>corruption generator 记录 span deletion、noise、occlusion 等类型。</td>
+            </tr>
+            <tr>
+              <td>缺陷位置</td>
+              <td>文本 span、音频时间戳、视频帧区间都由脚本保存。</td>
+            </tr>
+            <tr>
+              <td>严重程度</td>
+              <td>SNR、遮挡比例、删除比例等是可控参数。</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table>
+          <thead>
+            <tr>
+              <th>人工验证</th>
+              <th>为什么需要人工</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>可恢复性</td>
+              <td>要判断缺失信息是否真的能从其他模态语义补回。</td>
+            </tr>
+            <tr>
+              <td>补偿来源</td>
+              <td>需要确认应该看 audio prosody、video expression 还是 text context。</td>
+            </tr>
+            <tr>
+              <td>oracle route</td>
+              <td>要标出预算下最低成本且足够的模态组合。</td>
+            </tr>
+            <tr>
+              <td>拒答标签</td>
+              <td>多个模态都坏时，必须判断证据是否已经不足。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="schema" style="margin-top:16px">
+        <pre>{
+  "sample_id": "cmu-mosei_00042_v3",
+  "modalities": ["text", "audio", "video"],
+  "corruption": {
+    "text": {"type": "span_deletion", "severity": "medium", "span": [12, 25]},
+    "audio": {"status": "clean"},
+    "video": {"type": "face_occlusion", "severity": "mild", "time": [3.2, 5.8]}
+  },
+  "recoverability": "recoverable",
+  "recovery_source": {"modality": "audio", "time": [3.1, 4.7]},
+  "oracle_route": ["audio", "video"],
+  "gold_answer": "negative affect",
+  "abstention_label": false
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="metrics">
+    <div class="shell">
+      <div class="section-head">
+        <h2>评测指标要能解释“为什么错”</h2>
+        <p>最终分数只是最后一层。论文主表应该按 defect type、severity、recoverability、budget level 分层展示。</p>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>能力</th>
+            <th>指标</th>
+            <th>解释</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>诊断</td>
+            <td>per-modality F1 / defect-type macro-F1</td>
+            <td>模型是否知道哪个模态坏了、坏成什么样。</td>
+          </tr>
+          <tr>
+            <td>定位</td>
+            <td>text span F1 / temporal IoU</td>
+            <td>模型是否能找到坏的位置，而不是泛泛说“音频有问题”。</td>
+          </tr>
+          <tr>
+            <td>补偿</td>
+            <td>recoverability F1 / evidence hit rate</td>
+            <td>模型是否知道能不能补，以及该从哪里补。</td>
+          </tr>
+          <tr>
+            <td>路由</td>
+            <td>oracle-route match / regret / budget violation rate</td>
+            <td>模型是否在预算内选到了足够且不浪费的模态组合。</td>
+          </tr>
+          <tr>
+            <td>拒答</td>
+            <td>coverage-risk / false answer rate</td>
+            <td>证据不可恢复时，模型是否停止硬猜。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning" style="margin-top:18px">
+        <strong>关键边界</strong>
+        <p>
+          MELD/CMU-MOSEI 这类数据可以用作底座，但不能只做 missing mask + final accuracy。
+          我们要新增的是 defect diagnosis、evidence-grounded recovery 和 cost-aware routing 这三层。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="plan">
+    <div class="shell">
+      <div class="section-head">
+        <h2>接下来七周的最小可行路线</h2>
+        <p>先验证 schema 和失败模式，再扩规模。宁可 2k 条深标注，也不要 50k 条浅 missing mask。</p>
+      </div>
+
+      <div class="timeline">
+        <div class="week">
+          <strong>第 1 周：文献和数据</strong>
+          <p>整理 missing modality、MLLM evaluation、dynamic modality selection；检查 raw data、license 和下载可行性。</p>
+        </div>
+        <div class="week">
+          <strong>第 2 周：taxonomy + generator</strong>
+          <p>冻结 text/audio/video 缺陷类型，写 corruption scripts，先做 30 条 end-to-end 检查。</p>
+        </div>
+        <div class="week">
+          <strong>第 3-4 周：gold pilot</strong>
+          <p>200-300 个 clips，生成 1k-2k corrupted instances，人工验证 recoverability、evidence 和 route。</p>
+        </div>
+        <div class="week">
+          <strong>第 5-7 周：baseline + 论文表</strong>
+          <p>跑 unimodal、full、oracle route、MLLM prompting 和 robust-fusion baselines，按切片做错误分析。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="shell">
+      AutoFusion-Bench explainer. Current framing: public raw multimodal data + controlled corruption + human-verified diagnostic benchmark layer.
+    </div>
+  </footer>
+</body>
+</html>
