@@ -1,7 +1,7 @@
 # AutoFusion-Bench Roadmap
 
-> Status: Draft v0.1  
-> Date: 2026-06-13  
+> Status: Draft v0.1
+> Date: 2026-06-13
 > Purpose: sequence cleanup, project governance, dataset work, and experiments without losing traceability.
 
 ## Phase 0: Freeze Rules Before Cleanup
@@ -53,6 +53,34 @@ Top-level docs should point readers first to:
 Do not make `exp-001` appear as the current mainline.
 
 Status: completed in first cleanup pass.
+
+## Phase 1.5: Collaboration Operating Model
+
+Goal: make delegation and review explicit before scaling from mini-pilot to
+full pilot.
+
+Canonical workflow:
+
+- `governance/COLLABORATION_WORKFLOW.md`
+
+Operating rule:
+
+> The local workspace is the Decision Team workspace. Decision Team handles
+> research judgment, planning, gold freeze, claim freeze, and final audit.
+> Research Execution Team handles dataset work, corruption generation,
+> annotation, and model runs through GitHub task cards and PRs. AI agents run
+> formatting, validator, scorer, PR-summary, and audit checks against the same
+> task-card contract.
+
+Required before full 40-source pilot:
+
+- each delegated task has a GitHub Issue or task card;
+- every PR states inputs, outputs, validations, unresolved rows, and Drive media
+  links;
+- no large media is pushed to GitHub;
+- `memory/tasks/exp-002.md` records current gate and next owner-facing action.
+
+Status: constitution and collaboration workflow upgraded to v1.0 on 2026-06-19.
 
 ## Phase 2: Local Workspace Cleanup Plan
 

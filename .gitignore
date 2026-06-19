@@ -39,3 +39,8 @@ experiments/**/*.pt
 # Local-only archives and heavy reference packs
 archive/**/local-only/
 archive/**/*.zip
+
+# Local handoff scratch space
+/产物/
+/incoming-artifacts/
+/tmp-artifacts/
