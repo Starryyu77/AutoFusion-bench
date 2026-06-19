@@ -72,12 +72,15 @@ These smoke results prove the protocol can run. They are not paper-level finding
 
 - [Project overview](decision/handoffs/outgoing/2026-06-13-autofusion-project-overview.md)
 - [Experiment constitution](governance/EXPERIMENT_CONSTITUTION.md)
+- [Experiment constitution v2 note](governance/2026-06-19-experiment-constitution-v2.zh.md)
 - [Collaboration workflow](governance/COLLABORATION_WORKFLOW.md)
 - [Repository structure](governance/REPOSITORY_STRUCTURE.md)
 - [Roadmap](governance/ROADMAP.md)
 - [AAAI-27 timeline and gates](governance/2026-06-19-aaai27-timeline-and-gates.zh.md)
 - [Repository audit](governance/2026-06-13-repo-audit.md)
 - [Research proposal](paper/proposal/2026-06-19-evidence-governance-research-proposal.md)
+- [Detailed research proposal](paper/proposal/2026-06-19-detailed-research-proposal.zh.md)
+- [Experiment plan](decision/plans/exp-002/2026-06-19-experiment-plan.zh.md)
 - [Active experiment runbook](experiments/exp-002-diag-action-pilot/RUNBOOK.md)
 - [Annotation workflow spec](skills/autofusion-annotation/references/data_spec.md)
 

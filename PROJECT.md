@@ -67,6 +67,7 @@ Boundary:
 ## Current Canonical Files
 
 - `governance/EXPERIMENT_CONSTITUTION.md`
+- `governance/2026-06-19-experiment-constitution-v2.zh.md`
 - `governance/COLLABORATION_WORKFLOW.md`
 - `governance/REPOSITORY_STRUCTURE.md`
 - `governance/ROADMAP.md`
@@ -74,6 +75,8 @@ Boundary:
 - `decision/handoffs/outgoing/2026-06-13-autofusion-project-overview.md`
 - `decision/handoffs/outgoing/2026-06-09-mini-pilot-junior-brief.md`
 - `paper/proposal/2026-06-19-evidence-governance-research-proposal.md`
+- `paper/proposal/2026-06-19-detailed-research-proposal.zh.md`
+- `decision/plans/exp-002/2026-06-19-experiment-plan.zh.md`
 - `memory/tasks/exp-002.md`
 - `experiments/exp-002-diag-action-pilot/RUNBOOK.md`
 
