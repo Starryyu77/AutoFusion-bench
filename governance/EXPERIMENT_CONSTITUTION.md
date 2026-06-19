@@ -116,15 +116,13 @@ GitHub 仓库只放可审计的轻量产物。
 | 路径 | 角色 |
 |---|---|
 | `governance/` | 宪法、工作流、路线图、仓库审计，是项目规则入口 |
+| `decision/` | Decision Team 的 proposal、plan、review、literature、handoff、ops notes |
 | `memory/tasks/exp-002.md` | 当前状态、恢复入口、下一步 gate |
 | `experiments/exp-002-diag-action-pilot/` | 当前唯一 active experiment |
-| `handoffs/outgoing/` | 给专家、研究人员、AI Agent 的正式交接文件 |
-| `paper/` | 当前论文故事、草稿和 claim 组织 |
-| `plans/` | 当前计划，不放临时闲聊笔记 |
-| `reviews/` | 专家意见、审稿式评估、方法风险分析 |
+| `paper/` | 当前论文故事、proposal、表格设计、草稿和 claim 组织 |
 | `skills/autofusion-annotation/` | annotation workflow 的可复用规范和数据 contract |
 | `archive/` | 历史有价值但不在当前执行路径的材料 |
-| `data/`, `models/`, `evals/`, `lit/`, `derivations/` | 仅保留当前仍有索引意义的轻量入口；无当前用途的内容应归档或删除 |
+| `external/` | 本地 ignored 外部材料入口，不进入 GitHub |
 
 顶层不得继续堆放临时“产物”目录。外部发来的材料要先进入被忽略的 raw handoff 区，再按本宪法整理进 active experiment 或 Drive。
 

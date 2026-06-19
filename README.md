@@ -1,6 +1,10 @@
-# AutoFusion-Bench
+# ENACT
 
-AutoFusion-Bench is currently being organized around one research question:
+> 如果你是项目负责人、组会汇报人或新加入的执行同学，请先看
+> [START_HERE.zh.md](START_HERE.zh.md)。那里是当前项目导航、实验位置和下一步计划。
+> 对外项目 / benchmark 名称是 **ENACT**；当前工作仓库仍叫 `AutoFusion-bench`。
+
+ENACT is currently organized around one research question:
 
 > Can multimodal large language models act correctly on their own diagnosis of unreliable multimodal evidence?
 
@@ -38,15 +42,16 @@ experiments/exp-002-diag-action-pilot/
 Scope:
 
 - audio-video evidence governance under textual queries;
-- AVQA / AVQA-videos as the first substrate;
-- MUSIC-AVQA as backup;
+- DAVE as the main substrate for audio-video joint / conflict cases;
+- AVQA / AVQA-videos as pipeline and control substrates;
+- FortisAVQA and MUSIC-AVQA v2 as backups;
 - Qwen Omni models as the first verified audio-video model panel;
 - MELD / MOSI / MOSEI / IEMOCAP are not the current main positive substrate.
 
 Current near-term target:
 
 ```text
-10 clean source items -> about 40 corrupted instances -> annotation -> model diagnosis/action -> scorer
+DAVE+AVQA mini-pilot -> about 40-50 corrupted instances -> annotation -> model diagnosis/action -> scorer
 ```
 
 Next scale target:
@@ -70,10 +75,19 @@ These smoke results prove the protocol can run. They are not paper-level finding
 
 ## Canonical Docs
 
-- [Project overview](handoffs/outgoing/2026-06-13-autofusion-project-overview.md)
+- [ENACT core proposal](paper/proposal/2026-06-19-ENACT-core-proposal.zh.md)
+- [Naming decision](decision/proposals/2026-06-19-naming-decision-ENACT.zh.md)
+- [Project overview](decision/handoffs/outgoing/2026-06-13-autofusion-project-overview.md)
 - [Experiment constitution](governance/EXPERIMENT_CONSTITUTION.md)
+- [Experiment constitution v2 note](governance/2026-06-19-experiment-constitution-v2.zh.md)
+- [Collaboration workflow](governance/COLLABORATION_WORKFLOW.md)
+- [Repository structure](governance/REPOSITORY_STRUCTURE.md)
 - [Roadmap](governance/ROADMAP.md)
+- [AAAI-27 timeline and gates](governance/2026-06-19-aaai27-timeline-and-gates.zh.md)
 - [Repository audit](governance/2026-06-13-repo-audit.md)
+- [Research proposal](paper/proposal/2026-06-19-evidence-governance-research-proposal.md)
+- [Detailed research proposal](paper/proposal/2026-06-19-detailed-research-proposal.zh.md)
+- [Experiment plan](decision/plans/exp-002/2026-06-19-experiment-plan.zh.md)
 - [Active experiment runbook](experiments/exp-002-diag-action-pilot/RUNBOOK.md)
 - [Annotation workflow spec](skills/autofusion-annotation/references/data_spec.md)
 
@@ -81,13 +95,14 @@ These smoke results prove the protocol can run. They are not paper-level finding
 
 | Path | Role |
 |---|---|
+| `governance/` | Constitution, collaboration workflow, roadmap, audit, and repository structure. |
+| `decision/` | Decision Team proposals, plans, reviews, literature notes, handoffs, and ops notes. |
 | `experiments/exp-002-diag-action-pilot/` | Active diagnosis-to-action pilot. |
+| `paper/` | Manuscript-facing proposal, story, tables, and drafts. |
 | `skills/autofusion-annotation/` | Reusable annotation workflow and schema contract. |
-| `governance/` | Experiment constitution, cleanup policy, and roadmap. |
-| `handoffs/outgoing/` | Current project overview, junior brief, and expert handoffs. |
-| `paper/2026-06-08-evidence-governance-story.md` | Current paper story after expert feedback. |
-| `reviews/` | Expert feedback synthesis and review notes. |
+| `memory/` | Current project status and recovery pointers. |
 | `archive/2026-06-pre-exp002-reset/` | Historical exp-001 / May 2026 material moved out of the active workspace. |
+| `external/` | Ignored local-only incoming artifacts and Drive mirrors. |
 
 ## Cleanup Boundary
 

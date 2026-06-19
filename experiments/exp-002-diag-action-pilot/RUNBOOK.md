@@ -36,9 +36,9 @@ rsync -avR \
   .lablock/variables.yaml \
   .lablock/matrices.yaml \
   experiments/exp-002-diag-action-pilot \
-  plans/2026-06-08-exp-diagnosis-to-action-pilot.md \
-  reviews/2026-06-08-pilot-expert-replies-synthesis.md \
-  handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-v2.md \
+  decision/plans/2026-06-08-exp-diagnosis-to-action-pilot.md \
+  decision/reviews/2026-06-08-pilot-expert-replies-synthesis.md \
+  decision/handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-v2.md \
   paper/2026-06-08-evidence-governance-story.md \
   ntu-gpu43:/usr1/home/s125mdg43_10/projects/AutoFusion-bench/
 ```

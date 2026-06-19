@@ -1,6 +1,6 @@
 ---
 type: pilot-expert-reply-synthesis
-target: handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-expert-review.md
+target: decision/handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-expert-review.md
 created: 2026-06-08
 sources:
   - /Users/starryyu/.codex/attachments/4513bf3e-ac9f-40cd-880c-c0b8fa45be07/pasted-text.txt

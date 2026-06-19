@@ -17,4 +17,3 @@ task-specific robust multimodal baselines.
 
 Do not treat a final-task improvement alone as the main contribution. Baselines
 must expose diagnosis, recovery, routing, and abstention behavior when possible.
-

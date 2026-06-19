@@ -48,7 +48,7 @@ Top-level docs should point readers first to:
 
 - `governance/EXPERIMENT_CONSTITUTION.md`
 - `governance/ROADMAP.md`
-- `handoffs/outgoing/2026-06-13-autofusion-project-overview.md`
+- `decision/handoffs/outgoing/2026-06-13-autofusion-project-overview.md`
 - `experiments/exp-002-diag-action-pilot/`
 
 Do not make `exp-001` appear as the current mainline.
@@ -115,7 +115,10 @@ Required before migration:
 - keep large media and raw packages out of GitHub;
 - run tests and `git diff --check` before pushing.
 
-Status: structure design drafted on 2026-06-19; migration not yet executed.
+Status: first structure migration executed on 2026-06-19 in
+`codex/repo-structure-cleanup`: Decision Team documents moved under
+`decision/`, proposal/table material organized under `paper/`, obsolete root
+placeholder README files archived, and `exp-002` received a local README entry.
 
 ## Phase 2: Local Workspace Cleanup Plan
 

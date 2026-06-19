@@ -1,6 +1,6 @@
 ---
 type: expert-reply-synthesis
-target: handoffs/outgoing/2026-06-08-diagnostic-benchmark-expert-review.md
+target: decision/handoffs/outgoing/2026-06-08-diagnostic-benchmark-expert-review.md
 created: 2026-06-08
 sources:
   - /Users/starryyu/.codex/attachments/643d8091-1437-4a03-83db-370039f1c115/pasted-text.txt

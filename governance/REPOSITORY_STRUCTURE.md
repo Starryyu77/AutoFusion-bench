@@ -1,6 +1,6 @@
 # AutoFusion-Bench 仓库结构重设计
 
-> Status: Design v0.1
+> Status: Design v0.2, first migration executed
 > Date: 2026-06-19
 > Purpose: 重新设计本地仓库和 GitHub 仓库结构，让 Decision Team、人类研究人员和 AI Agent 都能低成本协作。
 
@@ -101,11 +101,11 @@ Decision Team 的研究判断材料。
 
 ```text
 decision/
-  proposals/
+  handoffs/
+  literature/
+  ops/
   plans/
   reviews/
-  literature/
-  handoffs/
 ```
 
 迁移来源：
@@ -116,7 +116,8 @@ decision/
 | `reviews/` | `decision/reviews/` |
 | `lit/` | `decision/literature/` |
 | `handoffs/` | `decision/handoffs/` |
-| 顶层散落 proposal | `decision/proposals/` 或 `paper/` |
+| `infra/gpu/` | `decision/ops/gpu/` |
+| 顶层散落 proposal | `paper/proposal/` |
 
 职责：
 
@@ -177,12 +178,6 @@ paper/
 ```
 
 当前 proposal：
-
-```text
-paper/2026-06-19-evidence-governance-research-proposal.md
-```
-
-可以后续迁移为：
 
 ```text
 paper/proposal/2026-06-19-evidence-governance-research-proposal.md
@@ -279,18 +274,20 @@ external/
 
 这可以替代当前顶层 `产物/` 这种不可解释目录。
 
-## 4. 当前目录迁移建议
+## 4. 当前目录迁移状态
 
-### 4.1 立即可整理
+### 4.1 已完成整理
 
-| 当前 | 建议 |
+| 原位置 | 当前处理 |
 |---|---|
-| 顶层 `2026-06-19-evidence-governance-research-proposal.md` | 若与 `paper/` 内版本重复，删除或移动到 `external/incoming/` 后核对 |
-| `lit/` | 后续迁到 `decision/literature/` |
-| `plans/` | 后续迁到 `decision/plans/` |
-| `reviews/` | 后续迁到 `decision/reviews/` |
-| `handoffs/` | 后续迁到 `decision/handoffs/` |
-| `产物/` | 不再使用；新外部材料进入 `external/incoming/` |
+| 顶层重复 proposal | 已从 Git 视图移出；正式版本在 `paper/proposal/` |
+| `lit/` | 已迁到 `decision/literature/` |
+| `plans/` | 已迁到 `decision/plans/` |
+| `reviews/` | 已迁到 `decision/reviews/` |
+| `handoffs/` | 已迁到 `decision/handoffs/` |
+| `infra/gpu/` | 已迁到 `decision/ops/gpu/` |
+| `data/`, `models/`, `evals/`, `derivations/` | 顶层占位 README 已归档到 `archive/2026-06-pre-exp002-reset/root-placeholders/` |
+| `产物/` | 不再使用；新外部材料进入 ignored `external/incoming/` |
 
 ### 4.2 暂时不要动
 
@@ -306,10 +303,8 @@ external/
 
 | 当前 | 问题 |
 |---|---|
-| `data/`, `models/`, `evals/`, `derivations/` | 当前主要是 README，占顶层认知空间；可合并或归档 |
-| `infra/gpu/` | 可迁到 `ops/server/` 或 `decision/handoffs/server/` |
 | `autofusion_bench/` | 若迁到 `src/`，需要改 import 和 tests |
-| `paper/` 下散落文件 | 可整理成 `paper/proposal/`, `paper/drafts/`, `paper/tables/` |
+| `paper/` 下旧故事稿 | 暂保留为 paper-facing story；如进入正式论文写作再迁入 `paper/drafts/` |
 
 ## 5. 推荐迁移阶段
 
@@ -337,6 +332,10 @@ paper/tables/
 paper/figures/
 ```
 
+Status: partially done on 2026-06-19. `decision/`, `paper/proposal/`,
+`paper/tables/`, and ignored `external/` now exist. Empty future-only
+subfolders such as `paper/figures/` may be added when needed.
+
 ### Phase 2: Move Decision Team documents
 
 移动轻量文档：
@@ -345,7 +344,8 @@ paper/figures/
 - `plans/` -> `decision/plans/`
 - `reviews/` -> `decision/reviews/`
 - `handoffs/` -> `decision/handoffs/`
-- loose proposal -> `paper/proposal/` or `decision/proposals/`
+- `infra/gpu/` -> `decision/ops/gpu/`
+- loose proposal -> `paper/proposal/`
 
 移动后必须更新：
 
@@ -354,6 +354,11 @@ paper/figures/
 - `INDEX.md`
 - `governance/ROADMAP.md`
 - `memory/tasks/exp-002.md`
+
+Status: first pass done on 2026-06-19. `lit/`, `plans/`, `reviews/`,
+`handoffs/`, and `infra/gpu/` were removed from the top-level view and their
+current files were moved under `decision/`. Active exp-002 data and result
+folders were not moved.
 
 ### Phase 3: Clean root
 
@@ -377,6 +382,11 @@ archive/
 external/    # ignored
 ```
 
+Status: partially done. Top-level placeholder `data/`, `models/`, `evals/`,
+and `derivations/` README files were archived under
+`archive/2026-06-pre-exp002-reset/root-placeholders/`. Package/code migration
+from `autofusion_bench/` to `src/` is not yet executed.
+
 ### Phase 4: Active experiment README
 
 给 exp-002 加一个简洁入口：
@@ -394,6 +404,8 @@ experiments/exp-002-diag-action-pilot/README.md
 - 下一步；
 - 谁负责执行；
 - 哪些目录 ignored。
+
+Status: done on 2026-06-19.
 
 ### Phase 5: Server mirror
 
@@ -436,18 +448,16 @@ AI Agent 接手时固定读：
 
 这样 Agent 不需要扫描全仓来猜边界，也不容易把 archive 当 active state。
 
-## 8. 本次建议
+## 8. Remaining Cleanup Recommendations
 
-不要立刻大规模移动所有文件。
+第一轮迁移已经完成，但不要立刻继续大规模移动 active experiment 或
+package code。
 
-建议下一步做一个专门 cleanup PR：
+建议后续另开小 PR 处理：
 
-1. 新建 `decision/` 和 `external/` skeleton；
-2. 移动轻量 Decision Team 文档；
-3. 清理顶层 loose proposal；
-4. 为 exp-002 添加 README；
-5. 更新所有入口文件；
-6. 跑测试和链接检查；
-7. 再合并到 GitHub。
+1. 如果需要，将 `autofusion_bench/` 迁到 `src/autofusion_bench/`，但要先更新 imports/tests；
+2. 如果需要，把 `skills/autofusion-annotation/` 和 annotation app 抽成 `tools/`，但不要在 exp-002 gold freeze 前做；
+3. 检查 `claims.md` / `formalism.md` / LabLock 相关文件是否应该保留在 root；
+4. 等 server audit 恢复后，让服务器目录镜像同一结构。
 
-这会比一次性重排所有目录更稳，也更适合当前 Decision Team / Execution Team 协作模式。
+这些后续项都可能影响 import、LabLock 或实验执行路径，不应和本次轻量文档迁移混在同一个 PR。

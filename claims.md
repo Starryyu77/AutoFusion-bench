@@ -12,7 +12,7 @@ Claims are divided into accepted positioning, active hypotheses, smoke evidence,
 - **Strength**: accepted current direction.
 - **Evidence**:
   - `paper/2026-06-08-evidence-governance-story.md`
-  - `handoffs/outgoing/2026-06-13-autofusion-project-overview.md`
+  - `decision/handoffs/outgoing/2026-06-13-autofusion-project-overview.md`
   - `governance/EXPERIMENT_CONSTITUTION.md`
 - **Boundary**: This is a framing claim, not yet a final empirical paper result.
 
@@ -22,8 +22,8 @@ Claims are divided into accepted positioning, active hypotheses, smoke evidence,
 - **Strength**: literature-backed positioning.
 - **Evidence**:
   - `paper/reference-pack` was archived locally, but the related-work boundary is summarized in `paper/2026-06-08-evidence-governance-story.md`.
-  - `reviews/2026-06-08-expert-replies-synthesis.md`
-  - `reviews/2026-06-08-pilot-expert-replies-synthesis.md`
+  - `decision/reviews/2026-06-08-expert-replies-synthesis.md`
+  - `decision/reviews/2026-06-08-pilot-expert-replies-synthesis.md`
 - **Boundary**: The final paper still needs a polished related-work table and up-to-date citation verification.
 
 ## C003: Active Pilot Scope
@@ -31,7 +31,7 @@ Claims are divided into accepted positioning, active hypotheses, smoke evidence,
 - **Statement**: The first meaningful pilot should test audio-video evidence governance under textual queries, not full text-audio-video evidence governance.
 - **Strength**: accepted pilot-scope correction.
 - **Evidence**:
-  - `handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-v2.md`
+  - `decision/handoffs/outgoing/2026-06-08-diagnosis-to-action-pilot-v2.md`
   - `experiments/exp-002-diag-action-pilot/hypothesis.md`
   - `experiments/exp-002-diag-action-pilot/RUNBOOK.md`
 - **Boundary**: A future text-evidence subset may extend the claim if subtitles, ASR transcripts, or captions are added as true evidence modalities.
@@ -69,7 +69,7 @@ Claims are divided into accepted positioning, active hypotheses, smoke evidence,
 - **Statement**: AVQA / AVQA-videos is the preferred first substrate; MUSIC-AVQA is backup; MELD / CMU-MOSI / CMU-MOSEI / IEMOCAP are not current main positive substrates.
 - **Strength**: accepted execution boundary.
 - **Evidence**:
-  - `handoffs/outgoing/2026-06-09-mini-pilot-junior-brief.md`
+  - `decision/handoffs/outgoing/2026-06-09-mini-pilot-junior-brief.md`
   - `experiments/exp-002-diag-action-pilot/RUNBOOK.md`
   - `governance/EXPERIMENT_CONSTITUTION.md`
 - **Boundary**: Affective datasets may remain diagnostic/control references.
