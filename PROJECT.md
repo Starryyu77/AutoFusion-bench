@@ -17,8 +17,9 @@ MLLMs may show a **diagnosis-to-action gap**:
 The current pilot is intentionally scoped to:
 
 - audio-video evidence governance under textual queries;
-- AVQA / AVQA-videos first;
-- MUSIC-AVQA as backup;
+- DAVE for audio-video joint / conflict cases;
+- AVQA / AVQA-videos for pipeline validation and control cases;
+- FortisAVQA and MUSIC-AVQA v2 as backups;
 - Qwen Omni models as the first verified model panel;
 - no paper-level claim from the 4-row smoke result.
 
@@ -32,9 +33,9 @@ experiments/exp-002-diag-action-pilot/
 
 Current target:
 
-1. prepare 80-120 candidate AVQA-style clean source items;
-2. select 10 high-quality source items for a mini-pilot;
-3. generate about 40 corrupted instances;
+1. screen 20-30 DAVE candidates and select 8-10 true audio-video joint / conflict source items;
+2. keep 2-4 AVQA control source items from existing assets;
+3. generate about 40-50 corrupted instances;
 4. annotate source quality, post-corruption answerability, recoverability, oracle route, and abstention;
 5. run diagnosis-only prompts;
 6. run model action from frozen diagnosis;
@@ -52,6 +53,7 @@ Completed:
 - annotation sheet generator, validator, scorer, diagnosis prompt, action prompt, and fixed-rule path implemented;
 - 4-row smoke gold frozen;
 - real-action smoke run completed.
+- AVQA 10-source / 40-corrupted draft exists, but AVQA is now treated as pipeline/control rather than the main positive substrate.
 
 Observed in smoke:
 
@@ -62,11 +64,13 @@ Observed in smoke:
 Boundary:
 
 - This is protocol evidence, not a paper-level finding.
-- The next meaningful evidence gate is the 10-source / 40-instance mini-pilot.
+- The next meaningful evidence gate is a DAVE+AVQA mini-pilot, roughly
+  10-12 source items and 40-50 corrupted instances.
 
 ## Current Canonical Files
 
 - `governance/EXPERIMENT_CONSTITUTION.md`
+- `START_HERE.zh.md`
 - `governance/2026-06-19-experiment-constitution-v2.zh.md`
 - `governance/COLLABORATION_WORKFLOW.md`
 - `governance/REPOSITORY_STRUCTURE.md`
@@ -85,6 +89,6 @@ Boundary:
 1. Review and merge the dedicated cleanup PR from `codex/repo-structure-cleanup`.
 2. After merge, treat `governance/`, `decision/`, `experiments/`, `paper/`, `memory/`, and `archive/` as the default workspace layout.
 3. Restore `ntu-gpu43` SSH access and audit the server checkout before server cleanup.
-4. Have the junior collaborator prepare AVQA candidate sources.
-5. Run the 10-source / 40-instance mini-pilot.
+4. Have the execution team screen DAVE candidates and retain AVQA controls.
+5. Build the DAVE+AVQA mini-pilot and run Gate 1.
 6. Use the result to decide whether to scale to 40 sources / 160 scored instances.

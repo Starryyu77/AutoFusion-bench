@@ -1,5 +1,8 @@
 # AutoFusion-Bench
 
+> 如果你是项目负责人、组会汇报人或新加入的执行同学，请先看
+> [START_HERE.zh.md](START_HERE.zh.md)。那里是当前项目导航、实验位置和下一步计划。
+
 AutoFusion-Bench is currently being organized around one research question:
 
 > Can multimodal large language models act correctly on their own diagnosis of unreliable multimodal evidence?
@@ -38,15 +41,16 @@ experiments/exp-002-diag-action-pilot/
 Scope:
 
 - audio-video evidence governance under textual queries;
-- AVQA / AVQA-videos as the first substrate;
-- MUSIC-AVQA as backup;
+- DAVE as the main substrate for audio-video joint / conflict cases;
+- AVQA / AVQA-videos as pipeline and control substrates;
+- FortisAVQA and MUSIC-AVQA v2 as backups;
 - Qwen Omni models as the first verified audio-video model panel;
 - MELD / MOSI / MOSEI / IEMOCAP are not the current main positive substrate.
 
 Current near-term target:
 
 ```text
-10 clean source items -> about 40 corrupted instances -> annotation -> model diagnosis/action -> scorer
+DAVE+AVQA mini-pilot -> about 40-50 corrupted instances -> annotation -> model diagnosis/action -> scorer
 ```
 
 Next scale target:

@@ -4,6 +4,7 @@
 
 ## Start Here
 
+- [START_HERE.zh.md](START_HERE.zh.md) - Chinese owner-facing entrypoint: current project, active experiment, key docs, and next-week plan.
 - [README.md](README.md) - public-facing project overview.
 - [PROJECT.md](PROJECT.md) - current project snapshot and next actions.
 - [governance/EXPERIMENT_CONSTITUTION.md](governance/EXPERIMENT_CONSTITUTION.md) - rules for experiments, gold labels, metrics, archive, GitHub, and server cleanup.

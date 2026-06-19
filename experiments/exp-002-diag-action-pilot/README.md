@@ -13,14 +13,27 @@ diagnose that audio/video evidence is unreliable, but still choose the wrong
 route, answer when it should abstain, or rely on the modality it just marked as
 broken.
 
-## Current Batch
+## Existing Batch
 
-Mini-pilot:
+Existing AVQA mini-pilot assets:
 
 - 10 clean source items;
 - 40 corrupted instances;
 - source-level modality labels frozen;
 - corrupted-instance review is still a draft, not scorer gold.
+
+This batch is now treated as pipeline/control material. It should not be used
+as the main positive evidence for the paper because AVQA is too easy and can
+contain shortcut-solvable cases.
+
+## Current Gate-1 Batch
+
+The next meaningful Gate-1 batch should be rebuilt as:
+
+- 8-10 DAVE source items for audio-video joint / conflict cases;
+- 2-4 AVQA source items for audio-only, video-only, or irrelevant-corruption
+  controls;
+- about 40-50 corrupted instances total.
 
 Current review entry:
 
@@ -32,13 +45,14 @@ Current review entry:
 
 ## Current Gate
 
-Before any model run on the 40-row mini-pilot:
+Before any model run on the Gate-1 mini-pilot:
 
-1. fix or replace the `audio_mute` media so mute means silent-present audio,
-   not missing audio stream;
-2. adjudicate partial / unclear / empty-oracle-route rows;
-3. freeze `annotations/mini_pilot.gold.jsonl`;
-4. run diagnosis, real action, fixed-rule control, and scorer.
+1. finish source screening and reject question-only / single-modality shortcut
+   cases;
+2. generate corruption with consistent audio+video containers;
+3. adjudicate partial / unclear / empty-oracle-route rows;
+4. freeze `annotations/mini_pilot.gold.jsonl`;
+5. run diagnosis, real action, fixed-rule control, and scorer.
 
 Gold freeze is a Decision Team action. AI Agent and research executors may
 prepare recommendations, validators, and scorer checks, but should not freeze
@@ -66,6 +80,7 @@ workspace:
 
 - `decision/plans/exp-002/2026-06-19-gold-freeze-adjudication-plan.md`
 - `decision/plans/exp-002/2026-06-19-substrate-derisk.md`
+- `decision/plans/exp-002/2026-06-19-experiment-plan.zh.md`
 - `paper/proposal/2026-06-19-evidence-governance-research-proposal.md`
 - `paper/tables/2026-06-19-headline-metric-and-main-table.md`
 
